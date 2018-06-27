@@ -10,7 +10,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 /**
- * Fasst Silben-getrennte Wörten am Zeilenende zusammen. Bindestriche im Text werden entfernt, wenn vor
+ * Fasst Silben-getrennte Wörter am Zeilenende zusammen. Bindestriche im Text werden entfernt, wenn vor
  * und nach dem Bindestrich ein Kleinbuchstabe kommt.
  */
 public class PostProcess

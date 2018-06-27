@@ -2,6 +2,7 @@ package org.github.cradloff.scanutils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -21,6 +22,10 @@ import java.util.Set;
 
 /**
  * Ersetzt falsch geschriebene Worte durch die korrekte Version.
+ * Die Klasse benötigt ein Wörterbuch (german.dic) und eine Datei mit Rechtschreib-Korrekturen (rechtschreibung.csv)
+ * im Verzeichnis der Eingabedatei oder darüber.
+ * Das Wörterbuch kann z.B. von hier bezogen werden: https://sourceforge.net/projects/germandict/
+ * Die Rechtschreib-Korrekturen müssen jeweils den Suchbegriff und die Ersetzung in einer Zeile, durch Tab getrennt, enthalten.
  */
 public class PreProcess
 {
@@ -40,8 +45,10 @@ public class PreProcess
 		System.out.println("Verarbeite Datei " + args[0]);
 
 		// CSV-Datei mit Rechtschreib-Fehlern einlesen
-		Map<String, String> map = readCSV(input.getAbsoluteFile().getParentFile());
-		Set<String> dict = readDict();
+		File baseDir = input.getAbsoluteFile().getParentFile();
+		Map<String, String> map = readCSV(baseDir);
+		// Wörterbuch einlesen
+		Set<String> dict = readDict(baseDir);
 
 		// Datei umbenennen
 		String backup = args[0].substring(0, args[0].lastIndexOf('.')) + ".bak";
@@ -55,42 +62,51 @@ public class PreProcess
 		}
 	}
 
-	private static Set<String> readDict() throws IOException {
+	private static Set<String> readDict(File dir) throws IOException {
 		Set<String> dict = new HashSet<>();
-		try (InputStream in = PreProcess.class.getResourceAsStream("/german/german.dic");
+		File file = find(dir, "german.dic");
+		try (InputStream in = new FileInputStream(file);
 				Reader reader = new InputStreamReader(in, Charset.forName("ISO-8859-15"));
 				BufferedReader br = new BufferedReader(reader)) {
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
 				dict.add(line);
 			}
 		}
+		System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict.size());
+
 		return dict;
 	}
 
 	private static Map<String, String> readCSV(File dir) throws IOException {
+		Map<String, String> map = new HashMap<>();
+		File file = find(dir, "rechtschreibung.csv");
+		try (FileReader fr = new FileReader(file);
+				BufferedReader br = new BufferedReader(fr);) {
+			for (String line = br.readLine(); line != null; line = br.readLine()) {
+				line = line.trim();
+				if (! line.isEmpty()) {
+					String[] s = line.split("\t");
+					map.put(s[0], s[1]);
+				}
+			}
+		}
+		System.out.printf("verwende Rechtschreibung %s (%,d Einträge)%n", file.getPath(), map.size());
+
+		return map;
+	}
+
+	private static File find(File dir, String filename) throws FileNotFoundException {
 		if (dir == null) {
-			throw new FileNotFoundException();
+			throw new FileNotFoundException(filename);
 		}
 
 		// Die Datei rekursiv nach oben suchen
-		File file = new File(dir, "rechtschreibung.csv");
+		File file = new File(dir, filename);
 		if (file.exists()) {
-			Map<String, String> map = new HashMap<>();
-			try (FileReader fr = new FileReader(file);
-					BufferedReader br = new BufferedReader(fr);) {
-				for (String line = br.readLine(); line != null; line = br.readLine()) {
-					line = line.trim();
-					if (! line.isEmpty()) {
-						String[] s = line.split("\t");
-						map.put(s[0], s[1]);
-					}
-				}
-			}
-
-			return map;
+			return file;
 		}
 
-		return readCSV(dir.getParentFile());
+		return find(dir.getParentFile(), filename);
 	}
 
 	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {
@@ -99,17 +115,24 @@ public class PreProcess
 		String line = reader.readLine();
 		int count = 0;
 		do {
+			// Zeile in Token zerlegen
 			List<String> s = split(line);
 			for (int i = 0; i < s.size(); i++) {
 				String t = s.get(i);
+				// ggf. Bindestriche entfernen
 				String word = t.replaceAll("-", "");
+				// Original-Token in Map?
 				if (map.containsKey(t)) {
 					count++;
 					writer.print(map.get(t));
-				} else if (map.containsKey(word)) {
+				}
+				// Wort ohne Bindestriche in Map?
+				else if (map.containsKey(word)) {
 					count++;
 					writer.print(map.get(word));
-				} else if (dict.contains(word) && i != s.size() - 1) {
+				}
+				// Wort ohne Bindestriche im Wörterbuch (nicht am Zeilenende!)?
+				else if (dict.contains(word) && i != s.size() - 1) {
 					writer.print(word);
 				} else {
 					writer.print(t);
