@@ -2,17 +2,13 @@ package org.github.cradloff.scanutils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,9 +61,8 @@ public class PreProcess
 	private static Set<String> readDict(File dir) throws IOException {
 		Set<String> dict = new HashSet<>();
 		File file = find(dir, "german.dic");
-		try (InputStream in = new FileInputStream(file);
-				Reader reader = new InputStreamReader(in, Charset.forName("ISO-8859-15"));
-				BufferedReader br = new BufferedReader(reader)) {
+		try (FileReader fr = new FileReader(file);
+				BufferedReader br = new BufferedReader(fr);) {
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
 				dict.add(line);
 			}
