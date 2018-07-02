@@ -2,7 +2,6 @@ package org.github.cradloff.scanutils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +42,7 @@ public class PreProcess
 		File baseDir = input.getAbsoluteFile().getParentFile();
 		Map<String, String> map = readCSV(baseDir);
 		// Wörterbuch einlesen
-		Set<String> dict = readDict(baseDir);
+		Set<String> dict = FileAccess.readDict(baseDir, "german.dic");
 
 		// Datei umbenennen
 		String backup = args[0].substring(0, args[0].lastIndexOf('.')) + ".bak";
@@ -58,23 +56,9 @@ public class PreProcess
 		}
 	}
 
-	private static Set<String> readDict(File dir) throws IOException {
-		Set<String> dict = new HashSet<>();
-		File file = find(dir, "german.dic");
-		try (FileReader fr = new FileReader(file);
-				BufferedReader br = new BufferedReader(fr);) {
-			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				dict.add(line);
-			}
-		}
-		System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict.size());
-
-		return dict;
-	}
-
 	private static Map<String, String> readCSV(File dir) throws IOException {
 		Map<String, String> map = new HashMap<>();
-		File file = find(dir, "rechtschreibung.csv");
+		File file = FileAccess.find(dir, "rechtschreibung.csv");
 		try (FileReader fr = new FileReader(file);
 				BufferedReader br = new BufferedReader(fr);) {
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
@@ -88,20 +72,6 @@ public class PreProcess
 		System.out.printf("verwende Rechtschreibung %s (%,d Einträge)%n", file.getPath(), map.size());
 
 		return map;
-	}
-
-	private static File find(File dir, String filename) throws FileNotFoundException {
-		if (dir == null) {
-			throw new FileNotFoundException(filename);
-		}
-
-		// Die Datei rekursiv nach oben suchen
-		File file = new File(dir, filename);
-		if (file.exists()) {
-			return file;
-		}
-
-		return find(dir.getParentFile(), filename);
 	}
 
 	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {

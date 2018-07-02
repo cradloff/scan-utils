@@ -9,6 +9,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -82,7 +83,7 @@ public class CreateDictionary {
 		}
 	}
 
-	private static void readWords(File file, Set<String> dictionary) throws IOException {
+	static void readWords(File file, Collection<String> words) throws IOException {
 //		System.out.println("Lese " + file.getAbsolutePath());
 		try (FileReader fr = new FileReader(file);
 				BufferedReader reader = new BufferedReader(fr);) {
@@ -90,7 +91,7 @@ public class CreateDictionary {
 			do {
 				// Zeile in Token zerlegen
 				List<String> s = split(line);
-				dictionary.addAll(s);
+				words.addAll(s);
 
 				line = reader.readLine();
 			}
