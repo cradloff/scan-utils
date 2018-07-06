@@ -39,10 +39,9 @@ public class PreProcess
 		System.out.println("Verarbeite Datei " + args[0]);
 
 		// CSV-Datei mit Rechtschreib-Fehlern einlesen
-		File baseDir = input.getAbsoluteFile().getParentFile();
-		Map<String, String> map = readCSV(baseDir);
+		Map<String, String> map = readCSV(input);
 		// Wörterbuch einlesen
-		Set<String> dict = FileAccess.readDict(baseDir, "german.dic");
+		Set<String> dict = FileAccess.readDict(input, "german.dic");
 
 		// Datei umbenennen
 		String backup = args[0].substring(0, args[0].lastIndexOf('.')) + ".bak";
@@ -56,9 +55,9 @@ public class PreProcess
 		}
 	}
 
-	private static Map<String, String> readCSV(File dir) throws IOException {
+	private static Map<String, String> readCSV(File basefile) throws IOException {
 		Map<String, String> map = new HashMap<>();
-		File file = FileAccess.find(dir, "rechtschreibung.csv");
+		File file = FileAccess.find(basefile, "rechtschreibung.csv");
 		try (FileReader fr = new FileReader(file);
 				BufferedReader br = new BufferedReader(fr);) {
 			for (String line = br.readLine(); line != null; line = br.readLine()) {

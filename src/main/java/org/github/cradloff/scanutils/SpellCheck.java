@@ -32,12 +32,12 @@ public class SpellCheck {
 		}
 
 		// Wörterbuch einlesen
-		Set<String> dict = FileAccess.readDict(file.getParentFile(), "german.dic");
+		Set<String> dict = FileAccess.readDict(file, "german.dic");
 		// Wörter aus Rechtschreibhilfe hinzufügen
-		CreateDictionary.readWords(FileAccess.find(file.getParentFile(), "rechtschreibung.csv"), dict);
+		CreateDictionary.readWords(FileAccess.find(file, "rechtschreibung.csv"), dict);
 
 		// Datei prüfen
-		File spellcheck = new File(file.getParentFile(), "spellcheck.txt");
+		File spellcheck = new File(FileAccess.basedir(file), "spellcheck.txt");
 		System.out.printf("überprüfe Datei %s%n", file);
 		System.out.printf("schreibe nicht gefundene Wörter nach %s%n", spellcheck);
 		try (Writer fw = new FileWriter(spellcheck);
