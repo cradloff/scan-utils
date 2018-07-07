@@ -5,11 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Set;
 
 import org.apache.commons.collections4.Bag;
-import org.apache.commons.collections4.bag.HashBag;
+import org.apache.commons.collections4.bag.TreeBag;
 
 /**
  * Vergleicht die Wörter einer Datei mit einem Wörterbuch. Nicht gefundene
@@ -43,19 +42,16 @@ public class SpellCheck {
 		try (Writer fw = new FileWriter(spellcheck);
 				PrintWriter out = new PrintWriter(fw)) {
 			// alle Wörter einlesen
-			Bag<String> words = new HashBag<>();
+			Bag<String> words = new TreeBag<>();
 			CreateDictionary.readWords(file, words);
 			// Wörter aus Wörterbuch entfernen
 			for (String word : dict) {
 				words.remove(word);
 			}
 
-			// einmalige Treffer aussortieren
-			words.removeAll(new ArrayList<>(words.uniqueSet()));
-
 			// und ausgeben
 			for (String word : words.uniqueSet()) {
-				out.printf("%s\t%,d%n", word, words.getCount(word) + 1);
+				out.printf("%s\t%,d%n", word, words.getCount(word));
 			}
 
 			System.out.printf("Anzahl nicht gefundener Wörter: %,d, Zeit: %,dms%n",
