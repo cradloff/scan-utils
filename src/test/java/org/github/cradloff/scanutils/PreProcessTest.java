@@ -19,4 +19,11 @@ public class PreProcessTest {
 		List<String> words = PreProcess.split(line);
 		assertEquals(Arrays.asList(wordsExcpected), words);
 	}
+
+	@Test public void removeDashes() {
+		assertEquals("Wort", PreProcess.removeDashes("Wort"));
+		assertEquals("Wort", PreProcess.removeDashes("Wo-rt"));
+		assertEquals("Wort", PreProcess.removeDashes("W-o--r-t"));
+		assertEquals("Wort-", PreProcess.removeDashes("Wort-"));
+	}
 }

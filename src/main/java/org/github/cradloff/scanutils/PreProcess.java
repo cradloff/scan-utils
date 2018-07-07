@@ -83,8 +83,8 @@ public class PreProcess
 			List<String> s = split(line);
 			for (int i = 0; i < s.size(); i++) {
 				String t = s.get(i);
-				// ggf. Bindestriche entfernen
-				String word = t.replaceAll("-", "");
+				// ggf. Bindestriche entfernen, außer am Wortende
+				String word = removeDashes(t);
 				// Original-Token in Map?
 				if (map.containsKey(t)) {
 					count++;
@@ -109,6 +109,20 @@ public class PreProcess
 		while (line != null);
 
 		return count;
+	}
+
+	static String removeDashes(String word) {
+		StringBuilder sb = new StringBuilder(word.length());
+		for (int i = 0; i < word.length(); i++) {
+			char ch = word.charAt(i);
+			if (ch == '-' && i < word.length() - 1) {
+				;
+			} else {
+				sb.append(ch);
+			}
+		}
+
+		return sb.toString();
 	}
 
 	private enum State { WHITESPACE, WORD, OTHER }
