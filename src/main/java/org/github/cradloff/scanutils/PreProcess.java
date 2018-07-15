@@ -83,6 +83,9 @@ public class PreProcess
 			List<String> s = split(line);
 			// 7er etc. ersetzen
 			s = replaceSeven(s);
+			// groß Zu durch klein zu ersetzen
+			s = replaceZu(s);
+
 			for (int i = 0; i < s.size(); i++) {
 				String t = s.get(i);
 				// ggf. Bindestriche entfernen, außer am Wortende
@@ -129,6 +132,16 @@ public class PreProcess
 		}
 
 		return result;
+	}
+
+	public static List<String> replaceZu(List<String> words) {
+		// alle 'Zu', die nicht am Zeilenanfang oder nach einem Punkt kommen, durch 'zu' ersetzen
+		for (int i = 2; i < words.size(); i++) {
+			if (words.get(i).equals("Zu") && words.get(i - 1).equals(" ") && ! words.get(i - 2).equals(".")) {
+				words.set(i, "zu");
+			}
+		}
+		return words;
 	}
 
 	static String removeDashes(String word) {

@@ -48,6 +48,19 @@ public class PreProcessTest {
 		assertEquals(expected, actual);
 	}
 
+	@Test public void testZu() {
+		checkZu("Zu Anfang zu klein.", "Zu Anfang zu klein.");
+		checkZu("Zu Anfang Zu klein.", "Zu Anfang zu klein.");
+		checkZu("Ah. Zu Anfang Zu klein.", "Ah. Zu Anfang zu klein.");
+	}
+
+	private void checkZu(String line, String expected) {
+		List<String> words = PreProcess.split(line);
+		words = PreProcess.replaceZu(words);
+		String actual = String.join("", words);
+		assertEquals(expected, actual);
+	}
+
 	@Test public void testPreProcess() throws IOException {
 		Map<String, String> spellcheck = new HashMap<>();
 		spellcheck.put("Aiie", "Alle");
@@ -60,6 +73,8 @@ public class PreProcessTest {
 		checkPreProcess("Alle mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck);
 		checkPreProcess("Aiie miene Entchen\n", "Alle meine Entchen\n", dict, spellcheck);
 		checkPreProcess("Alle7 meine7i Entchen7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
+		checkPreProcess("Zu Wasser und Zu Lande\n", "Zu Wasser und zu Lande\n", dict, spellcheck);
+		checkPreProcess("Alle miene Ent-chen Zu Wasser-teich!\n", "Alle meine Entchen zu Wasser-teich!\n", dict, spellcheck);
 	}
 
 	private void checkPreProcess(String line, String expected, Set<String> dict, Map<String, String> spellcheck) throws IOException {
