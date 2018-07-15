@@ -81,6 +81,8 @@ public class PreProcess
 		do {
 			// Zeile in Token zerlegen
 			List<String> s = split(line);
+			// 7er etc. ersetzen
+			s = replaceSeven(s);
 			for (int i = 0; i < s.size(); i++) {
 				String t = s.get(i);
 				// ggf. Bindestriche entfernen, außer am Wortende
@@ -95,8 +97,8 @@ public class PreProcess
 					count++;
 					writer.print(map.get(word));
 				}
-				// Wort ohne Bindestriche im Wörterbuch (nicht am Zeilenende!)?
-				else if (dict.contains(word) && i != s.size() - 1) {
+				// Wort ohne Bindestriche im Wörterbuch?
+				else if (dict.contains(word)) {
 					writer.print(word);
 				} else {
 					writer.print(t);
@@ -109,6 +111,24 @@ public class PreProcess
 		while (line != null);
 
 		return count;
+	}
+
+	static List<String> replaceSeven(List<String> input) {
+		List<String> result = new ArrayList<>();
+		for (String s : input) {
+			// '7' am Wortende durch '?' ersetzen
+			if (s.endsWith("7") && s.length() > 1) {
+				result.add(s.substring(0, s.length() - 1));
+				result.add("?");
+			} else if ((s.endsWith("7l") || s.endsWith("7i")) && s.length() > 2) {
+				result.add(s.substring(0, s.length() - 2));
+				result.add("?!");
+			} else {
+				result.add(s);
+			}
+		}
+
+		return result;
 	}
 
 	static String removeDashes(String word) {
@@ -136,8 +156,8 @@ public class PreProcess
 			if (Character.isWhitespace(ch)) {
 				newState = State.WHITESPACE;
 			}
-			// Bindestrich wird wie Buchstabe behandelt
-			else if (Character.isLetter(ch) || ch == '-') {
+			// Bindestrich und Ziffern werden wie Buchstabe behandelt
+			else if (Character.isLetter(ch) || ch == '-' || Character.isDigit(ch)) {
 				newState = State.WORD;
 			} else {
 				newState = State.OTHER;
