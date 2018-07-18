@@ -146,13 +146,15 @@ public class PreProcess
 
 	static String removeDashes(String word) {
 		StringBuilder sb = new StringBuilder(word.length());
+		char last = ' ';
 		for (int i = 0; i < word.length(); i++) {
 			char ch = word.charAt(i);
-			if (ch == '-' && i < word.length() - 1) {
+			if (ch == '-' && i < word.length() - 1 && last != '\\') {
 				;
 			} else {
 				sb.append(ch);
 			}
+			last = ch;
 		}
 
 		return sb.toString();

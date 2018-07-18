@@ -33,6 +33,7 @@ public class PreProcessTest {
 		assertEquals("Wort", PreProcess.removeDashes("Wo-rt"));
 		assertEquals("Wort", PreProcess.removeDashes("W-o--r-t"));
 		assertEquals("Wort-", PreProcess.removeDashes("Wort-"));
+		assertEquals("bleiern\\-schwer", PreProcess.removeDashes("bleiern\\-schwer"));
 	}
 
 	@Test public void testSeven() {
@@ -74,7 +75,7 @@ public class PreProcessTest {
 		checkPreProcess("Aiie miene Entchen\n", "Alle meine Entchen\n", dict, spellcheck);
 		checkPreProcess("Alle7 meine7i Entchen7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
 		checkPreProcess("Zu Wasser und Zu Lande\n", "Zu Wasser und zu Lande\n", dict, spellcheck);
-		checkPreProcess("Alle miene Ent-chen Zu Wasser-teich!\n", "Alle meine Entchen zu Wasser-teich!\n", dict, spellcheck);
+		checkPreProcess("Alle miene Ent\\-chen Zu Wasser-teich!\n", "Alle meine Ent\\-chen zu Wasser-teich!\n", dict, spellcheck);
 	}
 
 	private void checkPreProcess(String line, String expected, Set<String> dict, Map<String, String> spellcheck) throws IOException {
