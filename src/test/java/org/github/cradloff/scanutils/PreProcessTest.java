@@ -21,7 +21,9 @@ public class PreProcessTest {
 		checkSplit("Alle mei-ne Ent-chen", "Alle", " ", "mei-ne", " ", "Ent-chen");
 		checkSplit("Alle, meine 'Entchen'", "Alle", ",", " ", "meine", " ", "'", "Entchen", "'");
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
-		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", "...");
+		checkSplit("wollen wir?", "wollen", " ", "wir", "?");
+		checkSplit("wollen wir?!", "wollen", " ", "wir", "?", "!");
+		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", ".", ".", ".");
 	}
 
 	private void checkSplit(String line, String... wordsExcpected) {
@@ -41,6 +43,7 @@ public class PreProcessTest {
 		checkSeven("Wort ohne 7.", "Wort ohne 7.");
 		checkSeven("Absatz 7l und 7i", "Absatz 7l und 7i");
 		checkSeven("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!");
+		checkSeven("57 Wörter mit 7 Silben7", "57 Wörter mit 7 Silben?");
 	}
 
 	private void checkSeven(String line, String expected) {
@@ -50,17 +53,45 @@ public class PreProcessTest {
 		assertEquals(expected, actual);
 	}
 
-	@Test public void testZu() {
-		checkZu("Zu Anfang zu klein.", "Zu Anfang zu klein.");
-		checkZu("Zu Anfang Zu klein.", "Zu Anfang zu klein.");
-		checkZu("Ah. Zu Anfang Zu klein.", "Ah. Zu Anfang zu klein.");
+	@Test public void testToLower() {
+		checkToLower("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.");
+		checkToLower("", "Zu Anfang Und Zu klein.", "Zu Anfang und zu klein.");
+		checkToLower("", "Ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.");
+		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel");
+
 	}
 
-	private void checkZu(String line, String expected) {
+	private void checkToLower(String lastLine, String line, String expected) {
+		List<String> lastWords = PreProcess.split(lastLine);
 		List<String> words = PreProcess.split(line);
-		words = PreProcess.replaceZu(words);
+		words = PreProcess.toLower(lastWords, words);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
+	}
+
+	@Test public void testSatzAnfang() {
+		checkSatzAnfang(true, "", "");
+		checkSatzAnfang(true, "", "Anfang");
+		checkSatzAnfang(false, "", "Am Anfang");
+		checkSatzAnfang(false, "", "Am - Anfang");
+		checkSatzAnfang(false, "", "Am - \"Anfang\"");
+		checkSatzAnfang(true, "", "Ende. Anfang");
+		checkSatzAnfang(true, "", "Ende! Anfang");
+		checkSatzAnfang(true, "", "Ende? Anfang");
+		checkSatzAnfang(true, "", "Ende?! Anfang");
+		checkSatzAnfang(true, "", "Ende: Anfang");
+		checkSatzAnfang(true, "", "Ende. - Anfang");
+		checkSatzAnfang(true, "", "Ende. - Anfang");
+		checkSatzAnfang(true, "", "<h1>Anfang");
+		checkSatzAnfang(true, "Ende.", "Anfang");
+		checkSatzAnfang(true, "Ende. -", "Anfang");
+		checkSatzAnfang(false, "Am", "Anfang");
+	}
+
+	private void checkSatzAnfang(boolean expected, String lastLine, String line) {
+		List<String> lastWords = PreProcess.split(lastLine);
+		List<String> words = PreProcess.split(line);
+		assertEquals(expected, PreProcess.satzAnfang(lastWords, words, words.size() - 1));
 	}
 
 	@Test public void testPreProcess() throws IOException {
@@ -71,6 +102,7 @@ public class PreProcessTest {
 		dict.add("Alle");
 		dict.add("Entchen");
 		dict.add("schwerfällig");
+		dict.add("zu");
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, spellcheck);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Alle mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck);

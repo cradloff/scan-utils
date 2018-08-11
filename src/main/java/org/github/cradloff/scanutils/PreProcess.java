@@ -9,10 +9,14 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Ersetzt falsch geschriebene Worte durch die korrekte Version.
@@ -77,14 +81,15 @@ public class PreProcess
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();
+		List<String> lastLine = Collections.emptyList();
 		int count = 0;
 		do {
 			// Zeile in Token zerlegen
 			List<String> s = split(line);
 			// 7er etc. ersetzen
 			s = replaceSeven(s);
-			// groß Zu durch klein zu ersetzen
-			s = replaceZu(s);
+			// Großschreibung durch Kleinschreibung ersetzen
+			s = toLower(lastLine, s);
 
 			for (int i = 0; i < s.size(); i++) {
 				String t = s.get(i);
@@ -109,6 +114,7 @@ public class PreProcess
 			}
 
 			writer.println();
+			lastLine = s;
 			line = reader.readLine();
 		}
 		while (line != null);
@@ -116,16 +122,18 @@ public class PreProcess
 		return count;
 	}
 
+	private static final Pattern SEVEN = Pattern.compile(".*\\D7$");
+	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D7[il]$");
 	static List<String> replaceSeven(List<String> input) {
 		List<String> result = new ArrayList<>();
 		for (String s : input) {
 			// '7' am Wortende durch '?' ersetzen
-			if (s.endsWith("7") && s.length() > 1) {
-				result.add(s.substring(0, s.length() - 1));
-				result.add("?");
-			} else if ((s.endsWith("7l") || s.endsWith("7i")) && s.length() > 2) {
+			if (SEVEN_PLUS.matcher(s).matches()) {
 				result.add(s.substring(0, s.length() - 2));
 				result.add("?!");
+			} else if (SEVEN.matcher(s).matches()) {
+				result.add(s.substring(0, s.length() - 1));
+				result.add("?");
 			} else {
 				result.add(s);
 			}
@@ -134,14 +142,64 @@ public class PreProcess
 		return result;
 	}
 
-	public static List<String> replaceZu(List<String> words) {
-		// alle 'Zu', die nicht am Zeilenanfang oder nach einem Punkt kommen, durch 'zu' ersetzen
-		for (int i = 2; i < words.size(); i++) {
-			if (words.get(i).equals("Zu") && words.get(i - 1).equals(" ") && ! words.get(i - 2).equals(".")) {
-				words.set(i, "zu");
+	/** Wörter für toLower */
+	private static final Set<String> LOWER = new HashSet<>(Arrays.asList(
+			"Ein", "Zwei", "Drei", "Vier", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn",
+			"Und", "Uns", "Unsere", "Von", "Vor", "Voran", "Wir", "Zu", "Zur", "Zusammen"));
+	/** Ersetzt bestimmte Wörter durch ihnre Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
+	public static List<String> toLower(List<String> lastLine, List<String> line) {
+		// alle Wörter, die nicht am Zeilenanfang oder nach einem Punkt kommen, durch Kleinschreibweise ersetzen
+		for (int i = 0; i < line.size(); i++) {
+			// das Wort beginnt mit einem Großbuchstaben, ist in der Liste vorhanden?
+			String word = line.get(i);
+			if (Character.isUpperCase(word.charAt(0))
+					&& LOWER.contains(word) && ! satzAnfang(lastLine, line, i)) {
+				String lcWord = word.toLowerCase();
+				line.set(i, lcWord);
+//				System.out.println("Ersetze " + word + " durch " + lcWord + "; " + String.join("", line));
 			}
 		}
-		return words;
+		return line;
+	}
+
+	/** Satzzeichen, die einen Satz beenden ('>' beendet ein Tag) */
+	private static final Set<String> SATZZEICHEN = new HashSet<>(Arrays.asList(".", "!", "?", ":", ">"));
+	/** Prüft, ob das übergebene Wort am Satzanfang steht */
+	static boolean satzAnfang(List<String> lastLine, List<String> line, int i) {
+		boolean satzAnfang = false;
+		boolean wortVorhanden = false;
+		for (int pos = i - 1; pos >= 0 && ! satzAnfang && ! wortVorhanden; pos--) {
+			String word = line.get(pos);
+			if (SATZZEICHEN.contains(word)) {
+				satzAnfang = true;
+			} else if (Character.isLetter(word.charAt(0))) {
+				wortVorhanden = true;
+			}
+		}
+
+		// weder Punkt noch Wort gefunden? -> vorhergehende Zeile analysieren
+		if (! satzAnfang && ! wortVorhanden) {
+			// Leerzeile?
+			if (lastLine.isEmpty()) {
+				satzAnfang = true;
+			} else {
+				for (int pos = lastLine.size() - 1; pos >= 0 && ! satzAnfang && ! wortVorhanden; pos--) {
+					String word = lastLine.get(pos);
+					if (SATZZEICHEN.contains(word)) {
+						satzAnfang = true;
+					} else if (Character.isLetter(word.charAt(0))) {
+						wortVorhanden = true;
+					}
+				}
+			}
+		}
+
+		// immer noch nichts gefunden?
+		if (! wortVorhanden) {
+			satzAnfang = true;
+		}
+
+		return satzAnfang;
 	}
 
 	static String removeDashes(String word) {
@@ -177,7 +235,7 @@ public class PreProcess
 			} else {
 				newState = State.OTHER;
 			}
-			if (state != newState && i > 0) {
+			if ((state != newState || newState == State.OTHER) && i > 0) {
 				result.add(sb.toString());
 				sb.setLength(0);
 			}
