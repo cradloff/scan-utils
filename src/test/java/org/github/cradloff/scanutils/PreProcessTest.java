@@ -58,13 +58,14 @@ public class PreProcessTest {
 		checkToLower("", "Zu Anfang Und Zu klein.", "Zu Anfang und zu klein.");
 		checkToLower("", "Ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.");
 		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel");
-
+		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel");
 	}
 
+	private Set<String> lower = new HashSet<>(Arrays.asList("und", "zu"));
 	private void checkToLower(String lastLine, String line, String expected) {
 		List<String> lastWords = PreProcess.split(lastLine);
 		List<String> words = PreProcess.split(line);
-		words = PreProcess.toLower(lastWords, words);
+		words = PreProcess.toLower(lastWords, words, lower);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
 	}
@@ -117,7 +118,7 @@ public class PreProcessTest {
 		PreProcess pp = new PreProcess();
 		StringReader in = new StringReader(line);
 		StringWriter out = new StringWriter();
-		pp.preProcess(in, out, spellcheck, dict);
+		pp.preProcess(in, out, spellcheck, dict, lower);
 		String actual = out.toString();
 		assertEquals(expected, actual);
 	}

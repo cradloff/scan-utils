@@ -46,13 +46,14 @@ public class PreProcess
 		Map<String, String> map = readCSV(input);
 		// Wörterbuch einlesen
 		Set<String> dict = FileAccess.readDict(input, "german.dic");
+		Set<String> lower = FileAccess.readDict(input, "kleinschreibung.txt");
 
 		// Datei umbenennen
 		String backup = args[0].substring(0, args[0].lastIndexOf('.')) + ".bak";
 		input.renameTo(new File(backup));
 		try (Reader in = new FileReader(new File(backup));
 				Writer out = new FileWriter(input);) {
-			int count = new PreProcess().preProcess(in, out, map, dict);
+			int count = new PreProcess().preProcess(in, out, map, dict, lower);
 
 			System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
 					count, (System.currentTimeMillis() - start));
@@ -77,7 +78,7 @@ public class PreProcess
 		return map;
 	}
 
-	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {
+	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict, Set<String> lower) throws IOException {
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();
@@ -89,7 +90,7 @@ public class PreProcess
 			// 7er etc. ersetzen
 			s = replaceSeven(s);
 			// Großschreibung durch Kleinschreibung ersetzen
-			s = toLower(lastLine, s);
+			s = toLower(lastLine, s, lower);
 
 			for (int i = 0; i < s.size(); i++) {
 				String t = s.get(i);
@@ -142,19 +143,15 @@ public class PreProcess
 		return result;
 	}
 
-	/** Wörter für toLower */
-	private static final Set<String> LOWER = new HashSet<>(Arrays.asList(
-			"Ein", "Zwei", "Drei", "Vier", "Fünf", "Sechs", "Sieben", "Acht", "Neun", "Zehn",
-			"Und", "Uns", "Unsere", "Von", "Vor", "Voran", "Wir", "Zu", "Zur", "Zusammen"));
-	/** Ersetzt bestimmte Wörter durch ihnre Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
-	public static List<String> toLower(List<String> lastLine, List<String> line) {
+	/** Ersetzt bestimmte Wörter durch ihre Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
+	public static List<String> toLower(List<String> lastLine, List<String> line, Set<String> lower) {
 		// alle Wörter, die nicht am Zeilenanfang oder nach einem Punkt kommen, durch Kleinschreibweise ersetzen
 		for (int i = 0; i < line.size(); i++) {
 			// das Wort beginnt mit einem Großbuchstaben, ist in der Liste vorhanden?
 			String word = line.get(i);
+			String lcWord = word.toLowerCase();
 			if (Character.isUpperCase(word.charAt(0))
-					&& LOWER.contains(word) && ! satzAnfang(lastLine, line, i)) {
-				String lcWord = word.toLowerCase();
+					&& lower.contains(lcWord) && ! satzAnfang(lastLine, line, i)) {
 				line.set(i, lcWord);
 //				System.out.println("Ersetze " + word + " durch " + lcWord + "; " + String.join("", line));
 			}
