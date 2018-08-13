@@ -88,9 +88,9 @@ public class PreProcess
 			// Zeile in Token zerlegen
 			List<String> s = split(line);
 			// 7er etc. ersetzen
-			s = replaceSeven(s);
+			count += replaceSeven(s);
 			// Großschreibung durch Kleinschreibung ersetzen
-			s = toLower(lastLine, s, lower);
+			count += toLower(lastLine, s, lower);
 
 			for (int i = 0; i < s.size(); i++) {
 				String t = s.get(i);
@@ -125,27 +125,39 @@ public class PreProcess
 
 	private static final Pattern SEVEN = Pattern.compile(".*\\D7$");
 	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D7[il]$");
-	static List<String> replaceSeven(List<String> input) {
-		List<String> result = new ArrayList<>();
-		for (String s : input) {
+	static int replaceSeven(List<String> line) {
+		int count = 0;
+		String nextWord = "";
+		for (int i = line.size() - 1; i >= 0; i--) {
 			// '7' am Wortende durch '?' ersetzen
-			if (SEVEN_PLUS.matcher(s).matches()) {
-				result.add(s.substring(0, s.length() - 2));
-				result.add("?!");
-			} else if (SEVEN.matcher(s).matches()) {
-				result.add(s.substring(0, s.length() - 1));
-				result.add("?");
-			} else {
-				result.add(s);
+			String word = line.get(i);
+			if (SEVEN_PLUS.matcher(word).matches()) {
+				line.set(i, word.substring(0, word.length() - 2));
+				line.add(i + 1, "?!");
+				count++;
+			} else if (SEVEN.matcher(word).matches()) {
+				line.set(i, word.substring(0, word.length() - 1));
+				line.add(i + 1, "?");
+				count++;
 			}
+			// ? gefolgt von i oder l
+			else if (word.equals("?")
+					&& (nextWord.equals("i")
+							|| nextWord.equals("l"))) {
+				line.remove(i + 1);
+				line.set(i, "?!");
+				count++;
+			}
+			nextWord = word;
 		}
 
-		return result;
+		return count;
 	}
 
 	/** Ersetzt bestimmte Wörter durch ihre Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
-	public static List<String> toLower(List<String> lastLine, List<String> line, Set<String> lower) {
+	public static int toLower(List<String> lastLine, List<String> line, Set<String> lower) {
 		// alle Wörter, die nicht am Zeilenanfang oder nach einem Punkt kommen, durch Kleinschreibweise ersetzen
+		int count = 0;
 		for (int i = 0; i < line.size(); i++) {
 			// das Wort beginnt mit einem Großbuchstaben, ist in der Liste vorhanden?
 			String word = line.get(i);
@@ -153,10 +165,11 @@ public class PreProcess
 			if (Character.isUpperCase(word.charAt(0))
 					&& lower.contains(lcWord) && ! satzAnfang(lastLine, line, i)) {
 				line.set(i, lcWord);
-//				System.out.println("Ersetze " + word + " durch " + lcWord + "; " + String.join("", line));
+				count++;
 			}
 		}
-		return line;
+
+		return count;
 	}
 
 	/** Satzzeichen, die einen Satz beenden ('>' beendet ein Tag) */

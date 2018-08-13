@@ -40,34 +40,37 @@ public class PreProcessTest {
 	}
 
 	@Test public void testSeven() {
-		checkSeven("Wort ohne 7.", "Wort ohne 7.");
-		checkSeven("Absatz 7l und 7i", "Absatz 7l und 7i");
-		checkSeven("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!");
-		checkSeven("57 Wörter mit 7 Silben7", "57 Wörter mit 7 Silben?");
+		checkSeven("Wort ohne 7.", "Wort ohne 7.", 0);
+		checkSeven("Absatz 7l und 7i", "Absatz 7l und 7i", 0);
+		checkSeven("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!", 3);
+		checkSeven("Wort? mit?l sieben?i", "Wort? mit?! sieben?!", 2);
+		checkSeven("57 Wörter mit 7 Silben7", "57 Wörter mit 7 Silben?", 1);
 	}
 
-	private void checkSeven(String line, String expected) {
+	private void checkSeven(String line, String expected, int expectedCount) {
 		List<String> words = PreProcess.split(line);
-		words = PreProcess.replaceSeven(words);
+		int count = PreProcess.replaceSeven(words);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
+		assertEquals("count", expectedCount, count);
 	}
 
 	@Test public void testToLower() {
-		checkToLower("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.");
-		checkToLower("", "Zu Anfang Und Zu klein.", "Zu Anfang und zu klein.");
-		checkToLower("", "Ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.");
-		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel");
-		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel");
+		checkToLower("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.", 0);
+		checkToLower("", "Zu Anfang Und Zu klein.", "Zu Anfang und zu klein.", 2);
+		checkToLower("", "Ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 2);
+		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
+		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
 	}
 
 	private Set<String> lower = new HashSet<>(Arrays.asList("und", "zu"));
-	private void checkToLower(String lastLine, String line, String expected) {
+	private void checkToLower(String lastLine, String line, String expected, int expectedCount) {
 		List<String> lastWords = PreProcess.split(lastLine);
 		List<String> words = PreProcess.split(line);
-		words = PreProcess.toLower(lastWords, words, lower);
+		int count = PreProcess.toLower(lastWords, words, lower);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
+		assertEquals("count", expectedCount, count);
 	}
 
 	@Test public void testSatzAnfang() {
