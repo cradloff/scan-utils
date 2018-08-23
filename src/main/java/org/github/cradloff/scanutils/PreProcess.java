@@ -43,7 +43,7 @@ public class PreProcess
 		System.out.println("Verarbeite Datei " + args[0]);
 
 		// CSV-Datei mit Rechtschreib-Fehlern einlesen
-		Map<String, String> map = readCSV(input);
+		Map<String, String> map = readRechtschreibungCSV(input);
 		// Wörterbuch einlesen
 		Set<String> dict = FileAccess.readDict(input, "german.dic");
 		Set<String> lower = FileAccess.readDict(input, "kleinschreibung.txt");
@@ -60,7 +60,7 @@ public class PreProcess
 		}
 	}
 
-	private static Map<String, String> readCSV(File basefile) throws IOException {
+	private static Map<String, String> readRechtschreibungCSV(File basefile) throws IOException {
 		Map<String, String> map = new HashMap<>();
 		File file = FileAccess.find(basefile, "rechtschreibung.csv");
 		try (FileReader fr = new FileReader(file);
@@ -85,6 +85,8 @@ public class PreProcess
 		List<String> lastLine = Collections.emptyList();
 		int count = 0;
 		do {
+			// Satzzeichen ersetzen
+			line = TextUtils.satzzeichenErsetzen(line);
 			// Zeile in Token zerlegen
 			List<String> s = split(line);
 			// 7er etc. ersetzen

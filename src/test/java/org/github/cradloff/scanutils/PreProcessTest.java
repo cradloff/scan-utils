@@ -110,7 +110,7 @@ public class PreProcessTest {
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, spellcheck);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Alle mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck);
-		checkPreProcess("Aiie miene Entchen\n", "Alle meine Entchen\n", dict, spellcheck);
+		checkPreProcess("Aiie ,,miene<< Entchen\n", "Alle »meine« Entchen\n", dict, spellcheck);
 		checkPreProcess("Alle7 meine7i Entchen7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
 		checkPreProcess("Zu Wasser und Zu Lande\n", "Zu Wasser und zu Lande\n", dict, spellcheck);
 		checkPreProcess("Alle miene Ent-chen Zu Wasser-teich!\n", "Alle meine Entchen zu Wasser-teich!\n", dict, spellcheck);

@@ -80,15 +80,7 @@ public class PostProcess
 
 			// Bindestriche im Text entfernen
 			first = first.replaceAll("(\\p{javaLowerCase})[-—](\\p{javaLowerCase})", "$1$2");
-			// mehrfache Gedankenstriche zusammenfassen
-			first = first.replaceAll("[-—]{2,}", "—");
-
-			// << und >> in « und » umwandeln
-			first = first.replaceAll("<<", "«");
-			first = first.replaceAll(">>", "»");
-
-			// gerade Anführungszeichen durch typographische ersetzen
-			first = first.replace('\'', '’');
+			first = TextUtils.satzzeichenErsetzen(first);
 
 			writer.println(first);
 		}
