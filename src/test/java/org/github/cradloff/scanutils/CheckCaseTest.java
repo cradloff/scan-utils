@@ -2,6 +2,9 @@ package org.github.cradloff.scanutils;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -52,5 +55,18 @@ public class CheckCaseTest {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);
 		assertEquals(expected, CheckCase.satzAnfang(lastWords, words, words.size() - 1));
+	}
+
+	@Test public void testCheckCase() throws IOException {
+		checkCheckCase("Zu Lande Und Zu Wasser\n", "Zu Lande und zu Wasser\n");
+	}
+
+	private void checkCheckCase(String line, String expected) throws IOException {
+		CheckCase cc = new CheckCase();
+		StringReader in = new StringReader(line);
+		StringWriter out = new StringWriter();
+		cc.checkCase(in, out, lower);
+		String actual = out.toString();
+		assertEquals(expected, actual);
 	}
 }

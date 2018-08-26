@@ -46,7 +46,7 @@ public class CheckCase {
 		}
 	}
 
-	private int checkCase(Reader in, Writer out, Set<String> lower) throws IOException {
+	int checkCase(Reader in, Writer out, Set<String> lower) throws IOException {
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();
@@ -59,6 +59,9 @@ public class CheckCase {
 			List<String> s = TextUtils.split(line);
 			// Großschreibung durch Kleinschreibung ersetzen
 			count += toLower(lastLine, s, lower);
+			for (int i = 0; i < s.size(); i++) {
+				writer.write(s.get(i));
+			}
 
 			writer.println();
 			lastLine = s;
