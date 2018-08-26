@@ -27,7 +27,7 @@ public class PreProcessTest {
 	}
 
 	private void checkSplit(String line, String... wordsExcpected) {
-		List<String> words = PreProcess.split(line);
+		List<String> words = TextUtils.split(line);
 		assertEquals(Arrays.asList(wordsExcpected), words);
 	}
 
@@ -48,54 +48,11 @@ public class PreProcessTest {
 	}
 
 	private void checkSeven(String line, String expected, int expectedCount) {
-		List<String> words = PreProcess.split(line);
+		List<String> words = TextUtils.split(line);
 		int count = PreProcess.replaceSeven(words);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
 		assertEquals("count", expectedCount, count);
-	}
-
-	@Test public void testToLower() {
-		checkToLower("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.", 0);
-		checkToLower("", "Zu Anfang Und Zu klein.", "Zu Anfang und zu klein.", 2);
-		checkToLower("", "Ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 2);
-		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
-		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
-	}
-
-	private Set<String> lower = new HashSet<>(Arrays.asList("und", "zu"));
-	private void checkToLower(String lastLine, String line, String expected, int expectedCount) {
-		List<String> lastWords = PreProcess.split(lastLine);
-		List<String> words = PreProcess.split(line);
-		int count = PreProcess.toLower(lastWords, words, lower);
-		String actual = String.join("", words);
-		assertEquals(expected, actual);
-		assertEquals("count", expectedCount, count);
-	}
-
-	@Test public void testSatzAnfang() {
-		checkSatzAnfang(true, "", "");
-		checkSatzAnfang(true, "", "Anfang");
-		checkSatzAnfang(false, "", "Am Anfang");
-		checkSatzAnfang(false, "", "Am - Anfang");
-		checkSatzAnfang(false, "", "Am - \"Anfang\"");
-		checkSatzAnfang(true, "", "Ende. Anfang");
-		checkSatzAnfang(true, "", "Ende! Anfang");
-		checkSatzAnfang(true, "", "Ende? Anfang");
-		checkSatzAnfang(true, "", "Ende?! Anfang");
-		checkSatzAnfang(true, "", "Ende: Anfang");
-		checkSatzAnfang(true, "", "Ende. - Anfang");
-		checkSatzAnfang(true, "", "Ende. - Anfang");
-		checkSatzAnfang(true, "", "<h1>Anfang");
-		checkSatzAnfang(true, "Ende.", "Anfang");
-		checkSatzAnfang(true, "Ende. -", "Anfang");
-		checkSatzAnfang(false, "Am", "Anfang");
-	}
-
-	private void checkSatzAnfang(boolean expected, String lastLine, String line) {
-		List<String> lastWords = PreProcess.split(lastLine);
-		List<String> words = PreProcess.split(line);
-		assertEquals(expected, PreProcess.satzAnfang(lastWords, words, words.size() - 1));
 	}
 
 	@Test public void testPreProcess() throws IOException {
@@ -112,8 +69,7 @@ public class PreProcessTest {
 		checkPreProcess("Alle mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck);
 		checkPreProcess("Aiie ,,miene<< Entchen\n", "Alle »meine« Entchen\n", dict, spellcheck);
 		checkPreProcess("Alle7 meine7i Entchen7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
-		checkPreProcess("Zu Wasser und Zu Lande\n", "Zu Wasser und zu Lande\n", dict, spellcheck);
-		checkPreProcess("Alle miene Ent-chen Zu Wasser-teich!\n", "Alle meine Entchen zu Wasser-teich!\n", dict, spellcheck);
+		checkPreProcess("Alle miene Ent-chen Zu Wasser-teich!\n", "Alle meine Entchen Zu Wasser-teich!\n", dict, spellcheck);
 		checkPreProcess("er war bleiern\\\\-schwerfällig ...\n", "er war bleiern\\\\-schwerfällig ...\n", dict, spellcheck);
 	}
 
@@ -121,7 +77,7 @@ public class PreProcessTest {
 		PreProcess pp = new PreProcess();
 		StringReader in = new StringReader(line);
 		StringWriter out = new StringWriter();
-		pp.preProcess(in, out, spellcheck, dict, lower);
+		pp.preProcess(in, out, spellcheck, dict);
 		String actual = out.toString();
 		assertEquals(expected, actual);
 	}
