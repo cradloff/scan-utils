@@ -14,7 +14,7 @@ public class TextUtils {
 		result = result.replaceAll("<<", "«");
 		result = result.replaceAll(">>", "»");
 		// ,, durch » ersetzen
-		result = result.replaceAll(",,", "»");
+		result = result.replaceAll("[,.]{2}(\\p{Alnum})", "»$1");
 
 		// gerade Anführungszeichen durch typographische ersetzen
 		result = result.replace('\'', '’');

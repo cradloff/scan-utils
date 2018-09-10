@@ -9,5 +9,8 @@ public class TextUtilsTest {
 		assertEquals("", TextUtils.satzzeichenErsetzen(""));
 		assertEquals("»Hier. Da ist’s.«", TextUtils.satzzeichenErsetzen(",,Hier· Da ist's.«"));
 		assertEquals("»Hier — dort —«", TextUtils.satzzeichenErsetzen(">>Hier -- dort -—<<"));
+		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen(".,Hier... -- dort -—<<"));
+		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen(",.Hier... -- dort -—<<"));
+		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen("..Hier... -- dort -—<<"));
 	}
 }
