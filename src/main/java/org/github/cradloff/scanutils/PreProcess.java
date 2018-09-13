@@ -63,7 +63,7 @@ public class PreProcess
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
 				line = line.trim();
 				if (! line.isEmpty()) {
-					String[] s = line.split("\t");
+					String[] s = line.split("\\s", 2);
 					map.put(s[0], s[1]);
 				}
 			}
