@@ -85,6 +85,8 @@ public class PreProcess
 			List<String> s = TextUtils.split(line);
 			// 7er etc. ersetzen
 			count += replaceSeven(s);
+			// Brüche ersetzen
+			count += replaceFraction(s);
 
 			for (int i = 0; i < s.size(); i++) {
 				String t = s.get(i);
@@ -161,6 +163,64 @@ public class PreProcess
 		}
 
 		return sb.toString();
+	}
+
+	// Map für Brüche: (Zähler, Nenner -> Bruch)
+	private static final Map<String, Map<String, String>> FRACTIONS;
+	static {
+		FRACTIONS = new HashMap<>();
+		Map<String, String> map = new HashMap<>();
+		map.put("2", "½");
+		map.put("3", "⅓");
+		map.put("4", "¼");
+		map.put("5", "⅕");
+		map.put("6", "⅙");
+		map.put("7", "⅐");
+		map.put("8", "⅛");
+		map.put("9", "⅑");
+		map.put("10", "⅒");
+		FRACTIONS.put("1", map);
+		map = new HashMap<>();
+		map.put("3", "⅔");
+		map.put("5", "⅖");
+		FRACTIONS.put("2", map);
+		map = new HashMap<>();
+		map.put("4", "¾");
+		map.put("5", "⅗");
+		map.put("8", "⅜");
+		FRACTIONS.put("3", map);
+		map = new HashMap<>();
+		map.put("5", "⅘");
+		FRACTIONS.put("4", map);
+		map = new HashMap<>();
+		map.put("6", "⅚");
+		map.put("8", "⅝");
+		FRACTIONS.put("5", map);
+		map = new HashMap<>();
+		map.put("8", "⅞");
+		FRACTIONS.put("7", map);
+	}
+	static int replaceFraction(List<String> words) {
+		int count = 0;
+		for (int i = words.size() - 2; i > 0; i--) {
+			if (words.get(i).equals("/")) {
+				// Wörter vor und nach dem Slash in der Map suchen
+				String zähler = words.get(i - 1);
+				Map<String, String> map = FRACTIONS.get(zähler);
+				if (map != null) {
+					String nenner = words.get(i + 1);
+					String bruch = map.get(nenner);
+					if (bruch != null) {
+						// Zeichenketten durch Bruch ersetzen
+						words.set(i - 1, bruch);
+						words.remove(i + 1);
+						words.remove(i);
+						count++;
+					}
+				}
+			}
+		}
+		return count;
 	}
 
 }

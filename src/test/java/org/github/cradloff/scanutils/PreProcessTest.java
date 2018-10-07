@@ -55,6 +55,21 @@ public class PreProcessTest {
 		assertEquals("count", expectedCount, count);
 	}
 
+	@Test public void testFraction() {
+		checkFraction("Um 1/2 12 Uhr", "Um ½ 12 Uhr", 1);
+		checkFraction("1/2 1/3 2/3 1/4 3/4 1/5 2/5 3/5 4/5 1/6 5/6 1/7 1/8 3/8 5/8 7/8 1/9 1/10", "½ ⅓ ⅔ ¼ ¾ ⅕ ⅖ ⅗ ⅘ ⅙ ⅚ ⅐ ⅛ ⅜ ⅝ ⅞ ⅑ ⅒", 18);
+		checkFraction("1/1 2/2 2/4 1/11 1/12", "1/1 2/2 2/4 1/11 1/12", 0);
+		checkFraction("/1 1/2 1/", "/1 ½ 1/", 1);
+	}
+
+	private void checkFraction(String line, String expected, int expectedCount) {
+		List<String> words = TextUtils.split(line);
+		int count = PreProcess.replaceFraction(words);
+		String actual = String.join("", words);
+		assertEquals(expected, actual);
+		assertEquals("count", expectedCount, count);
+	}
+
 	@Test public void testPreProcess() throws IOException {
 		Map<String, String> spellcheck = new HashMap<>();
 		spellcheck.put("Aiie", "Alle");
@@ -68,9 +83,10 @@ public class PreProcessTest {
 		// meine ist nicht im Dictionary
 		checkPreProcess("Alle mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck);
 		checkPreProcess("Aiie ,,miene<< Entchen\n", "Alle »meine« Entchen\n", dict, spellcheck);
-		checkPreProcess("Alle7 meine7i Entchen7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
+		checkPreProcess("Aiie7 meine7i Entchen7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
 		checkPreProcess("Alle miene Ent-chen Zu Wasser-teich!\n", "Alle meine Entchen Zu Wasser-teich!\n", dict, spellcheck);
 		checkPreProcess("er war bleiern\\\\-schwerfällig ...\n", "er war bleiern\\\\-schwerfällig ...\n", dict, spellcheck);
+		checkPreProcess("Um 1/2 12 Uhr", "Um ½ 12 Uhr\n", dict, spellcheck);
 	}
 
 	private void checkPreProcess(String line, String expected, Set<String> dict, Map<String, String> spellcheck) throws IOException {
