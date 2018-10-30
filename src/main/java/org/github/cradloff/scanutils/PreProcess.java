@@ -39,7 +39,7 @@ public class PreProcess
 		System.out.println("Verarbeite Datei " + args[0]);
 
 		// CSV-Datei mit Rechtschreib-Fehlern einlesen
-		Map<String, String> map = readRechtschreibungCSV(input);
+		Map<String, String> map = FileAccess.readRechtschreibungCSV(input);
 		// Wörterbuch einlesen
 		Set<String> dict = FileAccess.readDict(input, "german.dic");
 
@@ -53,24 +53,6 @@ public class PreProcess
 			System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
 					count, (System.currentTimeMillis() - start));
 		}
-	}
-
-	private static Map<String, String> readRechtschreibungCSV(File basefile) throws IOException {
-		Map<String, String> map = new HashMap<>();
-		File file = FileAccess.find(basefile, "rechtschreibung.csv");
-		try (FileReader fr = new FileReader(file);
-				BufferedReader br = new BufferedReader(fr);) {
-			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				line = line.trim();
-				if (! line.isEmpty()) {
-					String[] s = line.split("\\s", 2);
-					map.put(s[0], s[1]);
-				}
-			}
-		}
-		System.out.printf("verwende Rechtschreibung %s (%,d Einträge)%n", file.getPath(), map.size());
-
-		return map;
 	}
 
 	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {

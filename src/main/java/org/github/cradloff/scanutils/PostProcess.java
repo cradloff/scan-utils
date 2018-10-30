@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Fasst Silben-getrennte Wörter am Zeilenende zusammen. Bindestriche im Text werden entfernt, wenn vor
@@ -33,15 +35,19 @@ public class PostProcess
 		// Datei umbenennen
 		String backup = args[0].substring(0, args[0].lastIndexOf('.')) + ".bak";
 		input.renameTo(new File(backup));
+
+		// CSV-Datei mit Rechtschreib-Fehlern einlesen
+		Map<String, String> spellcheck = FileAccess.readRechtschreibungCSV(input);
+
 		try (Reader in = new FileReader(new File(backup));
 				Writer out = new FileWriter(input);) {
-			new PostProcess().postProcess(in, out);
+			new PostProcess().postProcess(in, out, spellcheck);
 		}
 
 		System.out.printf("Zeit: %,dms%n", (System.currentTimeMillis() - start));
 	}
 
-	public void postProcess(Reader in, Writer out) throws IOException {
+	public void postProcess(Reader in, Writer out, Map<String, String> spellcheck) throws IOException {
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String second = reader.readLine();
@@ -82,7 +88,16 @@ public class PostProcess
 			first = first.replaceAll("(\\p{javaLowerCase})[-—](\\p{javaLowerCase})", "$1$2");
 			first = TextUtils.satzzeichenErsetzen(first);
 
-			writer.println(first);
+			// Rechtschreibfehler korrigieren
+			List<String> s = TextUtils.split(first);
+			for (int i = 0; i < s.size(); i++) {
+				String replacement = spellcheck.get(s.get(i));
+				if (replacement != null) {
+					s.set(i, replacement);
+				}
+			}
+
+			writer.println(String.join("", s));
 		}
 		while (second != null);
 	}

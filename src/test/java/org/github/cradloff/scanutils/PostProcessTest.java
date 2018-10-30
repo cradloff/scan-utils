@@ -1,5 +1,6 @@
 package org.github.cradloff.scanutils;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -7,6 +8,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -74,11 +78,35 @@ public class PostProcessTest {
 	}
 
 	private String dehyphen(String input) throws IOException {
+		return postProcess(input, Collections.<String, String>emptyMap());
+	}
+
+	private String postProcess(String input, Map<String, String> spellcheck) throws IOException {
 		PostProcess dehyphen = new PostProcess();
 		Reader in = new StringReader(input);
 		Writer out = new StringWriter();
-		dehyphen.postProcess(in, out);
+		dehyphen.postProcess(in, out, spellcheck);
 
 		return out.toString();
+	}
+
+	@Test
+	public void postProcess() throws IOException {
+		Map<String, String> spellcheck = new HashMap<>();
+		spellcheck.put("Zailenombruck", "Zeilenumbruch");
+		spellcheck.put("Fehsern", "Fehlern");
+		spellcheck.put("mti", "mit");
+		spellcheck.put("udn", "und");
+
+		String[] expected, lines;
+		lines = new String[] { "Probe-Text mti >>Binde-strich<< im Zailen-", "ombruck -- udn mit Feh-sern·" };
+		expected = new String[] { "Probe-Text mit »Bindestrich« im Zeilenumbruch", "— und mit Fehlern." };
+		checkPostProcess(lines, spellcheck, expected);
+	}
+
+	private void checkPostProcess(String[] lines, Map<String, String> spellcheck, String[] expected) throws IOException {
+		String result = postProcess(String.join("\n", lines), spellcheck);
+		String[] actual = result.split("\n");
+		assertArrayEquals(expected, actual);
 	}
 }

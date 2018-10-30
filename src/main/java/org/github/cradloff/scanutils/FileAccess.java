@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /** Hilfsklasse für Dateizugriffe */
@@ -41,6 +43,33 @@ public class FileAccess {
 		System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict.size());
 
 		return dict;
+	}
+
+	/**
+	 * Liest eine CSV-Datei ein und liefert sie als Map zurück.
+	 */
+	static Map<String, String> readCSV(File file) throws IOException {
+		Map<String, String> map = new HashMap<>();
+		try (FileReader fr = new FileReader(file);
+				BufferedReader br = new BufferedReader(fr);) {
+			for (String line = br.readLine(); line != null; line = br.readLine()) {
+				line = line.trim();
+				if (! line.isEmpty()) {
+					String[] s = line.split("\\s", 2);
+					map.put(s[0], s[1]);
+				}
+			}
+		}
+
+		return map;
+	}
+
+	static Map<String, String> readRechtschreibungCSV(File basefile) throws IOException {
+		File file = FileAccess.find(basefile, "rechtschreibung.csv");
+		Map<String, String> map = FileAccess.readCSV(file);
+		System.out.printf("verwende Rechtschreibung %s (%,d Einträge)%n", file.getPath(), map.size());
+
+		return map;
 	}
 
 	static File basedir(File basefile) {
