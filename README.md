@@ -59,6 +59,11 @@ Ersetzt in der angegebenen Datei alle Wörter, die fälschlicherweise groß
 geschrieben sind. Die Wörter, die klein geschrieben werden sollen, werden aus
 der Datei `kleinschreibung.txt` ausgelesen.
 
+KoboAnnotationExtractor
+* Extrahiert aus den Annotations des Kobo-eReaders die Texte und gibt sie sortiert aus.
+
+Aufruf: `koboAnnotationExtractor.sh <Dateiname>`
+
 Dateien
 -------
 
