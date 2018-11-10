@@ -16,17 +16,17 @@ public class CheckCaseTest {
 
 	@Test public void testToLower() {
 		checkToLower("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.", 0);
-		checkToLower("", "Zu Anfang Und Zu klein.", "Zu Anfang und zu klein.", 2);
-		checkToLower("", "Ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 2);
+		checkToLower("", "Zu anfang Und Zu klein.", "Zu Anfang und zu klein.", 3);
+		checkToLower("", "ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 3);
 		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
 		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
 	}
 
-	private Set<String> lower = new HashSet<>(Arrays.asList("und", "zu"));
+	private Set<String> dict = new HashSet<>(Arrays.asList("Anfang", "Ende", "Wasser", "und", "zu"));
 	private void checkToLower(String lastLine, String line, String expected, int expectedCount) {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);
-		int count = CheckCase.toLower(lastWords, words, lower);
+		int count = CheckCase.fixCase(lastWords, words, dict);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
 		assertEquals("count", expectedCount, count);
@@ -58,14 +58,14 @@ public class CheckCaseTest {
 	}
 
 	@Test public void testCheckCase() throws IOException {
-		checkCheckCase("Zu Lande Und Zu Wasser\n", "Zu Lande und zu Wasser\n");
+		checkCheckCase("Zu Lande Und Zu wasser\n", "Zu Lande und zu Wasser\n");
 	}
 
 	private void checkCheckCase(String line, String expected) throws IOException {
 		CheckCase cc = new CheckCase();
 		StringReader in = new StringReader(line);
 		StringWriter out = new StringWriter();
-		cc.checkCase(in, out, lower);
+		cc.checkCase(in, out, dict);
 		String actual = out.toString();
 		assertEquals(expected, actual);
 	}

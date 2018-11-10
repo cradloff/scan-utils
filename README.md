@@ -55,8 +55,8 @@ CheckCase
 
 Aufruf: `checkcase.sh <Dateiname>`
 
-Ersetzt in der angegebenen Datei alle Wörter, die fälschlicherweise groß
-geschrieben sind. Die Wörter, die klein geschrieben werden sollen, werden aus
+Ersetzt in der angegebenen Datei alle Wörter, die fälschlicherweise groß bzw.
+klein geschrieben sind. Die Wörter, die korrigiert werden sollen, werden aus
 der Datei `kleinschreibung.txt` ausgelesen.
 
 KoboAnnotationExtractor

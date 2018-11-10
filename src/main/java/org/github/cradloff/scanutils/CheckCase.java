@@ -32,21 +32,21 @@ public class CheckCase {
 		System.out.println("Verarbeite Datei " + args[0]);
 
 		// Wörterbuch einlesen
-		Set<String> lower = FileAccess.readDict(input, "kleinschreibung.txt");
+		Set<String> dict = FileAccess.readDict(input, "kleinschreibung.txt");
 
 		// Datei umbenennen
 		String backup = args[0].substring(0, args[0].lastIndexOf('.')) + ".bak";
 		input.renameTo(new File(backup));
 		try (Reader in = new FileReader(new File(backup));
 				Writer out = new FileWriter(input);) {
-			int count = new CheckCase().checkCase(in, out, lower);
+			int count = new CheckCase().checkCase(in, out, dict);
 
 			System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
 					count, (System.currentTimeMillis() - start));
 		}
 	}
 
-	int checkCase(Reader in, Writer out, Set<String> lower) throws IOException {
+	int checkCase(Reader in, Writer out, Set<String> dict) throws IOException {
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();
@@ -58,7 +58,7 @@ public class CheckCase {
 			// Zeile in Token zerlegen
 			List<String> s = TextUtils.split(line);
 			// Großschreibung durch Kleinschreibung ersetzen
-			count += toLower(lastLine, s, lower);
+			count += fixCase(lastLine, s, dict);
 			for (int i = 0; i < s.size(); i++) {
 				writer.write(s.get(i));
 			}
@@ -72,17 +72,24 @@ public class CheckCase {
 		return count;
 	}
 
-	/** Ersetzt bestimmte Wörter durch ihre Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
-	public static int toLower(List<String> lastLine, List<String> line, Set<String> lower) {
+	/** Ersetzt bestimmte Wörter durch ihre Groß-/Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
+	public static int fixCase(List<String> lastLine, List<String> line, Set<String> dict) {
 		// alle Wörter, die nicht am Zeilenanfang oder nach einem Punkt kommen, durch Kleinschreibweise ersetzen
 		int count = 0;
 		for (int i = 0; i < line.size(); i++) {
-			// das Wort beginnt mit einem Großbuchstaben, ist in der Liste vorhanden?
 			String word = line.get(i);
 			String lcWord = word.toLowerCase();
+			String ucWord = Character.toUpperCase(word.charAt(0)) + word.substring(1);
+			// das Wort beginnt mit einem Großbuchstaben, ist im Wörterbuch klein vorhanden?
 			if (Character.isUpperCase(word.charAt(0))
-					&& lower.contains(lcWord) && ! satzAnfang(lastLine, line, i)) {
+					&& dict.contains(lcWord) && ! satzAnfang(lastLine, line, i)) {
 				line.set(i, lcWord);
+				count++;
+			}
+			// das Wort beginnt mit einem Kleinbuchstaben und ist im Wörterbuch groß vorhanden?
+			else if (Character.isLowerCase(word.charAt(0))
+					&& dict.contains(ucWord)) {
+				line.set(i, ucWord);
 				count++;
 			}
 		}
