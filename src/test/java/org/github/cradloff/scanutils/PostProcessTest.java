@@ -22,11 +22,15 @@ public class PostProcessTest {
 		String input = "Text ohne Bindestriche.\n";
 		assertEquals(input, dehyphen(input));
 
-		input = "Text mit Binde-strich.\n";
+		input = "Text mit Bin-de-strich.\n";
 		String expected = "Text mit Bindestrich.\n";
 		assertEquals(expected, dehyphen(input));
 		// m-breiter Bindestrich
 		input = "Text mit Binde—strich.\n";
+		assertEquals(expected, dehyphen(input));
+		// Bindestrich nach Großbuchstabe
+		input = "M-achtmittel";
+		expected = "Machtmittel\n";
 		assertEquals(expected, dehyphen(input));
 
 		input = "Text mit Binde-\nstrich am Ende.\n";

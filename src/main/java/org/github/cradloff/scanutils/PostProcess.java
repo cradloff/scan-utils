@@ -85,7 +85,7 @@ public class PostProcess
 			}
 
 			// Bindestriche im Text entfernen
-			first = first.replaceAll("(\\p{javaLowerCase})[-—](\\p{javaLowerCase})", "$1$2");
+			first = first.replaceAll("(\\p{IsAlphabetic})[-—](\\p{javaLowerCase})", "$1$2");
 			first = TextUtils.satzzeichenErsetzen(first);
 
 			// Rechtschreibfehler korrigieren
