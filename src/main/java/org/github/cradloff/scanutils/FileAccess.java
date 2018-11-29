@@ -80,4 +80,28 @@ public class FileAccess {
 		return dir;
 	}
 
+	/**
+	 * Benennt die Datei um und gibt ihr ein numerisches Suffix. Dabei wird "Datei" umbenannt in "Datei.1".
+	 * Wenn "Datei.1" schon existiert, wird diese zuvor in "Datei.2" umbenannt usw. Existiert bereits "Datei.9",
+	 * so wird diese gelöscht.
+	 * @param datei Umzubenennende Datei
+	 * @return neuer Dateiname
+	 */
+	static File roll(File datei) {
+		return roll(datei, datei, 1);
+	}
+
+	private static File roll(File base, File curr, int i) {
+		File dateiNeu = new File(base.getAbsolutePath() + "." + i);
+		if (dateiNeu.exists()) {
+			if (i == 9) {
+				dateiNeu.delete();
+			} else {
+				roll(base, dateiNeu, i + 1);
+			}
+		}
+
+		curr.renameTo(dateiNeu);
+		return dateiNeu;
+	}
 }

@@ -45,9 +45,8 @@ public class PreProcess
 		Set<String> dict = FileAccess.readDict(input, "german.dic");
 
 		// Datei umbenennen
-		String backup = args[0].substring(0, args[0].lastIndexOf('.')) + ".bak";
-		input.renameTo(new File(backup));
-		try (Reader in = new FileReader(new File(backup));
+		File backup = FileAccess.roll(input);
+		try (Reader in = new FileReader(backup);
 				Writer out = new FileWriter(input);) {
 			int count = new PreProcess().preProcess(in, out, map, dict);
 

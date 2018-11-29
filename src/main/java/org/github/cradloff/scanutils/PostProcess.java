@@ -33,13 +33,12 @@ public class PostProcess
 		System.out.println("Verarbeite Datei " + args[0]);
 
 		// Datei umbenennen
-		String backup = args[0].substring(0, args[0].lastIndexOf('.')) + ".bak";
-		input.renameTo(new File(backup));
+		File backup = FileAccess.roll(input);
 
 		// CSV-Datei mit Rechtschreib-Fehlern einlesen
 		Map<String, String> spellcheck = FileAccess.readRechtschreibungCSV(input);
 
-		try (Reader in = new FileReader(new File(backup));
+		try (Reader in = new FileReader(backup);
 				Writer out = new FileWriter(input);) {
 			new PostProcess().postProcess(in, out, spellcheck);
 		}
