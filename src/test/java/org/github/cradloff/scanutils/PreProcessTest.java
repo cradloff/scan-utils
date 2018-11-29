@@ -75,13 +75,13 @@ public class PreProcessTest {
 		spellcheck.put("Aiie", "Alle");
 		spellcheck.put("miene", "meine");
 		Set<String> dict = new HashSet<>();
-		dict.add("Alle");
+		dict.add("alle");
 		dict.add("Entchen");
 		dict.add("schwerfällig");
 		dict.add("zu");
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, spellcheck);
 		// meine ist nicht im Dictionary
-		checkPreProcess("Alle mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck);
+		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck);
 		checkPreProcess("Aiie ,,miene<< Entchen\n", "Alle »meine« Entchen\n", dict, spellcheck);
 		checkPreProcess("Ai-ie mi-ene Ent-chen\n", "Alle meine Entchen\n", dict, spellcheck);
 		checkPreProcess("Aiie7 meine7i Entchen7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);

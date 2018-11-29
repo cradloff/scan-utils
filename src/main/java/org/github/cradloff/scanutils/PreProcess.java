@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 /**
@@ -56,6 +57,9 @@ public class PreProcess
 	}
 
 	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {
+		// im Wörterbuch die Groß-/Kleinschreibung ignorieren
+		Set<String> ciDict = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		ciDict.addAll(dict);
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();
@@ -85,7 +89,7 @@ public class PreProcess
 					writer.print(map.get(word));
 				}
 				// Wort ohne Bindestriche im Wörterbuch?
-				else if (dict.contains(word)) {
+				else if (ciDict.contains(word)) {
 					writer.print(word);
 				} else {
 					writer.print(t);
