@@ -8,11 +8,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 /**
@@ -56,16 +58,24 @@ public class PreProcess
 	}
 
 	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {
-		// im Wörterbuch die Groß-/Kleinschreibung ignorieren
-		Set<String> ciDict = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-		ciDict.addAll(dict);
+		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
+		Set<String> ciDict = new HashSet<>(dict);
+		for (String s : dict) {
+			if (Character.isLowerCase(s.charAt(0))) {
+				String t = Character.toUpperCase(s.charAt(0)) + s.substring(1);
+				ciDict.add(t);
+			}
+		}
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();
 		int count = 0;
+		boolean split = false; // Worttrennung in vorheriger Zeile?
 		do {
 			// Satzzeichen ersetzen
 			line = TextUtils.satzzeichenErsetzen(line);
+			// Punkte und Anführungszeichen in Wörtern entfernen
+			line = line.replaceAll("(\\p{IsAlphabetic})[.»«](\\p{javaLowerCase})", "$1$2");
 			// Zeile in Token zerlegen
 			List<String> s = TextUtils.split(line);
 			// 7er etc. ersetzen
@@ -90,10 +100,29 @@ public class PreProcess
 				// Wort ohne Bindestriche im Wörterbuch?
 				else if (ciDict.contains(word)) {
 					writer.print(word);
-				} else {
+				}
+				// vor und nach Worttrennung am Zeilenende keine weitere Sonderbehandlung
+				else if (i == 0 && split
+						|| i == s.size() - 1 && endWithDash(t)) {
 					writer.print(t);
+				} else {
+					// überflüssige Buchstaben entfernen
+					String candidate = removeSil(word, ciDict);
+					// nicht gefunden?
+					if (candidate.equals(word)) {
+						writer.print(t);
+					} else {
+						count++;
+						writer.print(candidate);
+						// wenn das Original mit 'i' oder 'l' geendet hat, kommt wahrscheinlich ein Ausrufezeichen
+						if ((word.endsWith("i") || word.endsWith("l"))
+								&& ! (candidate.endsWith("i") || candidate.endsWith("l"))) {
+							writer.print('!');
+						}
+					}
 				}
 			}
+			split = endWithDash(line);
 
 			writer.println();
 			line = reader.readLine();
@@ -139,7 +168,7 @@ public class PreProcess
 		char last = ' ';
 		for (int i = 0; i < word.length(); i++) {
 			char ch = word.charAt(i);
-			if (ch == '-' && i < word.length() - 1 && last != '\\') {
+			if (isDash(ch) && i < word.length() - 1 && last != '\\') {
 				;
 			} else {
 				sb.append(ch);
@@ -148,6 +177,14 @@ public class PreProcess
 		}
 
 		return sb.toString();
+	}
+
+	private static boolean endWithDash(String s) {
+		return s.length() > 0 && isDash(s.charAt(s.length() - 1));
+	}
+
+	private static boolean isDash(char ch) {
+		return ch == '-' || ch == '—';
 	}
 
 	// Map für Brüche: (Zähler, Nenner -> Bruch)
@@ -206,6 +243,39 @@ public class PreProcess
 			}
 		}
 		return count;
+	}
+
+	/** Entfernt überflüssige 's', 'i' und 'l' aus Wörtern. */
+	public static String removeSil(String input, Set<String> dict) {
+		// Wörter, die bereits im Wörterbuch enthalten sind, nicht bearbeiten
+		if (dict.contains(input) || input.isEmpty()) {
+			return input;
+		}
+
+		// sonst an allen Positionen die Zeichen entfernen und prüfen, ob sie im Wörterbuch enthalten sind
+		String result = "";
+		Collection<String> candidates = new ArrayList<>();
+		removeSil(input, candidates, input.length() - 1);
+		for (String candidate : candidates) {
+			if (candidate.length() > result.length()
+					&& dict.contains(candidate)) {
+				result = candidate;
+			}
+		}
+
+		return result.isEmpty() ? input : result;
+	}
+
+	private static void removeSil(String input, Collection<String> result, int end) {
+		for (int i = end; i >= 0; i--) {
+			char ch = input.charAt(i);
+			if (ch == 's' || ch == 'i' || ch == 'l') {
+				StringBuilder sb = new StringBuilder(input);
+				String candidate = sb.deleteCharAt(i).toString();
+				result.add(candidate);
+				removeSil(candidate, result, i - 1);
+			}
+		}
 	}
 
 }

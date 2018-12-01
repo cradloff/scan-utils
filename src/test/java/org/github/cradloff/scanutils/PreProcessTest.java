@@ -18,7 +18,7 @@ public class PreProcessTest {
 	@Test public void testSplit() {
 		checkSplit("Alle meine Entchen", "Alle", " ", "meine", " ", "Entchen");
 		checkSplit(" Alle  meine  Entchen ", " ", "Alle", "  ", "meine", "  ", "Entchen", " ");
-		checkSplit("Alle mei-ne Ent-chen", "Alle", " ", "mei-ne", " ", "Ent-chen");
+		checkSplit("Alle mei-ne Ent—chen", "Alle", " ", "mei-ne", " ", "Ent—chen");
 		checkSplit("Alle, meine 'Entchen'", "Alle", ",", " ", "meine", " ", "'", "Entchen", "'");
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
 		checkSplit("wollen wir?", "wollen", " ", "wir", "?");
@@ -35,6 +35,7 @@ public class PreProcessTest {
 		assertEquals("Wort", PreProcess.removeDashes("Wort"));
 		assertEquals("Wort", PreProcess.removeDashes("Wo-rt"));
 		assertEquals("Wort", PreProcess.removeDashes("W-o--r-t"));
+		assertEquals("Wort", PreProcess.removeDashes("W-o—r-t"));
 		assertEquals("Wort-", PreProcess.removeDashes("Wort-"));
 		assertEquals("bleiern\\-schwerfällig", PreProcess.removeDashes("bleiern\\-schwerfällig"));
 	}
@@ -70,6 +71,25 @@ public class PreProcessTest {
 		assertEquals("count", expectedCount, count);
 	}
 
+	@Test public void testRemoveSil() {
+		Set<String> dict = new HashSet<>(Arrays.asList("uns", "ihr", "Klubs", "Harst", "Harsts"));
+		checkRemoveSil("uns", "uns", dict);
+		checkRemoveSil("ihr", "ihr", dict);
+		checkRemoveSil("Harsts", "Harsts", dict);
+		checkRemoveSil("uins", "uns", dict);
+		checkRemoveSil("suns", "uns", dict);
+		checkRemoveSil("siishr", "ihr", dict);
+		checkRemoveSil("Kliusbs", "Klubs", dict);
+		checkRemoveSil("Hlarst", "Harst", dict);
+		checkRemoveSil("Hlairsst", "Harst", dict);
+		checkRemoveSil("Hlairssts", "Harsts", dict);
+	}
+
+	private void checkRemoveSil(String input, String expected, Set<String> dict) {
+		String actual = PreProcess.removeSil(input, dict);
+		assertEquals(expected, actual);
+	}
+
 	@Test public void testPreProcess() throws IOException {
 		Map<String, String> spellcheck = new HashMap<>();
 		spellcheck.put("Aiie", "Alle");
@@ -77,16 +97,24 @@ public class PreProcessTest {
 		Set<String> dict = new HashSet<>();
 		dict.add("alle");
 		dict.add("Entchen");
+		dict.add("es");
+		dict.add("mal");
+		dict.add("mir");
 		dict.add("schwerfällig");
 		dict.add("zu");
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, spellcheck);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck);
-		checkPreProcess("Aiie ,,miene<< Entchen\n", "Alle »meine« Entchen\n", dict, spellcheck);
+		checkPreProcess("Aiie ,,miene<< Ent.chen\n", "Alle »meine« Entchen\n", dict, spellcheck);
 		checkPreProcess("Ai-ie mi-ene Ent-chen\n", "Alle meine Entchen\n", dict, spellcheck);
-		checkPreProcess("Aiie7 meine7i Entchen7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
-		checkPreProcess("Alle miene Ent-chen Zu Wasser-teich!\n", "Alle meine Entchen Zu Wasser-teich!\n", dict, spellcheck);
+		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
+		checkPreProcess("Alllei miene Eint-chenl Zsus Wasser-teich!\n", "Alle! meine Entchen! Zu Wasser-teich!\n", dict, spellcheck);
+		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, spellcheck);
 		checkPreProcess("er war bleiern\\\\-schwerfällig ...\n", "er war bleiern\\\\-schwerfällig ...\n", dict, spellcheck);
+		// s, i, l nicht bei Worttrennung am Zeilenende
+		checkPreProcess("Das al-\nles\n", "Das al-\nles\n", dict, spellcheck);
+		checkPreProcess("wir ess-\nen\n", "wir ess-\nen\n", dict, spellcheck);
+		// Brüche
 		checkPreProcess("Um 1/2 12 Uhr", "Um ½ 12 Uhr\n", dict, spellcheck);
 	}
 
