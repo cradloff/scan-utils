@@ -11,7 +11,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,13 +58,7 @@ public class PreProcess
 
 	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
-		Set<String> ciDict = new HashSet<>(dict);
-		for (String s : dict) {
-			if (Character.isLowerCase(s.charAt(0))) {
-				String t = Character.toUpperCase(s.charAt(0)) + s.substring(1);
-				ciDict.add(t);
-			}
-		}
+		Set<String> ciDict = TextUtils.addUpperCase(dict);
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();

@@ -32,6 +32,7 @@ public class SpellCheck {
 
 		// Wörterbuch einlesen
 		Set<String> dict = FileAccess.readDict(file, "german.dic");
+		dict = TextUtils.addUpperCase(dict);
 		// Wörter aus Rechtschreibhilfe hinzufügen
 		CreateDictionary.readWords(FileAccess.find(file, "rechtschreibung.csv"), dict);
 

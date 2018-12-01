@@ -1,7 +1,9 @@
 package org.github.cradloff.scanutils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TextUtils {
 
@@ -54,6 +56,17 @@ public class TextUtils {
 		}
 
 		return result;
+	}
+	/** Fügt dem Wörterbuch alle klein geschriebenen Wörter auch in Groß-Schreibweise hinzu */
+	public static Set<String> addUpperCase(Set<String> dict) {
+		Set<String> ciDict = new HashSet<>(dict);
+		for (String s : dict) {
+			if (Character.isLowerCase(s.charAt(0))) {
+				String t = Character.toUpperCase(s.charAt(0)) + s.substring(1);
+				ciDict.add(t);
+			}
+		}
+		return ciDict;
 	}
 
 }
