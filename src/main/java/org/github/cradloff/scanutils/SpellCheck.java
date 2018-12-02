@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.Bag;
@@ -34,7 +35,8 @@ public class SpellCheck {
 		Set<String> dict = FileAccess.readDict(file, "german.dic");
 		dict = TextUtils.addUpperCase(dict);
 		// Wörter aus Rechtschreibhilfe hinzufügen
-		CreateDictionary.readWords(FileAccess.find(file, "rechtschreibung.csv"), dict);
+		Map<String, String> rechtschreibung = FileAccess.readRechtschreibungCSV(file);
+		dict.addAll(rechtschreibung.values());
 
 		// Datei prüfen
 		File spellcheck = new File(FileAccess.basedir(file), "spellcheck.txt");

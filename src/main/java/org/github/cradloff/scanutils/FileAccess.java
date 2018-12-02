@@ -15,7 +15,7 @@ public class FileAccess {
 
 	static File find(File basefile, String filename) throws FileNotFoundException {
 		if (basefile == null) {
-			throw new FileNotFoundException(filename);
+			return null;
 		}
 
 		// Die Datei rekursiv nach oben suchen
@@ -34,13 +34,20 @@ public class FileAccess {
 	static Set<String> readDict(File basefile, String filename) throws IOException {
 		Set<String> dict = new HashSet<>();
 		File file = find(basefile, filename);
-		try (FileReader fr = new FileReader(file);
-				BufferedReader br = new BufferedReader(fr);) {
-			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				dict.add(line.trim());
+		while (file != null) {
+			try (FileReader fr = new FileReader(file);
+					BufferedReader br = new BufferedReader(fr);) {
+				for (String line = br.readLine(); line != null; line = br.readLine()) {
+					dict.add(line.trim());
+				}
 			}
+			System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict.size());
+			file = find(file.getParentFile().getParentFile(), filename);
 		}
-		System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict.size());
+
+		if (dict.isEmpty()) {
+			throw new FileNotFoundException(filename);
+		}
 
 		return dict;
 	}
@@ -65,11 +72,20 @@ public class FileAccess {
 	}
 
 	static Map<String, String> readRechtschreibungCSV(File basefile) throws IOException {
-		File file = FileAccess.find(basefile, "rechtschreibung.csv");
-		Map<String, String> map = FileAccess.readCSV(file);
-		System.out.printf("verwende Rechtschreibung %s (%,d Einträge)%n", file.getPath(), map.size());
+		String filename = "rechtschreibung.csv";
+		File file = FileAccess.find(basefile, filename);
+		if (file == null) {
+			throw new FileNotFoundException(filename);
+		}
+		Map<String, String> rechtschreibung = new HashMap<>();
+		while (file != null) {
+			Map<String, String> map = FileAccess.readCSV(file);
+			rechtschreibung.putAll(map);
+			System.out.printf("verwende Rechtschreibung %s (%,d Einträge)%n", file.getPath(), map.size());
+			file = FileAccess.find(file.getParentFile().getParentFile(), filename);
+		}
 
-		return map;
+		return rechtschreibung;
 	}
 
 	static File basedir(File basefile) {
