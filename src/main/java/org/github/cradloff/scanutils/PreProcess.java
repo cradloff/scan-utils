@@ -256,7 +256,15 @@ public class PreProcess
 			}
 		}
 
-		return result.isEmpty() ? input : result;
+		if (result.isEmpty()) {
+			result = input;
+		}
+		// 's' am Wortende von groß geschriebenen Wörtern ignorieren
+		else if (input.endsWith("s") && ! result.endsWith("s") && Character.isUpperCase(result.charAt(0))) {
+			result += "s";
+		}
+
+		return result;
 	}
 
 	private static void removeSil(String input, Collection<String> result, int end) {

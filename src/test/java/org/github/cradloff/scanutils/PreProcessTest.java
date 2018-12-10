@@ -72,13 +72,15 @@ public class PreProcessTest {
 	}
 
 	@Test public void testRemoveSil() {
-		Set<String> dict = new HashSet<>(Arrays.asList("uns", "ihr", "Klubs", "Harst", "Harsts"));
+		Set<String> dict = new HashSet<>(Arrays.asList("uns", "ihr", "Klub", "Harst"));
 		checkRemoveSil("uns", "uns", dict);
 		checkRemoveSil("ihr", "ihr", dict);
 		checkRemoveSil("Harsts", "Harsts", dict);
 		checkRemoveSil("uins", "uns", dict);
 		checkRemoveSil("suns", "uns", dict);
 		checkRemoveSil("siishr", "ihr", dict);
+		checkRemoveSil("Kliusb", "Klub", dict);
+		// 's' am Ende eines groß geschriebenen Wortes ignorieren
 		checkRemoveSil("Kliusbs", "Klubs", dict);
 		checkRemoveSil("Hlarst", "Harst", dict);
 		checkRemoveSil("Hlairsst", "Harst", dict);
@@ -108,7 +110,7 @@ public class PreProcessTest {
 		checkPreProcess("Aiie ,,miene<< Ent.chen\n", "Alle »meine« Entchen\n", dict, spellcheck);
 		checkPreProcess("Ai-ie mi-ene Ent-chen\n", "Alle meine Entchen\n", dict, spellcheck);
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
-		checkPreProcess("Alllei miene Eint-chenl Zsus Wasser-teich!\n", "Alle! meine Entchen! Zu Wasser-teich!\n", dict, spellcheck);
+		checkPreProcess("Alllei miene Eint-chenl Zsu Wasser-teich!\n", "Alle! meine Entchen! Zu Wasser-teich!\n", dict, spellcheck);
 		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, spellcheck);
 		checkPreProcess("er war bleiern\\\\-schwerfällig ...\n", "er war bleiern\\\\-schwerfällig ...\n", dict, spellcheck);
 		// s, i, l nicht bei Worttrennung am Zeilenende
