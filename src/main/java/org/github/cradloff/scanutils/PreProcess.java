@@ -101,7 +101,15 @@ public class PreProcess
 				} else {
 					// überflüssige Buchstaben entfernen
 					String candidate = removeSil(word, ciDict);
-					// nicht gefunden?
+					// nicht gefunden? mit den Rechtschreib-Ersetzungen nochmal prüfen
+					if (candidate.equals(word)) {
+						candidate = removeSil(word, map.keySet());
+						if (map.containsKey(candidate)) {
+							candidate = map.get(candidate);
+						}
+					}
+
+					// immer noch nichts gefunden?
 					if (candidate.equals(word)) {
 						writer.print(t);
 					} else {
