@@ -17,18 +17,9 @@ PreProcess
 Aufruf: `textpreprocess.sh <Dateiname>`
 
 Liest die Datei ein und führt die Aktionen durch. Das Ergebnis wird in die
-Datei zurückgeschrieben. Die Original-Datei wird in `.bak` umbenannt. Für die
+Datei zurückgeschrieben. Die Original-Datei wird in `.1` umbenannt. Für die
 Rechtschreibkorrektur wird ein Wörterbuch und eine Datei mit
 Rechtschreibkorrekturen benötigt.
-
-PostProcess
-* fasst getrennte Wörter zusammen
-* ersetzt Satzzeichen
-
-Aufruf: `textpostprocess.sh <Dateiname>`
-
-Liest die Datei ein und führt die Aktionen durch. Das Ergebnis wird in die
-Datei zurückgeschrieben. Die Original-Datei wird in `.bak` umbenannt.
 
 SpellCheck
 * gibt falsch geschriebene Wörter in einer Datei aus

@@ -72,11 +72,13 @@ public class PreProcessTest {
 	}
 
 	@Test public void testRemoveSil() {
-		Set<String> dict = new HashSet<>(Arrays.asList("uns", "ihr", "Klub", "Harst"));
+		Set<String> dict = new HashSet<>(Arrays.asList("dein", "uns", "ihr", "Klub", "Harst"));
+		checkRemoveSil("dein", "dein", dict);
 		checkRemoveSil("uns", "uns", dict);
 		checkRemoveSil("ihr", "ihr", dict);
 		checkRemoveSil("Harsts", "Harsts", dict);
-		checkRemoveSil("uins", "uns", dict);
+		checkRemoveSil("dseins", "deins", dict);
+		checkRemoveSil("uinss", "uns", dict);
 		checkRemoveSil("suns", "uns", dict);
 		checkRemoveSil("siishr", "ihr", dict);
 		checkRemoveSil("Kliusb", "Klub", dict);
@@ -96,6 +98,7 @@ public class PreProcessTest {
 		Map<String, String> spellcheck = new HashMap<>();
 		spellcheck.put("Aiie", "Alle");
 		spellcheck.put("miene", "meine");
+		spellcheck.put("mer", "wer");
 		Set<String> dict = new HashSet<>();
 		dict.add("alle");
 		dict.add("Entchen");
@@ -112,10 +115,17 @@ public class PreProcessTest {
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck);
 		checkPreProcess("Alllei miene Eint-chenl Zsu Wasser-teich!\n", "Alle! meine Entchen! Zu Wasser-teich!\n", dict, spellcheck);
 		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, spellcheck);
+		// keine Entfernung von Bindestrichen nach Backslash
 		checkPreProcess("er war bleiern\\\\-schwerfällig ...\n", "er war bleiern\\\\-schwerfällig ...\n", dict, spellcheck);
+		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, spellcheck);
+		// einzelner Bindestrich am Zeilenende
+		checkPreProcess("er war hier —\nund dort\n", "er war hier —\nund dort\n", dict, spellcheck);
+		// Bindestriche und Korrekturen bei Worttrennung am Zeilenende
+		checkPreProcess("Ai-\nie mie-\nne Ent-\nchen\n", "Alle\nmeine\nEntchen\n", dict, spellcheck);
+		// keine Ersetzung von Silben bei Worttrennung am Zeilenende
+		checkPreProcess("mer war im Zim-\nmer? Aiie!\n", "wer war im Zim-mer?\nAlle!\n", dict, spellcheck);
 		// s, i, l nicht bei Worttrennung am Zeilenende
-		checkPreProcess("Das al-\nles\n", "Das al-\nles\n", dict, spellcheck);
-		checkPreProcess("wir ess-\nen\n", "wir ess-\nen\n", dict, spellcheck);
+		checkPreProcess("wir ess-\nen da-\nmals\n", "wir ess-en\nda-mals\n", dict, spellcheck);
 		// Brüche
 		checkPreProcess("Um 1/2 12 Uhr", "Um ½ 12 Uhr\n", dict, spellcheck);
 	}

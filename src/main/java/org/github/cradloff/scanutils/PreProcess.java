@@ -23,8 +23,10 @@ import java.util.regex.Pattern;
  * Das Wörterbuch kann z.B. von hier bezogen werden: https://sourceforge.net/projects/germandict/
  * Die Rechtschreib-Korrekturen müssen jeweils den Suchbegriff und die Ersetzung in einer Zeile, durch Tab getrennt, enthalten.
  */
-public class PreProcess
-{
+public class PreProcess {
+	/** leere Liste als Markierung für das Dateiende */
+	private static final List<String> EOF = new ArrayList<>();
+
 	public static void main(String[] args) throws IOException {
 		long start = System.currentTimeMillis();
 		if (args.length != 1) {
@@ -56,81 +58,131 @@ public class PreProcess
 		}
 	}
 
-	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {
-		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
-		Set<String> ciDict = TextUtils.addUpperCase(dict);
-		BufferedReader reader = new BufferedReader(in);
-		PrintWriter writer = new PrintWriter(out);
+	private List<String> nextLine(BufferedReader reader) throws IOException {
 		String line = reader.readLine();
-		int count = 0;
-		boolean split = false; // Worttrennung in vorheriger Zeile?
-		do {
+		List<String> tokens;
+		if (line == null) {
+			tokens = EOF;
+		} else {
 			// Satzzeichen ersetzen
 			line = TextUtils.satzzeichenErsetzen(line);
 			// Punkte und Anführungszeichen in Wörtern entfernen
 			line = line.replaceAll("(\\p{IsAlphabetic})[.»«](\\p{javaLowerCase})", "$1$2");
 			// Zeile in Token zerlegen
-			List<String> s = TextUtils.split(line);
+			tokens = TextUtils.split(line);
+		}
+
+		return tokens;
+	}
+
+	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {
+		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
+		Set<String> ciDict = TextUtils.addUpperCase(dict);
+		BufferedReader reader = new BufferedReader(in);
+		PrintWriter writer = new PrintWriter(out);
+		List<String> line = nextLine(reader);
+		List<String> nextLine;
+		int count = 0;
+		do {
+			nextLine = nextLine(reader);
 			// 7er etc. ersetzen
-			count += replaceSeven(s);
+			count += replaceSeven(line);
 			// Brüche ersetzen
-			count += replaceFraction(s);
+			count += replaceFraction(line);
 
-			for (int i = 0; i < s.size(); i++) {
-				String t = s.get(i);
-				// ggf. Bindestriche entfernen, außer am Wortende
-				String word = removeDashes(t);
-				// Original-Token in Map?
-				if (map.containsKey(t)) {
-					count++;
-					writer.print(map.get(t));
+			for (int i = 0; i < line.size(); i++) {
+				String token = line.get(i);
+				String replacement;
+				// Worttrennung am Zeilenende?
+				if (i == line.size() - 1 && endsWithDash(token)
+						&& ! nextLine.isEmpty() && Character.isAlphabetic(nextLine.get(0).charAt(0))) {
+					// Wörter zusammenfügen
+					token += nextLine.remove(0);
+					// Satzzeichen in die aktuelle Zeile übernehmen
+					while (! nextLine.isEmpty() && isSatzzeichen(nextLine.get(0))) {
+						line.add(nextLine.remove(0));
+					}
+					// Leerzeichen am Zeilenanfang entfernen.
+					while (! nextLine.isEmpty() && " ".equals(nextLine.get(0))) {
+						nextLine.remove(0);
+					}
+					// ist die Folge-Zeile jetzt leer?
+					if (nextLine.isEmpty()) {
+						// Zeile überspringen
+						nextLine = nextLine(reader);
+					}
 				}
-				// Wort ohne Bindestriche in Map?
-				else if (map.containsKey(word)) {
-					count++;
-					writer.print(map.get(word));
-				}
-				// Wort ohne Bindestriche im Wörterbuch?
-				else if (ciDict.contains(word)) {
-					writer.print(word);
-				}
-				// vor und nach Worttrennung am Zeilenende keine weitere Sonderbehandlung
-				else if (i == 0 && split
-						|| i == s.size() - 1 && endWithDash(t)) {
-					writer.print(t);
+
+				replacement = process(token, map, ciDict);
+				if (replacement == null) {
+					writer.print(token);
 				} else {
-					// überflüssige Buchstaben entfernen
-					String candidate = removeSil(word, ciDict);
-					// nicht gefunden? mit den Rechtschreib-Ersetzungen nochmal prüfen
-					if (candidate.equals(word)) {
-						candidate = removeSil(word, map.keySet());
-						if (map.containsKey(candidate)) {
-							candidate = map.get(candidate);
-						}
-					}
-
-					// immer noch nichts gefunden?
-					if (candidate.equals(word)) {
-						writer.print(t);
-					} else {
-						count++;
-						writer.print(candidate);
-						// wenn das Original mit 'i' oder 'l' geendet hat, kommt wahrscheinlich ein Ausrufezeichen
-						if ((word.endsWith("i") || word.endsWith("l"))
-								&& ! (candidate.endsWith("i") || candidate.endsWith("l"))) {
-							writer.print('!');
-						}
-					}
+					count++;
+					writer.print(replacement);
 				}
 			}
-			split = endWithDash(line);
 
 			writer.println();
-			line = reader.readLine();
+			line = nextLine;
 		}
-		while (line != null);
+		while (line != EOF);
 
 		return count;
+	}
+
+	private boolean isSatzzeichen(String s) {
+		for (int i = 0; i < s.length(); i++) {
+			if (Character.isWhitespace(s.charAt(i))
+					|| Character.isAlphabetic(s.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private String process(String token, Map<String, String> map, Set<String> ciDict) {
+		String result = null;
+		// ggf. Bindestriche entfernen, außer am Wortende
+		String word = removeDashes(token);
+		// Leerzeichen?
+		if (" ".equals(token)) {
+			// nichts zu tun
+		}
+		// Korrektur vorhanden?
+		else if (map.containsKey(token)) {
+			result = map.get(token);
+		}
+		// Wort ohne Bindestriche in Korrektur-Map?
+		else if (map.containsKey(word)) {
+			result = map.get(word);
+		}
+		// Wort ohne Bindestriche im Wörterbuch?
+		else if (ciDict.contains(word)) {
+			result = word;
+		}
+		else {
+			// überflüssige Buchstaben entfernen
+			String candidate = removeSil(word, ciDict);
+			// nicht gefunden? mit den Rechtschreib-Ersetzungen nochmal prüfen
+			if (candidate.equals(word)) {
+				candidate = removeSil(word, map.keySet());
+				if (map.containsKey(candidate)) {
+					candidate = map.get(candidate);
+				}
+			}
+
+			// jetzt gefunden?
+			if (! candidate.equals(word)) {
+				result = candidate;
+				// wenn das Original mit 'i' oder 'l' geendet hat, kommt wahrscheinlich ein Ausrufezeichen
+				if ((word.endsWith("i") || word.endsWith("l"))
+						&& ! (candidate.endsWith("i") || candidate.endsWith("l"))) {
+					result += "!";
+				}
+			}
+		}
+
+		return result;
 	}
 
 	private static final Pattern SEVEN = Pattern.compile(".*\\D7$");
@@ -169,6 +221,7 @@ public class PreProcess
 		char last = ' ';
 		for (int i = 0; i < word.length(); i++) {
 			char ch = word.charAt(i);
+			// alle Bindestriche außer am Wortende und nach einem Backslash entfernen
 			if (isDash(ch) && i < word.length() - 1 && last != '\\') {
 				;
 			} else {
@@ -180,8 +233,10 @@ public class PreProcess
 		return sb.toString();
 	}
 
-	private static boolean endWithDash(String s) {
-		return s.length() > 0 && isDash(s.charAt(s.length() - 1));
+	private static boolean endsWithDash(String s) {
+		return s.length() > 1
+				&& isDash(s.charAt(s.length() - 1))
+				&& s.charAt(s.length() - 2) != '\\';
 	}
 
 	private static boolean isDash(char ch) {
@@ -267,8 +322,8 @@ public class PreProcess
 		if (result.isEmpty()) {
 			result = input;
 		}
-		// 's' am Wortende von groß geschriebenen Wörtern ignorieren
-		else if (input.endsWith("s") && ! result.endsWith("s") && Character.isUpperCase(result.charAt(0))) {
+		// 's' am Wortende ignorieren
+		else if (input.endsWith("s") && ! result.endsWith("s")) {
 			result += "s";
 		}
 
