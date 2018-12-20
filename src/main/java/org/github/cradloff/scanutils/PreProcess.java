@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 public class PreProcess {
 	/** leere Liste als Markierung für das Dateiende */
 	private static final List<String> EOF = new ArrayList<>();
+	/** Zeile mit einem Pagebreak */
+	private static final List<String> PAGEBREAK = TextUtils.split("<@pagebreak/>");
 
 	public static void main(String[] args) throws IOException {
 		long start = System.currentTimeMillis();
@@ -85,6 +87,11 @@ public class PreProcess {
 		int count = 0;
 		do {
 			nextLine = nextLine(reader);
+			// ggf. Pagebreak nach unten verschieben
+			if (line.equals(PAGEBREAK) && nextLine.isEmpty() && nextLine != EOF) {
+				line = nextLine;
+				nextLine = PAGEBREAK;
+			}
 			// 7er etc. ersetzen
 			count += replaceSeven(line);
 			// Brüche ersetzen
@@ -114,7 +121,7 @@ public class PreProcess {
 				}
 
 				replacement = process(token, map, ciDict);
-				if (replacement == null) {
+				if (replacement.equals(token)) {
 					writer.print(token);
 				} else {
 					count++;
@@ -141,7 +148,7 @@ public class PreProcess {
 	}
 
 	private String process(String token, Map<String, String> map, Set<String> ciDict) {
-		String result = null;
+		String result = token;
 		// ggf. Bindestriche entfernen, außer am Wortende
 		String word = removeDashes(token);
 		// Leerzeichen?
