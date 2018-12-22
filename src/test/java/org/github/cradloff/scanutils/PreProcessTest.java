@@ -19,7 +19,7 @@ public class PreProcessTest {
 		checkSplit("Alle meine Entchen", "Alle", " ", "meine", " ", "Entchen");
 		checkSplit(" Alle  meine  Entchen ", " ", "Alle", "  ", "meine", "  ", "Entchen", " ");
 		checkSplit("Alle mei-ne Ent—chen", "Alle", " ", "mei-ne", " ", "Ent—chen");
-		checkSplit("Alle, meine 'Entchen'", "Alle", ",", " ", "meine", " ", "'", "Entchen", "'");
+		checkSplit("Alle, meine 'Entchen’", "Alle", ",", " ", "meine", " ", "'Entchen’");
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
 		checkSplit("wollen wir?", "wollen", " ", "wir", "?");
 		checkSplit("wollen wir?!", "wollen", " ", "wir", "?", "!");

@@ -38,8 +38,8 @@ public class TextUtils {
 			if (Character.isWhitespace(ch)) {
 				newState = State.WHITESPACE;
 			}
-			// Backslash, Bindestrich und Ziffern werden wie Buchstabe behandelt
-			else if (Character.isLetter(ch) || ch == '-' || ch == '—' || ch == '\\' || Character.isDigit(ch)) {
+			// Backslash, Bindestrich, Apostrophe und Ziffern werden wie Buchstabe behandelt
+			else if (Character.isLetter(ch) || ch == '-' || ch == '—' || ch == '\\' || ch == '\'' || ch == '’' || Character.isDigit(ch)) {
 				newState = State.WORD;
 			} else {
 				newState = State.OTHER;
