@@ -35,13 +35,15 @@ public class FileAccess {
 		Set<String> dict = new HashSet<>();
 		File file = find(basefile, filename);
 		while (file != null) {
+			Set<String> dict2 = new HashSet<>();
 			try (FileReader fr = new FileReader(file);
 					BufferedReader br = new BufferedReader(fr);) {
 				for (String line = br.readLine(); line != null; line = br.readLine()) {
-					dict.add(line.trim());
+					dict2.add(line.trim());
 				}
 			}
-			System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict.size());
+			System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict2.size());
+			dict.addAll(dict2);
 			file = find(file.getParentFile().getParentFile(), filename);
 		}
 

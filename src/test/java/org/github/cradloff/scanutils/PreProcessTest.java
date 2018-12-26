@@ -94,19 +94,35 @@ public class PreProcessTest {
 		assertEquals(expected, actual);
 	}
 
+	@Test public void testReplaceCharacters() {
+		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "Deck", "Verbrecher", "Zimmer", "sein", "fein"));
+		checkReplaceCharacters("Schiff", "Schiff", dict);
+		checkReplaceCharacters("voraus", "voraus", dict);
+
+		checkReplaceCharacters("Sehiss", "Schiff", dict);
+		checkReplaceCharacters("rvoauf", "voraus", dict);
+		checkReplaceCharacters("Vech", "Deck", dict);
+		checkReplaceCharacters("Vceli", "Deck", dict);
+		checkReplaceCharacters("Derhrecler", "Verbrecher", dict);
+		checkReplaceCharacters("Zinnner", "Zimmer", dict);
+		checkReplaceCharacters("Ziniwer", "Zimmer", dict);
+
+		// Übereinstimmung mit den wenigsten Abweichungen vom Original werden bevorzugt
+		checkReplaceCharacters("sem", "sein", dict);
+		checkReplaceCharacters("fem", "fein", dict);
+	}
+
+	private void checkReplaceCharacters(String input, String expected, Set<String> dict) {
+		String actual = PreProcess.replaceCharacters(input, dict);
+		assertEquals(expected, actual);
+	}
+
 	@Test public void testPreProcess() throws IOException {
 		Map<String, String> spellcheck = new HashMap<>();
 		spellcheck.put("Aiie", "Alle");
 		spellcheck.put("miene", "meine");
 		spellcheck.put("mer", "wer");
-		Set<String> dict = new HashSet<>();
-		dict.add("alle");
-		dict.add("Entchen");
-		dict.add("es");
-		dict.add("mal");
-		dict.add("mir");
-		dict.add("schwerfällig");
-		dict.add("zu");
+		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "es", "mal", "mir", "wir", "schwerfällig", "zu"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, spellcheck, 0);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck, 2);
@@ -115,6 +131,7 @@ public class PreProcessTest {
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck, 4);
 		checkPreProcess("Alllei miene Eint-chenl Zsu Wasser-teich!\n", "Alle! meine Entchen! Zu Wasser-teich!\n", dict, spellcheck, 4);
 		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, spellcheck, 4);
+		checkPreProcess("Sehiss rvoauf!\n", "Schiff voraus!\n", dict, spellcheck, 2);
 		// keine Entfernung von Bindestrichen nach Backslash
 		checkPreProcess("er war bleiern\\\\-schwerfällig ...\n", "er war bleiern\\\\-schwerfällig ...\n", dict, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, spellcheck, 0);

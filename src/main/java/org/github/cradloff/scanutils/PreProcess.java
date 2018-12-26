@@ -120,7 +120,7 @@ public class PreProcess {
 					}
 				}
 
-				replacement = process(token, map, ciDict);
+				replacement = process(token, map, ciDict); map.get(token);
 				if (replacement.equals(token)) {
 					writer.print(token);
 				} else {
@@ -170,6 +170,7 @@ public class PreProcess {
 		else {
 			// überflüssige Buchstaben entfernen
 			String candidate = removeSil(word, ciDict);
+
 			// nicht gefunden? mit den Rechtschreib-Ersetzungen nochmal prüfen
 			if (candidate.equals(word)) {
 				candidate = removeSil(word, map.keySet());
@@ -185,6 +186,12 @@ public class PreProcess {
 				if ((word.endsWith("i") || word.endsWith("l"))
 						&& ! (candidate.endsWith("i") || candidate.endsWith("l"))) {
 					result += "!";
+				}
+			} else {
+				// gängige Vertauschungen durchführen
+				candidate = replaceCharacters(word, ciDict);
+				if (! candidate.equals(word)) {
+					result = candidate;
 				}
 			}
 		}
@@ -308,45 +315,117 @@ public class PreProcess {
 		return count;
 	}
 
-	/** Entfernt überflüssige 's', 'i' und 'l' aus Wörtern. */
-	public static String removeSil(String input, Set<String> dict) {
-		// Wörter, die bereits im Wörterbuch enthalten sind, nicht bearbeiten
-		if (dict.contains(input) || input.isEmpty()) {
-			return input;
-		}
+	/** Ersetzt vertauschte s/f, v/r/o, etc. */
+	public static String replaceCharacters(String input, Set<String> dict) {
+		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
+		List<String> candidates = new ArrayList<>();
+		replaceCharacters(input, dict, candidates, input.length() - 1);
+		String result = bestMatch(input, candidates);
 
-		// sonst an allen Positionen die Zeichen entfernen und prüfen, ob sie im Wörterbuch enthalten sind
-		String result = "";
-		Collection<String> candidates = new ArrayList<>();
-		removeSil(input, candidates, input.length() - 1);
-		for (String candidate : candidates) {
-			if (candidate.length() > result.length()
-					&& dict.contains(candidate)) {
-				result = candidate;
+		return result;
+	}
+
+	private static final String SIMILAR_CHARS[][] = {
+			{ "s", "f" }, { "v", "o", "r" }, { "h", "k", "b", "l" }, { "V", "D" }, { "e", "c" }, { "n", "u", "a" },
+			{ "sz", "ß" }, { "k", "li" }, { "nnn", "mm" }, { "ni", "in", "m", "w" } };
+	private static final List<String> CHARS;
+	private static final List<List<String>> REPLACEMENT;
+	static {
+		// die Zeichen so umsortieren, dass jeweils zu einer Zeichenkette alle potientiellen Ersetzungen aufgeführt werden
+		// z.B. "s" -> { "f" }, "f" -> { "s" }, "v" -> { "o", "r" }, "o" -> { "v", "r" }, ...
+		List<String> chars = new ArrayList<>();
+		List<List<String>> replacement = new ArrayList<>();
+		for (int i = 0; i < SIMILAR_CHARS.length; i++) {
+			for (int j = 0; j < SIMILAR_CHARS[i].length; j++) {
+				List<String> currReplacement;
+				int idx = chars.indexOf(SIMILAR_CHARS[i][j]);
+				if (idx < 0) {
+					currReplacement = new ArrayList<>();
+					chars.add(SIMILAR_CHARS[i][j]);
+					replacement.add(currReplacement);
+				} else {
+					currReplacement = replacement.get(idx);
+				}
+
+				for (int k = 0; k < SIMILAR_CHARS[i].length; k++) {
+					if (k != j) {
+						currReplacement.add(SIMILAR_CHARS[i][k]);
+					}
+				}
 			}
 		}
 
-		if (result.isEmpty()) {
-			result = input;
+		CHARS = chars;
+		REPLACEMENT = replacement;
+	}
+	private static void replaceCharacters(String input, Set<String> dict, Collection<String> result, int end) {
+		for (int i = end; i >= 0; i--) {
+			for (int j = 0; j < CHARS.size(); j++) {
+				String chars = CHARS.get(j);
+				if (input.regionMatches(i, chars, 0, chars.length())) {
+					// durch alle anderen Zeichen ersetzen
+					for (String replacement : REPLACEMENT.get(j)) {
+						String candidate = input.substring(0, i) + replacement + input.substring(i + chars.length());
+						if (dict.contains(candidate)) {
+							result.add(candidate);
+						}
+						// weitere Kandidaten erzeugen
+						if (i > 0) {
+							replaceCharacters(candidate, dict, result, i - 1);
+						}
+					}
+				}
+			}
 		}
+	}
+
+	/** Entfernt überflüssige 's', 'i' und 'l' aus Wörtern. */
+	public static String removeSil(String input, Set<String> dict) {
+		// an allen Positionen die Zeichen entfernen und prüfen, ob sie im Wörterbuch enthalten sind
+		List<String> candidates = new ArrayList<>();
+		removeSil(input, dict, candidates, input.length() - 1);
+		String result = bestMatch(input, candidates);
+
 		// 's' am Wortende ignorieren
-		else if (input.endsWith("s") && ! result.endsWith("s")) {
+		if (input.endsWith("s") && ! result.endsWith("s")) {
 			result += "s";
 		}
 
 		return result;
 	}
 
-	private static void removeSil(String input, Collection<String> result, int end) {
+	private static void removeSil(String input, Set<String> dict, Collection<String> result, int end) {
 		for (int i = end; i >= 0; i--) {
 			char ch = input.charAt(i);
 			if (ch == 's' || ch == 'i' || ch == 'l') {
 				StringBuilder sb = new StringBuilder(input);
 				String candidate = sb.deleteCharAt(i).toString();
-				result.add(candidate);
-				removeSil(candidate, result, i - 1);
+				if (dict.contains(candidate)) {
+					result.add(candidate);
+				}
+				removeSil(candidate, dict, result, i - 1);
 			}
 		}
 	}
 
+	private static String bestMatch(String input, List<String> candidates) {
+		if (candidates.isEmpty()) {
+			return input;
+		}
+
+		String result = candidates.get(0);
+		if (candidates.size() > 1) {
+			int distance = LevenshteinDistance.compare(input, result);
+			for (int i = 1; i < candidates.size(); i++) {
+				String candidate = candidates.get(i);
+				int distance2 = LevenshteinDistance.compare(input, candidate);
+				if (distance2 < distance) {
+					result = candidate;
+					distance = distance2;
+				}
+			}
+		}
+
+		return result;
+	}
 }
