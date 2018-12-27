@@ -108,8 +108,8 @@ public class PreProcessTest {
 		checkReplaceCharacters("Ziniwer", "Zimmer", dict);
 
 		// Übereinstimmung mit den wenigsten Abweichungen vom Original werden bevorzugt
-		checkReplaceCharacters("sem", "sein", dict);
-		checkReplaceCharacters("fem", "fein", dict);
+		checkReplaceCharacters("scin", "sein", dict);
+		checkReplaceCharacters("fcin", "fein", dict);
 	}
 
 	private void checkReplaceCharacters(String input, String expected, Set<String> dict) {

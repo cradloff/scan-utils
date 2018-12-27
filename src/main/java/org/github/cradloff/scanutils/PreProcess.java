@@ -9,10 +9,13 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -325,46 +328,58 @@ public class PreProcess {
 		return result;
 	}
 
-	private static final String SIMILAR_CHARS[][] = {
-			{ "s", "f" }, { "v", "o", "r" }, { "h", "k", "b", "l" }, { "V", "D" }, { "e", "c" }, { "n", "u", "a" },
-			{ "sz", "ß" }, { "k", "li" }, { "nnn", "mm" }, { "ni", "in", "m", "w" } };
-	private static final List<String> CHARS;
-	private static final List<List<String>> REPLACEMENT;
+	private static final Map<String, List<String>> SC;
 	static {
-		// die Zeichen so umsortieren, dass jeweils zu einer Zeichenkette alle potientiellen Ersetzungen aufgeführt werden
-		// z.B. "s" -> { "f" }, "f" -> { "s" }, "v" -> { "o", "r" }, "o" -> { "v", "r" }, ...
-		List<String> chars = new ArrayList<>();
-		List<List<String>> replacement = new ArrayList<>();
-		for (int i = 0; i < SIMILAR_CHARS.length; i++) {
-			for (int j = 0; j < SIMILAR_CHARS[i].length; j++) {
-				List<String> currReplacement;
-				int idx = chars.indexOf(SIMILAR_CHARS[i][j]);
-				if (idx < 0) {
-					currReplacement = new ArrayList<>();
-					chars.add(SIMILAR_CHARS[i][j]);
-					replacement.add(currReplacement);
-				} else {
-					currReplacement = replacement.get(idx);
-				}
-
-				for (int k = 0; k < SIMILAR_CHARS[i].length; k++) {
-					if (k != j) {
-						currReplacement.add(SIMILAR_CHARS[i][k]);
-					}
+		Map<String, List<String>> sc = new LinkedHashMap<>();
+		addAll(sc, "s", "f");
+		addAll(sc, "v", "o", "r");
+		addAll(sc, "h", "k", "b", "l");
+		addAll(sc, "e", "c");
+		addAll(sc, "m", "w");
+		addAll(sc, "n", "u", "a");
+		addAll(sc, "d", "t");
+		addAll(sc, "V", "D");
+		addAll(sc, "I", "F", "J");
+		addAll(sc, "E", "C", "T", "G", "O");
+		addFirst(sc, "a", "g");
+		addFirst(sc, "d", "ö");
+		addFirst(sc, "sz", "ß");
+		addFirst(sc, "li", "k");
+		addFirst(sc, "nnn", "mm");
+		addFirst(sc, "in", "m", "w");
+		addFirst(sc, "ni", "m", "w");
+		addFirst(sc, "nr", "m", "w");
+		addFirst(sc, "ii", "ü", "ä", "ö");
+		SC = sc;
+	}
+	private static void addAll(Map<String, List<String>> sc, String... entries) {
+		for (int i = 0; i < entries.length; i++) {
+			List<String> replacement = sc.get(entries[i]);
+			if (replacement == null) {
+				replacement = new ArrayList<>();
+				sc.put(entries[i], replacement);
+			}
+			for (int j = 0; j < entries.length; j++) {
+				if (i != j) {
+					replacement.add(entries[j]);
 				}
 			}
 		}
-
-		CHARS = chars;
-		REPLACEMENT = replacement;
+	}
+	private static void addFirst(Map<String, List<String>> sc, String entry, String... entries) {
+		if (sc.containsKey(entry)) {
+			sc.get(entry).addAll(Arrays.asList(entries));
+		} else {
+			sc.put(entry, Arrays.asList(entries));
+		}
 	}
 	private static void replaceCharacters(String input, Set<String> dict, Collection<String> result, int end) {
 		for (int i = end; i >= 0; i--) {
-			for (int j = 0; j < CHARS.size(); j++) {
-				String chars = CHARS.get(j);
+			for (Entry<String, List<String>> entry : SC.entrySet()) {
+				String chars = entry.getKey();
 				if (input.regionMatches(i, chars, 0, chars.length())) {
 					// durch alle anderen Zeichen ersetzen
-					for (String replacement : REPLACEMENT.get(j)) {
+					for (String replacement : entry.getValue()) {
 						String candidate = input.substring(0, i) + replacement + input.substring(i + chars.length());
 						if (dict.contains(candidate)) {
 							result.add(candidate);
