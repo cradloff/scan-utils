@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 /**
@@ -322,15 +322,15 @@ public class PreProcess {
 	public static String replaceCharacters(String input, Set<String> dict) {
 		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
 		List<String> candidates = new ArrayList<>();
-		replaceCharacters(input, dict, candidates, input.length() - 1);
+		replaceCharacters(input, dict, candidates, input.length() - 1, 6);
 		String result = bestMatch(input, candidates);
 
 		return result;
 	}
 
-	private static final Map<String, List<String>> SC;
+	private static final TreeMap<String, List<String>> SC;
 	static {
-		Map<String, List<String>> sc = new LinkedHashMap<>();
+		TreeMap<String, List<String>> sc = new TreeMap<>();
 		addAll(sc, "s", "f");
 		addAll(sc, "v", "o", "r");
 		addAll(sc, "h", "k", "b", "l");
@@ -338,7 +338,11 @@ public class PreProcess {
 		addAll(sc, "m", "w");
 		addAll(sc, "n", "u", "a");
 		addAll(sc, "d", "t");
+		addAll(sc, "i", "j", "t");
+		addAll(sc, "o", "d");
 		addAll(sc, "V", "D");
+		addAll(sc, "U", "N");
+		addAll(sc, "M", "W");
 		addAll(sc, "I", "F", "J");
 		addAll(sc, "E", "C", "T", "G", "O");
 		addFirst(sc, "a", "g");
@@ -373,11 +377,14 @@ public class PreProcess {
 			sc.put(entry, Arrays.asList(entries));
 		}
 	}
-	private static void replaceCharacters(String input, Set<String> dict, Collection<String> result, int end) {
+	private static void replaceCharacters(String input, Set<String> dict, Collection<String> result, int end, int threshold) {
 		for (int i = end; i >= 0; i--) {
-			for (Entry<String, List<String>> entry : SC.entrySet()) {
+			// erste passende Stelle suchen
+			String tail = input.substring(i);
+			Map<String, List<String>> map = SC.subMap(tail.substring(0, 1), true, tail, true);
+			for (Entry<String, List<String>> entry : map.entrySet()) {
 				String chars = entry.getKey();
-				if (input.regionMatches(i, chars, 0, chars.length())) {
+				if (tail.startsWith(chars)) {
 					// durch alle anderen Zeichen ersetzen
 					for (String replacement : entry.getValue()) {
 						String candidate = input.substring(0, i) + replacement + input.substring(i + chars.length());
@@ -385,8 +392,8 @@ public class PreProcess {
 							result.add(candidate);
 						}
 						// weitere Kandidaten erzeugen
-						if (i > 0) {
-							replaceCharacters(candidate, dict, result, i - 1);
+						if (i > 0 && threshold > 1) {
+							replaceCharacters(candidate, dict, result, i - 1, threshold - 1);
 						}
 					}
 				}

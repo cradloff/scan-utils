@@ -95,10 +95,11 @@ public class PreProcessTest {
 	}
 
 	@Test public void testReplaceCharacters() {
-		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "Deck", "Verbrecher", "Zimmer", "sein", "fein"));
+		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "Deck", "Verbrecher", "Zimmer", "sein", "fein", "Backenmuskulatur"));
 		checkReplaceCharacters("Schiff", "Schiff", dict);
 		checkReplaceCharacters("voraus", "voraus", dict);
 
+		checkReplaceCharacters("Baelienmnsknlaiuo", "Backenmuskulatur", dict);
 		checkReplaceCharacters("Sehiss", "Schiff", dict);
 		checkReplaceCharacters("rvoauf", "voraus", dict);
 		checkReplaceCharacters("Vech", "Deck", dict);
