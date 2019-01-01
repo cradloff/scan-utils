@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,35 +19,38 @@ import org.apache.commons.collections4.bag.TreeBag;
 public class SpellCheck {
 	public static void main(String... args) throws IOException {
 		long start = System.currentTimeMillis();
-		if (args.length != 1) {
-			System.out.println("Aufruf: SpellCheck <Dateiname>");
+		if (args.length < 1) {
+			System.out.println("Aufruf: SpellCheck <Dateiname(n)>");
 
 			return;
 		}
 
-		File file = new File(args[0]);
-		if (! file.exists()) {
-			System.out.printf("Datei %s nicht gefunden!%n", args[0]);
-
+		List<File> inputs = FileAccess.checkExists(args);
+		// keine Dateien gefunden?
+		if (inputs.isEmpty()) {
 			return;
 		}
 
 		// Wörterbuch einlesen
-		Set<String> dict = FileAccess.readDict(file, "german.dic");
+		File basedir = FileAccess.basedir(inputs.get(0));
+		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
 		dict = TextUtils.addUpperCase(dict);
 		// Wörter aus Rechtschreibhilfe hinzufügen
-		Map<String, String> rechtschreibung = FileAccess.readRechtschreibungCSV(file);
+		Map<String, String> rechtschreibung = FileAccess.readRechtschreibungCSV(basedir);
 		dict.addAll(rechtschreibung.values());
 
-		// Datei prüfen
-		File spellcheck = new File(FileAccess.basedir(file), "spellcheck.txt");
-		System.out.printf("überprüfe Datei %s%n", file);
+		// Dateien prüfen
+		File spellcheck = new File(basedir, "spellcheck.log");
 		System.out.printf("schreibe nicht gefundene Wörter nach %s%n", spellcheck);
 		try (Writer fw = new FileWriter(spellcheck);
 				PrintWriter out = new PrintWriter(fw)) {
-			// alle Wörter einlesen
 			Bag<String> words = new TreeBag<>();
-			CreateDictionary.readWords(file, words);
+			for (File input : inputs) {
+				System.out.printf("überprüfe Datei %s%n", input);
+				// alle Wörter einlesen
+				CreateDictionary.readWords(input, words);
+			}
+
 			// Wörter aus Wörterbuch entfernen
 			for (String word : dict) {
 				words.remove(word);

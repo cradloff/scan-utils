@@ -2,6 +2,7 @@ package org.github.cradloff.scanutils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,31 +34,42 @@ public class PreProcess {
 	private static final List<String> PAGEBREAK = TextUtils.split("<@pagebreak/>");
 
 	public static void main(String[] args) throws IOException {
-		long start = System.currentTimeMillis();
-		if (args.length != 1) {
-			System.out.println("Aufruf: PreProcess <Dateiname>");
+		if (args.length < 1) {
+			System.out.println("Aufruf: PreProcess <Dateiname(n)>");
 			return;
 		}
 
-		File input = new File(args[0]);
-		if (! input.exists()) {
-			System.out.println("Datei " + args[0] + " nicht gefunden!");
+		List<File> inputs = FileAccess.checkExists(args);
+		// keine Dateien gefunden?
+		if (inputs.isEmpty()) {
 			return;
 		}
-
-		System.out.println("Verarbeite Datei " + args[0]);
 
 		// CSV-Datei mit Rechtschreib-Fehlern einlesen
-		Map<String, String> map = FileAccess.readRechtschreibungCSV(input);
+		File basedir = FileAccess.basedir(inputs.get(0));
+		Map<String, String> map = FileAccess.readRechtschreibungCSV(basedir);
 		// Wörterbuch einlesen
-		Set<String> dict = FileAccess.readDict(input, "german.dic");
+		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
+
+		// alle Dateien verarbeiten
+		File logfile = new File(basedir, "changes.log");
+		try (PrintWriter log = new PrintWriter(logfile)) {
+			for (File input : inputs) {
+				preProcess(input, log, map, dict);
+			}
+		}
+	}
+
+	private static void preProcess(File input, PrintWriter log, Map<String, String> map, Set<String> dict)
+			throws IOException, FileNotFoundException {
+		long start = System.currentTimeMillis();
+		System.out.println("Verarbeite Datei " + input.getPath());
 
 		// Datei umbenennen
 		File backup = FileAccess.roll(input);
-		File logfile = new File(input.getParent(), "changes.log");
 		try (Reader in = new FileReader(backup);
 				Writer out = new FileWriter(input);
-				PrintWriter log = new PrintWriter(logfile)) {
+				) {
 			int count = new PreProcess().preProcess(in, out, log, map, dict);
 
 			System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",

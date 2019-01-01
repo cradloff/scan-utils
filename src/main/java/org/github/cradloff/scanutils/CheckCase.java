@@ -18,30 +18,32 @@ import java.util.Set;
 public class CheckCase {
 	public static void main(String[] args) throws IOException {
 		long start = System.currentTimeMillis();
-		if (args.length != 1) {
-			System.out.println("Aufruf: CheckCase <Dateiname>");
+		if (args.length < 1) {
+			System.out.println("Aufruf: CheckCase <Dateiname(n)>");
 			return;
 		}
 
-		File input = new File(args[0]);
-		if (! input.exists()) {
-			System.out.println("Datei " + args[0] + " nicht gefunden!");
+		List<File> inputs = FileAccess.checkExists(args);
+		// keine Dateien gefunden?
+		if (inputs.isEmpty()) {
 			return;
 		}
-
-		System.out.println("Verarbeite Datei " + args[0]);
 
 		// Wörterbuch einlesen
-		Set<String> dict = FileAccess.readDict(input, "kleinschreibung.txt");
+		File basedir = FileAccess.basedir(inputs.get(0));
+		Set<String> dict = FileAccess.readDict(basedir, "kleinschreibung.txt");
 
-		// Datei umbenennen
-		File backup = FileAccess.roll(input);
-		try (Reader in = new FileReader(backup);
-				Writer out = new FileWriter(input);) {
-			int count = new CheckCase().checkCase(in, out, dict);
+		for (File input : inputs) {
+			System.out.println("Verarbeite Datei " + input.getPath());
+			// Datei umbenennen
+			File backup = FileAccess.roll(input);
+			try (Reader in = new FileReader(backup);
+					Writer out = new FileWriter(input);) {
+				int count = new CheckCase().checkCase(in, out, dict);
 
-			System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
-					count, (System.currentTimeMillis() - start));
+				System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
+						count, (System.currentTimeMillis() - start));
+			}
 		}
 	}
 

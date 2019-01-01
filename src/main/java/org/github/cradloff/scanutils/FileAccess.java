@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -121,5 +123,20 @@ public class FileAccess {
 
 		curr.renameTo(dateiNeu);
 		return dateiNeu;
+	}
+
+	/** Prüft, ob die angegebenen Dateien existieren. Die gefundenen Dateien werden in der Liste zurückgeliefert. */
+	public static List<File> checkExists(String[] filenames) {
+		List<File> result = new ArrayList<>();
+		for (String filename : filenames) {
+			File f = new File(filename);
+			if (f.exists()) {
+				result.add(f);
+			} else {
+				System.err.printf("Datei %s existiert nicht!%n", filename);
+			}
+		}
+
+		return result;
 	}
 }
