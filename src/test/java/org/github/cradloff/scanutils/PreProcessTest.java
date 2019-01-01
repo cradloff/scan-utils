@@ -2,7 +2,9 @@ package org.github.cradloff.scanutils;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -152,11 +154,15 @@ public class PreProcessTest {
 
 	private void checkPreProcess(String line, String expected, Set<String> dict, Map<String, String> spellcheck, int expectedCount) throws IOException {
 		PreProcess pp = new PreProcess();
-		StringReader in = new StringReader(line);
-		StringWriter out = new StringWriter();
-		int count = pp.preProcess(in, out, spellcheck, dict);
-		String actual = out.toString();
-		assertEquals(expected, actual);
-		assertEquals("count", expectedCount, count);
+		try (
+				StringReader in = new StringReader(line);
+				StringWriter out = new StringWriter();
+				PrintWriter log = new PrintWriter(new ByteArrayOutputStream());
+				) {
+			int count = pp.preProcess(in, out, log, spellcheck, dict);
+			String actual = out.toString();
+			assertEquals(expected, actual);
+			assertEquals("count", expectedCount, count);
+		}
 	}
 }

@@ -54,9 +54,11 @@ public class PreProcess {
 
 		// Datei umbenennen
 		File backup = FileAccess.roll(input);
+		File logfile = new File(input.getParent(), "changes.log");
 		try (Reader in = new FileReader(backup);
-				Writer out = new FileWriter(input);) {
-			int count = new PreProcess().preProcess(in, out, map, dict);
+				Writer out = new FileWriter(input);
+				PrintWriter log = new PrintWriter(logfile)) {
+			int count = new PreProcess().preProcess(in, out, log, map, dict);
 
 			System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
 					count, (System.currentTimeMillis() - start));
@@ -80,7 +82,7 @@ public class PreProcess {
 		return tokens;
 	}
 
-	public int preProcess(Reader in, Writer out, Map<String, String> map, Set<String> dict) throws IOException {
+	public int preProcess(Reader in, Writer out, PrintWriter log, Map<String, String> map, Set<String> dict) throws IOException {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
 		Set<String> ciDict = TextUtils.addUpperCase(dict);
 		BufferedReader reader = new BufferedReader(in);
@@ -129,6 +131,7 @@ public class PreProcess {
 				} else {
 					count++;
 					writer.print(replacement);
+					log.printf("%s\t%s%n", token, replacement);
 				}
 			}
 
