@@ -62,11 +62,15 @@ public class TextUtils {
 		Set<String> ciDict = new HashSet<>(dict);
 		for (String s : dict) {
 			if (Character.isLowerCase(s.charAt(0))) {
-				String t = Character.toUpperCase(s.charAt(0)) + s.substring(1);
+				String t = toUpperCase(s);
 				ciDict.add(t);
 			}
 		}
 		return ciDict;
+	}
+
+	public static String toUpperCase(String word) {
+		return Character.toUpperCase(word.charAt(0)) + word.substring(1);
 	}
 
 }

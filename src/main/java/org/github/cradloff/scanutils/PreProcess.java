@@ -185,7 +185,11 @@ public class PreProcess {
 		else if (ciDict.contains(word)) {
 			result = word;
 		}
-		else {
+		// ist das Wort fälschlicherweise klein geschrieben?
+		else if (Character.isLowerCase(word.charAt(0))
+				&& ciDict.contains(TextUtils.toUpperCase(word))) {
+			result = TextUtils.toUpperCase(word);
+		} else {
 			// überflüssige Buchstaben entfernen
 			String candidate = removeSil(word, ciDict);
 
