@@ -143,7 +143,10 @@ public class PreProcess {
 				} else {
 					count++;
 					writer.print(replacement);
-					log.printf("%s\t%s%n", token, replacement);
+					// einfache Entfernungen von Bindestrichen nicht protokollieren
+					if (! replacement.equals(removeDashes(token))) {
+						log.printf("%s\t%s%n", token, replacement);
+					}
 				}
 			}
 
@@ -367,21 +370,24 @@ public class PreProcess {
 		addAll(sc, "o", "ö");
 		addAll(sc, "u", "ü");
 		addAll(sc, "g", "q");
-		addAll(sc, "V", "D");
+		addAll(sc, "V", "D", "B");
 		addAll(sc, "U", "N");
 		addAll(sc, "M", "W");
+		addAll(sc, "K", "R");
 		addAll(sc, "I", "F", "J");
 		addAll(sc, "E", "C", "T", "G", "O");
 		addFirst(sc, "a", "g");
 		addFirst(sc, "d", "ö");
 		addFirst(sc, "w", "a", "n", "u");
 		addFirst(sc, "sz", "ß");
-		addFirst(sc, "li", "k");
+		addFirst(sc, "li", "k", "K");
 		addFirst(sc, "nnn", "mm");
-		addFirst(sc, "nn", "m");
+		addFirst(sc, "nmn", "mm");
+		addFirst(sc, "nn", "m", "mi", "im");
 		addFirst(sc, "in", "m", "w");
 		addFirst(sc, "ni", "m", "w");
 		addFirst(sc, "nr", "m", "w");
+		addFirst(sc, "rn", "m", "w");
 		addFirst(sc, "ii", "ü", "ä", "ö", "k");
 		addFirst(sc, "El", "A");
 		addFirst(sc, "Ill", "M");
