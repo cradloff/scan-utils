@@ -322,24 +322,32 @@ public class PreProcess {
 	public static String replaceCharacters(String input, Set<String> dict) {
 		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
 		List<String> candidates = new ArrayList<>();
-		replaceCharacters(input, dict, candidates, input.length() - 1, 6);
+		replaceCharacters(input, dict, candidates, input.length() - 1, 5);
 		String result = bestMatch(input, candidates);
 
 		return result;
 	}
 
-	private static final TreeMap<String, List<String>> SC;
+	// Map mit typischen Vertauschungen
+	private static final TreeMap<String, List<String>> SIMILAR_CHARS;
 	static {
 		TreeMap<String, List<String>> sc = new TreeMap<>();
 		addAll(sc, "s", "f");
-		addAll(sc, "v", "o", "r");
+		addAll(sc, "v", "o", "r", "n");
 		addAll(sc, "h", "k", "b", "l");
-		addAll(sc, "e", "c");
+		addAll(sc, "e", "c", "o");
 		addAll(sc, "m", "w");
 		addAll(sc, "n", "u", "a");
 		addAll(sc, "d", "t");
-		addAll(sc, "i", "j", "t");
+		addAll(sc, "i", "j", "t", "l");
 		addAll(sc, "o", "d");
+		addAll(sc, "b", "d");
+		addAll(sc, "t", "r");
+		addAll(sc, "a", "o");
+		addAll(sc, "a", "ä");
+		addAll(sc, "o", "ö");
+		addAll(sc, "u", "ü");
+		addAll(sc, "g", "q");
 		addAll(sc, "V", "D");
 		addAll(sc, "U", "N");
 		addAll(sc, "M", "W");
@@ -347,14 +355,20 @@ public class PreProcess {
 		addAll(sc, "E", "C", "T", "G", "O");
 		addFirst(sc, "a", "g");
 		addFirst(sc, "d", "ö");
+		addFirst(sc, "w", "a", "n", "u");
 		addFirst(sc, "sz", "ß");
 		addFirst(sc, "li", "k");
 		addFirst(sc, "nnn", "mm");
+		addFirst(sc, "nn", "m");
 		addFirst(sc, "in", "m", "w");
 		addFirst(sc, "ni", "m", "w");
 		addFirst(sc, "nr", "m", "w");
-		addFirst(sc, "ii", "ü", "ä", "ö");
-		SC = sc;
+		addFirst(sc, "ii", "ü", "ä", "ö", "k");
+		addFirst(sc, "El", "A");
+		addFirst(sc, "Ill", "M");
+		addFirst(sc, "3", "Z", "z");
+		addFirst(sc, "5", "S", "s");
+		SIMILAR_CHARS = sc;
 	}
 	private static void addAll(Map<String, List<String>> sc, String... entries) {
 		for (int i = 0; i < entries.length; i++) {
@@ -381,7 +395,7 @@ public class PreProcess {
 		for (int i = end; i >= 0; i--) {
 			// erste passende Stelle suchen
 			String tail = input.substring(i);
-			Map<String, List<String>> map = SC.subMap(tail.substring(0, 1), true, tail, true);
+			Map<String, List<String>> map = SIMILAR_CHARS.subMap(tail.substring(0, 1), true, tail, true);
 			for (Entry<String, List<String>> entry : map.entrySet()) {
 				String chars = entry.getKey();
 				if (tail.startsWith(chars)) {

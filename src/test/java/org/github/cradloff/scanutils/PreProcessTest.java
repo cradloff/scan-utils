@@ -99,13 +99,13 @@ public class PreProcessTest {
 		checkReplaceCharacters("Schiff", "Schiff", dict);
 		checkReplaceCharacters("voraus", "voraus", dict);
 
-		checkReplaceCharacters("Baelienmnsknlaiuo", "Backenmuskulatur", dict);
-		checkReplaceCharacters("Sehiss", "Schiff", dict);
+		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", dict);
+		checkReplaceCharacters("5ehiss", "Schiff", dict);
 		checkReplaceCharacters("rvoauf", "voraus", dict);
 		checkReplaceCharacters("Vech", "Deck", dict);
 		checkReplaceCharacters("Vceli", "Deck", dict);
 		checkReplaceCharacters("Derhrecler", "Verbrecher", dict);
-		checkReplaceCharacters("Zinnner", "Zimmer", dict);
+		checkReplaceCharacters("3innner", "Zimmer", dict);
 		checkReplaceCharacters("Ziniwer", "Zimmer", dict);
 
 		// Übereinstimmung mit den wenigsten Abweichungen vom Original werden bevorzugt
