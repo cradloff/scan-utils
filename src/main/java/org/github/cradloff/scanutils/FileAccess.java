@@ -5,12 +5,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Hilfsklasse für Dateizugriffe */
 public class FileAccess {
@@ -90,6 +95,49 @@ public class FileAccess {
 		}
 
 		return rechtschreibung;
+	}
+
+	/** Liest eine Datei ein. Die Datei enthält Abschnitte, die in eckigen Klammern stehen,
+	 * Leerzeilen und Zeilen die mit # beginnen, werden ignoriert. Beispiel:
+	 * <pre>
+	 * [Abschnitt 1]
+	 * Zeile 1
+	 * # Kommentar
+	 * Zeile 2
+	 * [Abschnitt 2]
+	 * Zeile 3
+	 */
+	static Map<String, List<String>> readConfig(String filename) throws IOException {
+		try (
+				InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
+				) {
+			if (is == null) {
+				throw new FileNotFoundException(filename);
+			}
+
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.defaultCharset()))) {
+				Map<String, List<String>> result = new HashMap<>();
+				List<String> lines = new ArrayList<>();
+				result.put(null, lines);
+				Pattern pattern = Pattern.compile("\\[(.*)\\]");
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					if (line.trim().isEmpty() || line.startsWith("#")) {
+						;
+					} else {
+						Matcher matcher = pattern.matcher(line);
+						if (matcher.matches()) {
+							String group = matcher.group(1);
+							lines = new ArrayList<>();
+							result.put(group, lines);
+						} else {
+							lines.add(line);
+						}
+					}
+				}
+
+				return result;
+			}
+		}
 	}
 
 	static File basedir(File basefile) {

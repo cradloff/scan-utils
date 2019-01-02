@@ -17,31 +17,6 @@ import java.util.Set;
 import org.junit.Test;
 
 public class PreProcessTest {
-	@Test public void testSplit() {
-		checkSplit("Alle meine Entchen", "Alle", " ", "meine", " ", "Entchen");
-		checkSplit(" Alle  meine  Entchen ", " ", "Alle", "  ", "meine", "  ", "Entchen", " ");
-		checkSplit("Alle mei-ne Ent—chen", "Alle", " ", "mei-ne", " ", "Ent—chen");
-		checkSplit("Alle, meine 'Entchen’", "Alle", ",", " ", "meine", " ", "'Entchen’");
-		checkSplit("wollen wir7", "wollen", " ", "wir7");
-		checkSplit("wollen wir?", "wollen", " ", "wir", "?");
-		checkSplit("wollen wir?!", "wollen", " ", "wir", "?", "!");
-		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", ".", ".", ".");
-	}
-
-	private void checkSplit(String line, String... wordsExcpected) {
-		List<String> words = TextUtils.split(line);
-		assertEquals(Arrays.asList(wordsExcpected), words);
-	}
-
-	@Test public void removeDashes() {
-		assertEquals("Wort", PreProcess.removeDashes("Wort"));
-		assertEquals("Wort", PreProcess.removeDashes("Wo-rt"));
-		assertEquals("Wort", PreProcess.removeDashes("W-o--r-t"));
-		assertEquals("Wort", PreProcess.removeDashes("W-o—r-t"));
-		assertEquals("Wort-", PreProcess.removeDashes("Wort-"));
-		assertEquals("bleiern\\-schwerfällig", PreProcess.removeDashes("bleiern\\-schwerfällig"));
-	}
-
 	@Test public void testSeven() {
 		checkSeven("Wort ohne 7.", "Wort ohne 7.", 0);
 		checkSeven("Absatz 7l und 7i", "Absatz 7l und 7i", 0);
@@ -125,7 +100,7 @@ public class PreProcessTest {
 		spellcheck.put("Aiie", "Alle");
 		spellcheck.put("miene", "meine");
 		spellcheck.put("mer", "wer");
-		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "es", "mal", "mir", "wir", "schwerfällig", "zu"));
+		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "es", "mal", "mir", "wir", "schwerfällig", "zu", "Piraten"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, spellcheck, 0);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, spellcheck, 2);
@@ -144,8 +119,12 @@ public class PreProcessTest {
 		checkPreProcess("Ai-\nie mie-\nne Ent-\nchen\n", "Alle\nmeine\nEntchen\n", dict, spellcheck, 3);
 		// keine Ersetzung von Silben bei Worttrennung am Zeilenende
 		checkPreProcess("mer war im Zim-\nmer? Aiie!\n", "wer war im Zim-mer?\nAlle!\n", dict, spellcheck, 2);
+		// und auch nicht in der Zeile
+		checkPreProcess("mer war im Zim-mer? Aiie!\n", "wer war im Zim-mer? Alle!\n", dict, spellcheck, 2);
 		// s, i, l nicht bei Worttrennung am Zeilenende
 		checkPreProcess("wir ess-\nen da-\nmals\n", "wir ess-en\nda-mals\n", dict, spellcheck, 0);
+		// Ersetzung von Zeichen in Wörten mit Bindestrich
+		checkPreProcess("Ai-ie zum Pivaien-5chifs\n", "Alle zum Piraten-Schiff\n", dict, spellcheck, 3);
 		// Brüche
 		checkPreProcess("Um 1/2 12 Uhr", "Um ½ 12 Uhr\n", dict, spellcheck, 1);
 		// <preprocess> soll immer am Anfang eines Absatzes stehen

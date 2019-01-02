@@ -4,12 +4,42 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
 public class TextUtilsTest {
+	@Test public void testSplit() {
+		checkSplit("Alle meine Entchen", "Alle", " ", "meine", " ", "Entchen");
+		checkSplit(" Alle  meine  Entchen ", " ", "Alle", "  ", "meine", "  ", "Entchen", " ");
+		checkSplit("Alle mei-ne Ent—chen", "Alle", " ", "mei-ne", " ", "Ent—chen");
+		checkSplit("Alle, meine 'Entchen’", "Alle", ",", " ", "meine", " ", "'Entchen’");
+		checkSplit("Alle meine Ent-", "Alle", " ", "meine", " ", "Ent-");
+		checkSplit("auf- und abwärts", "auf", "-", " ", "und", " ", "abwärts");
+		checkSplit("Insel-Cafee", "Insel", "-", "Cafee");
+		checkSplit("wollen wir7", "wollen", " ", "wir7");
+		checkSplit("wollen wir?", "wollen", " ", "wir", "?");
+		checkSplit("wollen wir?!", "wollen", " ", "wir", "?", "!");
+		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", ".", ".", ".");
+	}
+
+	private void checkSplit(String line, String... wordsExcpected) {
+		List<String> words = TextUtils.split(line);
+		assertEquals(Arrays.asList(wordsExcpected), words);
+	}
+
+	@Test public void removeDashes() {
+		assertEquals("Wort", TextUtils.removeDashes("Wort"));
+		assertEquals("Wort", TextUtils.removeDashes("Wo-rt"));
+		assertEquals("Wort", TextUtils.removeDashes("W-o--r-t"));
+		assertEquals("Wort", TextUtils.removeDashes("W-o—r-t"));
+		assertEquals("Wort-", TextUtils.removeDashes("Wort-"));
+		assertEquals("bleiern\\-schwerfällig", TextUtils.removeDashes("bleiern\\-schwerfällig"));
+	}
+
 	@Test public void testSatzzeichenErsetzen() {
 		assertEquals("", TextUtils.satzzeichenErsetzen(""));
 		assertEquals("»Hier. Da ist’s.«", TextUtils.satzzeichenErsetzen(",,Hier· Da ist's.«"));

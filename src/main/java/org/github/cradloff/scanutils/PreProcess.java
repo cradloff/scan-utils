@@ -118,12 +118,12 @@ public class PreProcess {
 				String token = line.get(i);
 				String replacement;
 				// Worttrennung am Zeilenende?
-				if (i == line.size() - 1 && endsWithDash(token)
+				if (i == line.size() - 1 && TextUtils.endsWithDash(token)
 						&& ! nextLine.isEmpty() && Character.isAlphabetic(nextLine.get(0).charAt(0))) {
 					// Wörter zusammenfügen
 					token += nextLine.remove(0);
 					// Satzzeichen in die aktuelle Zeile übernehmen
-					while (! nextLine.isEmpty() && isSatzzeichen(nextLine.get(0))) {
+					while (! nextLine.isEmpty() && TextUtils.isSatzzeichen(nextLine.get(0))) {
 						line.add(nextLine.remove(0));
 					}
 					// Leerzeichen am Zeilenanfang entfernen.
@@ -144,7 +144,7 @@ public class PreProcess {
 					count++;
 					writer.print(replacement);
 					// einfache Entfernungen von Bindestrichen nicht protokollieren
-					if (! replacement.equals(removeDashes(token))) {
+					if (! replacement.equals(TextUtils.removeDashes(token))) {
 						log.printf("%s\t%s%n", token, replacement);
 					}
 				}
@@ -158,20 +158,10 @@ public class PreProcess {
 		return count;
 	}
 
-	private boolean isSatzzeichen(String s) {
-		for (int i = 0; i < s.length(); i++) {
-			if (Character.isWhitespace(s.charAt(i))
-					|| Character.isAlphabetic(s.charAt(i))) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	private String process(String token, Map<String, String> map, Set<String> ciDict) {
 		String result = token;
 		// ggf. Bindestriche entfernen, außer am Wortende
-		String word = removeDashes(token);
+		String word = TextUtils.removeDashes(token);
 		// Leerzeichen?
 		if (" ".equals(token)) {
 			// nichts zu tun
@@ -255,33 +245,6 @@ public class PreProcess {
 		return count;
 	}
 
-	static String removeDashes(String word) {
-		StringBuilder sb = new StringBuilder(word.length());
-		char last = ' ';
-		for (int i = 0; i < word.length(); i++) {
-			char ch = word.charAt(i);
-			// alle Bindestriche außer am Wortende und nach einem Backslash entfernen
-			if (isDash(ch) && i < word.length() - 1 && last != '\\') {
-				;
-			} else {
-				sb.append(ch);
-			}
-			last = ch;
-		}
-
-		return sb.toString();
-	}
-
-	private static boolean endsWithDash(String s) {
-		return s.length() > 1
-				&& isDash(s.charAt(s.length() - 1))
-				&& s.charAt(s.length() - 2) != '\\';
-	}
-
-	private static boolean isDash(char ch) {
-		return ch == '-' || ch == '—';
-	}
-
 	// Map für Brüche: (Zähler, Nenner -> Bruch)
 	private static final Map<String, Map<String, String>> FRACTIONS;
 	static {
@@ -354,45 +317,17 @@ public class PreProcess {
 	private static final TreeMap<String, List<String>> SIMILAR_CHARS;
 	static {
 		TreeMap<String, List<String>> sc = new TreeMap<>();
-		addAll(sc, "s", "f");
-		addAll(sc, "v", "o", "r", "n");
-		addAll(sc, "h", "k", "b", "l");
-		addAll(sc, "e", "c", "o");
-		addAll(sc, "m", "w");
-		addAll(sc, "n", "u", "a");
-		addAll(sc, "d", "t");
-		addAll(sc, "i", "j", "t", "l");
-		addAll(sc, "o", "d");
-		addAll(sc, "b", "d");
-		addAll(sc, "t", "r");
-		addAll(sc, "a", "o");
-		addAll(sc, "a", "ä");
-		addAll(sc, "o", "ö");
-		addAll(sc, "u", "ü");
-		addAll(sc, "g", "q");
-		addAll(sc, "V", "D", "B");
-		addAll(sc, "U", "N");
-		addAll(sc, "M", "W");
-		addAll(sc, "K", "R");
-		addAll(sc, "I", "F", "J");
-		addAll(sc, "E", "C", "T", "G", "O");
-		addFirst(sc, "a", "g");
-		addFirst(sc, "d", "ö");
-		addFirst(sc, "w", "a", "n", "u");
-		addFirst(sc, "sz", "ß");
-		addFirst(sc, "li", "k", "K");
-		addFirst(sc, "nnn", "mm");
-		addFirst(sc, "nmn", "mm");
-		addFirst(sc, "nn", "m", "mi", "im");
-		addFirst(sc, "in", "m", "w");
-		addFirst(sc, "ni", "m", "w");
-		addFirst(sc, "nr", "m", "w");
-		addFirst(sc, "rn", "m", "w");
-		addFirst(sc, "ii", "ü", "ä", "ö", "k");
-		addFirst(sc, "El", "A");
-		addFirst(sc, "Ill", "M");
-		addFirst(sc, "3", "Z", "z");
-		addFirst(sc, "5", "S", "s");
+		try {
+			Map<String, List<String>> similar = FileAccess.readConfig("similar_chars.cfg");
+			for (String s : similar.get("all")) {
+				addAll(sc, s.split("\\s"));
+			}
+			for (String s : similar.get("first")) {
+				addFirst(sc, s.split("\\s"));
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		SIMILAR_CHARS = sc;
 	}
 	private static void addAll(Map<String, List<String>> sc, String... entries) {
@@ -409,11 +344,13 @@ public class PreProcess {
 			}
 		}
 	}
-	private static void addFirst(Map<String, List<String>> sc, String entry, String... entries) {
-		if (sc.containsKey(entry)) {
-			sc.get(entry).addAll(Arrays.asList(entries));
+	private static void addFirst(Map<String, List<String>> sc, String... entries) {
+		List<String> values = Arrays.asList(entries);
+		values = values.subList(1, values.size());
+		if (sc.containsKey(entries[0])) {
+			sc.get(entries[0]).addAll(values);
 		} else {
-			sc.put(entry, Arrays.asList(entries));
+			sc.put(entries[0], values);
 		}
 	}
 	private static void replaceCharacters(String input, Set<String> dict, Collection<String> result, int end, int threshold) {
