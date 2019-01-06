@@ -28,25 +28,59 @@ import java.util.regex.Pattern;
  * Die Rechtschreib-Korrekturen müssen jeweils den Suchbegriff und die Ersetzung in einer Zeile, durch Tab getrennt, enthalten.
  */
 public class PreProcess {
+	static class Parameter {
+		private int level = 4;
+		private List<File> inputs = new ArrayList<>();
+
+		public static Parameter parse(String[] args) {
+			Parameter param = new Parameter();
+			for (String arg : args) {
+				if (arg.startsWith("-")) {
+					param.level = Integer.parseInt(arg.substring(1));
+				} else {
+					File input = FileAccess.checkExists(arg);
+					if (input != null) {
+						param.inputs.add(input);
+					}
+				}
+			}
+
+			return param;
+		}
+
+		public int getLevel() {
+			return level;
+		}
+
+		public List<File> getInputs() {
+			return inputs;
+		}
+	}
+
 	/** leere Liste als Markierung für das Dateiende */
 	private static final List<String> EOF = new ArrayList<>();
 	/** Zeile mit einem Pagebreak */
 	private static final List<String> PAGEBREAK = TextUtils.split("<@pagebreak/>");
+	private Parameter params;
+
+	public PreProcess(Parameter params) {
+		this.params = params;
+	}
 
 	public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
-			System.out.println("Aufruf: PreProcess <Dateiname(n)>");
+			System.out.println("Aufruf: PreProcess [Optionen] <Dateiname(n)>");
 			return;
 		}
 
-		List<File> inputs = FileAccess.checkExists(args);
+		Parameter params = Parameter.parse(args);
 		// keine Dateien gefunden?
-		if (inputs.isEmpty()) {
+		if (params.getInputs().isEmpty()) {
 			return;
 		}
 
 		// CSV-Datei mit Rechtschreib-Fehlern einlesen
-		File basedir = FileAccess.basedir(inputs.get(0));
+		File basedir = FileAccess.basedir(params.getInputs().get(0));
 		Map<String, String> map = FileAccess.readRechtschreibungCSV(basedir);
 		// Wörterbuch einlesen
 		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
@@ -54,13 +88,13 @@ public class PreProcess {
 		// alle Dateien verarbeiten
 		File logfile = new File(basedir, "changes.log");
 		try (PrintWriter log = new PrintWriter(logfile)) {
-			for (File input : inputs) {
-				preProcess(input, log, map, dict);
+			for (File input : params.getInputs()) {
+				preProcess(input, params, log, map, dict);
 			}
 		}
 	}
 
-	private static void preProcess(File input, PrintWriter log, Map<String, String> map, Set<String> dict)
+	private static void preProcess(File input, Parameter params, PrintWriter log, Map<String, String> map, Set<String> dict)
 			throws IOException, FileNotFoundException {
 		long start = System.currentTimeMillis();
 		System.out.println("Verarbeite Datei " + input.getPath());
@@ -70,7 +104,7 @@ public class PreProcess {
 		try (Reader in = new FileReader(backup);
 				Writer out = new FileWriter(input);
 				) {
-			int count = new PreProcess().preProcess(in, out, log, map, dict);
+			int count = new PreProcess(params).preProcess(in, out, log, map, dict);
 
 			System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
 					count, (System.currentTimeMillis() - start));
@@ -212,7 +246,7 @@ public class PreProcess {
 				}
 			} else {
 				// gängige Vertauschungen durchführen
-				candidate = replaceCharacters(word, ciDict);
+				candidate = replaceCharacters(word, ciDict, params.getLevel());
 				if (! candidate.equals(word)) {
 					result = candidate;
 				}
@@ -312,10 +346,10 @@ public class PreProcess {
 	}
 
 	/** Ersetzt vertauschte s/f, v/r/o, etc. */
-	public static String replaceCharacters(String input, Set<String> dict) {
+	public static String replaceCharacters(String input, Set<String> dict, int threshold) {
 		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
 		List<String> candidates = new ArrayList<>();
-		replaceCharacters(input, dict, candidates, input.length() - 1, 5);
+		replaceCharacters(input, dict, candidates, input.length() - 1, threshold);
 		String result = bestMatch(input, candidates);
 
 		return result;

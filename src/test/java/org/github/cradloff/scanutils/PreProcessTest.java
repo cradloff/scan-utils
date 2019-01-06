@@ -91,7 +91,7 @@ public class PreProcessTest {
 	}
 
 	private void checkReplaceCharacters(String input, String expected, Set<String> dict) {
-		String actual = PreProcess.replaceCharacters(input, dict);
+		String actual = PreProcess.replaceCharacters(input, dict, 5);
 		assertEquals(expected, actual);
 	}
 
@@ -132,7 +132,7 @@ public class PreProcessTest {
 	}
 
 	private void checkPreProcess(String line, String expected, Set<String> dict, Map<String, String> spellcheck, int expectedCount) throws IOException {
-		PreProcess pp = new PreProcess();
+		PreProcess pp = new PreProcess(new PreProcess.Parameter());
 		try (
 				StringReader in = new StringReader(line);
 				StringWriter out = new StringWriter();

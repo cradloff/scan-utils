@@ -174,14 +174,26 @@ public class FileAccess {
 	}
 
 	/** Prüft, ob die angegebenen Dateien existieren. Die gefundenen Dateien werden in der Liste zurückgeliefert. */
+	public static File checkExists(String filename) {
+		File result;
+		File f = new File(filename);
+		if (f.exists()) {
+			result = f;
+		} else {
+			result = null;
+			System.err.printf("Datei %s existiert nicht!%n", filename);
+		}
+
+		return result;
+	}
+
+	/** Prüft, ob die angegebenen Dateien existieren. Die gefundenen Dateien werden in der Liste zurückgeliefert. */
 	public static List<File> checkExists(String[] filenames) {
 		List<File> result = new ArrayList<>();
 		for (String filename : filenames) {
-			File f = new File(filename);
-			if (f.exists()) {
+			File f = checkExists(filename);
+			if (f != null) {
 				result.add(f);
-			} else {
-				System.err.printf("Datei %s existiert nicht!%n", filename);
 			}
 		}
 
