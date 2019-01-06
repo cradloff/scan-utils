@@ -109,9 +109,9 @@ public class PreProcessTest {
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck, 4);
 		checkPreProcess("Alllei «miene» Eint-chenl Zsu Wasser-teich!\n", "Alle! »meine« Entchen! Zu Wasser-teich!\n", dict, spellcheck, 4);
 		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, spellcheck, 4);
-		checkPreProcess("Sehiss rvoauf!\n", "Schiff voraus!\n", dict, spellcheck, 2);
+		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, spellcheck, 2);
 		// keine Entfernung von Bindestrichen nach Backslash
-		checkPreProcess("er war bleiern\\\\-schwerfällig ...\n", "er war bleiern\\\\-schwerfällig ...\n", dict, spellcheck, 0);
+		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« ...\n", dict, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, spellcheck, 0);
 		// einzelner Bindestrich am Zeilenende
 		checkPreProcess("er war hier —\nund dort\n", "er war hier —\nund dort\n", dict, spellcheck, 0);

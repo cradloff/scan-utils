@@ -138,7 +138,8 @@ public class PreProcess {
 				}
 
 				// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
-				if ("»".equals(token) && i > 0 && TextUtils.isWord(line.get(i - 1))) {
+				if ("»".equals(token) && i > 0
+						&& (TextUtils.isWord(line.get(i - 1)) || TextUtils.isSatzzeichen(line.get(i - 1)))) {
 					token = "«";
 				} else if ("«".equals(token) && i < line.size() - 1 && TextUtils.isWord(line.get(i + 1))) {
 					token = "»";
