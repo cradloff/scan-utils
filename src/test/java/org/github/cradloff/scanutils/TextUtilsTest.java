@@ -31,6 +31,13 @@ public class TextUtilsTest {
 		assertEquals(Arrays.asList(wordsExcpected), words);
 	}
 
+	@Test public void isDash() {
+		assertTrue(TextUtils.isDash('-'));
+		assertTrue(TextUtils.isDash('—'));
+		assertFalse(TextUtils.isDash('.'));
+		assertFalse(TextUtils.isDash('+'));
+	}
+
 	@Test public void removeDashes() {
 		assertEquals("Wort", TextUtils.removeDashes("Wort"));
 		assertEquals("Wort", TextUtils.removeDashes("Wo-rt"));
@@ -40,6 +47,21 @@ public class TextUtilsTest {
 		assertEquals("bleiern\\-schwerfällig", TextUtils.removeDashes("bleiern\\-schwerfällig"));
 	}
 
+	@Test public void isSatzzeichen() {
+		assertTrue(TextUtils.isSatzzeichen("."));
+		assertTrue(TextUtils.isSatzzeichen(","));
+		assertTrue(TextUtils.isSatzzeichen(";"));
+		assertTrue(TextUtils.isSatzzeichen(":"));
+		assertTrue(TextUtils.isSatzzeichen("-"));
+		assertTrue(TextUtils.isSatzzeichen("»"));
+		assertTrue(TextUtils.isSatzzeichen("«"));
+		assertTrue(TextUtils.isSatzzeichen(".,;:-»«"));
+		assertFalse(TextUtils.isSatzzeichen("a"));
+		assertFalse(TextUtils.isSatzzeichen("»a«"));
+		// Leerzeichen gelten nicht als Satzzeichen
+		assertFalse(TextUtils.isSatzzeichen(".,;: -»«"));
+	}
+
 	@Test public void testSatzzeichenErsetzen() {
 		assertEquals("", TextUtils.satzzeichenErsetzen(""));
 		assertEquals("»Hier. Da ist’s.«", TextUtils.satzzeichenErsetzen(",,Hier· Da ist's.«"));
@@ -47,6 +69,12 @@ public class TextUtilsTest {
 		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen(".,Hier... -- dort -—<<"));
 		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen(",.Hier... -- dort -—<<"));
 		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen("..Hier... -- dort -—<<"));
+	}
+
+	@Test public void isWord() {
+		assertTrue(TextUtils.isWord("Wort"));
+		assertFalse(TextUtils.isWord("«"));
+		assertFalse(TextUtils.isWord(" "));
 	}
 
 	@Test public void testAddUpperCase() {

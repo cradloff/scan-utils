@@ -137,6 +137,13 @@ public class PreProcess {
 					}
 				}
 
+				// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
+				if ("»".equals(token) && i > 0 && TextUtils.isWord(line.get(i - 1))) {
+					token = "«";
+				} else if ("«".equals(token) && i < line.size() - 1 && TextUtils.isWord(line.get(i + 1))) {
+					token = "»";
+				}
+
 				replacement = process(token, map, ciDict); map.get(token);
 				if (replacement.equals(token)) {
 					writer.print(token);
@@ -162,8 +169,8 @@ public class PreProcess {
 		String result = token;
 		// ggf. Bindestriche entfernen, außer am Wortende
 		String word = TextUtils.removeDashes(token);
-		// Leerzeichen?
-		if (" ".equals(token)) {
+		// Satzzeichen?
+		if (" ".equals(token) || TextUtils.isSatzzeichen(token)) {
 			// nichts zu tun
 		}
 		// Korrektur vorhanden?

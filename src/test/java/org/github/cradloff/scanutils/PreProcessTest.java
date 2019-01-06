@@ -107,7 +107,7 @@ public class PreProcessTest {
 		checkPreProcess("Aisie ,,miesne<< Ent.chen\n", "Alle »meine« Entchen\n", dict, spellcheck, 2);
 		checkPreProcess("Ai-ie mi-ene ent-chen\n", "Alle meine Entchen\n", dict, spellcheck, 3);
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, spellcheck, 4);
-		checkPreProcess("Alllei miene Eint-chenl Zsu Wasser-teich!\n", "Alle! meine Entchen! Zu Wasser-teich!\n", dict, spellcheck, 4);
+		checkPreProcess("Alllei «miene» Eint-chenl Zsu Wasser-teich!\n", "Alle! »meine« Entchen! Zu Wasser-teich!\n", dict, spellcheck, 4);
 		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, spellcheck, 4);
 		checkPreProcess("Sehiss rvoauf!\n", "Schiff voraus!\n", dict, spellcheck, 2);
 		// keine Entfernung von Bindestrichen nach Backslash

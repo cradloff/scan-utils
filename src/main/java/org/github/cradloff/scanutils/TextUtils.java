@@ -79,6 +79,15 @@ public class TextUtils {
 		return Character.toUpperCase(word.charAt(0)) + word.substring(1);
 	}
 
+	public static boolean isWord(String s) {
+		for (int i = 0; i < s.length(); i++) {
+			if (! Character.isAlphabetic(s.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public static boolean isSatzzeichen(String s) {
 		for (int i = 0; i < s.length(); i++) {
 			if (Character.isWhitespace(s.charAt(i))
