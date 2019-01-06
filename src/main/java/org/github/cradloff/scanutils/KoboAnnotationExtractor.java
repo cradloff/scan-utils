@@ -23,38 +23,40 @@ public class KoboAnnotationExtractor {
 	public static void main(String... args) throws Exception {
 		// Parameter prüfen
 		if (args.length != 1) {
-			System.err.println("Aufruf: KoboAnnotationExtractor <Datei>");
+			System.err.println("Aufruf: KoboAnnotationExtractor <Dateiname(n)>");
 
 			return;
 		}
 
-		File annotation = new File(args[0]);
-		if (!annotation.exists() || !annotation.isFile()) {
-			System.err.println("ungültige Datei");
-
+		List<File> inputs = FileAccess.checkExists(args);
+		// keine Dateien gefunden?
+		if (inputs.isEmpty()) {
 			return;
 		}
 
-		System.out.println("Parse Datei " + annotation);
-
-		// Annotations parsen
-		final List<Record> records = parse(annotation);
-
-		// Annotations ausgeben
-		System.out.println("Schreibe annotations.txt");
-		Collections.sort(records);
 		String lastFile = "n/a";
 		try (PrintStream out = new PrintStream(new FileOutputStream("annotations.txt"))) {
-			for (Record record : records) {
-				if (!lastFile.equals(record.getFilename())) {
-					lastFile = record.getFilename();
-					out.println();
-					out.println(lastFile);
-					out.println();
-				}
-				out.println(" - " + record.getTargetText());
-				if (record.getContentText() != null) {
-					out.println(" + " + record.getContentText());
+			for (File annotation : inputs) {
+				System.out.println("Parse Datei " + annotation);
+
+				// Annotations parsen
+				final List<Record> records = parse(annotation);
+
+				// Annotations ausgeben
+				System.out.println("Schreibe annotations.txt");
+				Collections.sort(records);
+
+				for (Record record : records) {
+					if (!lastFile.equals(record.getFilename())) {
+						lastFile = record.getFilename();
+						out.println();
+						out.println(lastFile);
+						out.println();
+					}
+					out.println(" - " + record.getTargetText());
+					if (record.getContentText() != null) {
+						out.println(" + " + record.getContentText());
+					}
 				}
 			}
 		}
