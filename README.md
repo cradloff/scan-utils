@@ -58,7 +58,8 @@ klein geschrieben sind. Die Wörter, die korrigiert werden sollen, werden aus
 der Datei `kleinschreibung.txt` ausgelesen.
 
 __KoboAnnotationExtractor__
-* Extrahiert aus den Annotations des Kobo-eReaders die Texte und gibt sie sortiert aus.
+* Extrahiert aus den Annotations des Kobo-eReaders die Texte und gibt sie sortiert
+in der Datei `annotations.log` aus.
 
 Aufruf: `koboAnnotationExtractor.sh <Dateiname(n)>`
 

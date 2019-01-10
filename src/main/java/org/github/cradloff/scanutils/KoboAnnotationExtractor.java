@@ -35,7 +35,7 @@ public class KoboAnnotationExtractor {
 		}
 
 		String lastFile = "n/a";
-		try (PrintStream out = new PrintStream(new FileOutputStream("annotations.txt"))) {
+		try (PrintStream out = new PrintStream(new FileOutputStream("annotations.log"))) {
 			for (File annotation : inputs) {
 				System.out.println("Parse Datei " + annotation);
 
@@ -43,7 +43,7 @@ public class KoboAnnotationExtractor {
 				final List<Record> records = parse(annotation);
 
 				// Annotations ausgeben
-				System.out.println("Schreibe annotations.txt");
+				System.out.println("Schreibe annotations.log");
 				Collections.sort(records);
 
 				for (Record record : records) {
