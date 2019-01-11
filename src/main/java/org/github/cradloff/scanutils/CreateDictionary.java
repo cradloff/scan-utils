@@ -90,8 +90,13 @@ public class CreateDictionary {
 			String line = reader.readLine();
 			do {
 				// Zeile in Token zerlegen
-				List<String> s = split(line);
-				words.addAll(s);
+				List<String> tokens = TextUtils.split(line);
+				// nur Token, die mit einem Buchstaben beginnen, hinzufügen
+				for (String s : tokens) {
+					if (Character.isAlphabetic(s.charAt(0))) {
+						words.add(s);
+					}
+				}
 
 				line = reader.readLine();
 			}
