@@ -21,7 +21,9 @@ public class PreProcessTest {
 		checkSeven("Wort ohne 7.", "Wort ohne 7.", 0);
 		checkSeven("Absatz 7l und 7i", "Absatz 7l und 7i", 0);
 		checkSeven("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!", 3);
+		checkSeven("Wort7 mit7t sieben71", "Wort? mit?! sieben?!", 3);
 		checkSeven("Wort? mit?l sieben?i", "Wort? mit?! sieben?!", 2);
+		checkSeven("Wort? mit?t sieben?1", "Wort? mit?! sieben?!", 2);
 		checkSeven("57 Wörter mit 7 Silben7", "57 Wörter mit 7 Silben?", 1);
 	}
 
@@ -110,6 +112,8 @@ public class PreProcessTest {
 		checkPreProcess("Alllei «miene» Eint-chenl Zsu Wasser-teich!\n", "Alle! »meine« Entchen! Zu Wasser-teich!\n", dict, spellcheck, 4);
 		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, spellcheck, 4);
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, spellcheck, 2);
+		// Ersetzung von Zeichen durch Ausrufezeichen
+		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, spellcheck, 3);
 		// keine Entfernung von Bindestrichen nach Backslash
 		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« ...\n", dict, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, spellcheck, 0);

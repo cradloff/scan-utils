@@ -204,8 +204,8 @@ public class PreProcess {
 		String result = token;
 		// ggf. Bindestriche entfernen, außer am Wortende
 		String word = TextUtils.removeDashes(token);
-		// Satzzeichen?
-		if (" ".equals(token) || TextUtils.isSatzzeichen(token)) {
+		// Satzzeichen oder im Wörterbuch vorhanden?
+		if (" ".equals(token) || TextUtils.isSatzzeichen(token) || ciDict.contains(token)) {
 			// nichts zu tun
 		}
 		// Korrektur vorhanden?
@@ -219,6 +219,12 @@ public class PreProcess {
 		// Wort ohne Bindestriche im Wörterbuch?
 		else if (ciDict.contains(word)) {
 			result = word;
+		}
+		// endet das Wort auf i, l, t, 1 und ist der Rest im Wörterbuch?
+		else if ((word.endsWith("i") || word.endsWith("l") || word.endsWith("t") || word.endsWith("1"))
+				&& ciDict.contains(word.substring(0, word.length() - 1))) {
+			// dann das letzte Zeichen durch ein Ausrufezeichen ersetzen
+			result = word.substring(0, word.length() - 1) + "!";
 		}
 		// ist das Wort fälschlicherweise klein geschrieben?
 		else if (Character.isLowerCase(word.charAt(0))
@@ -257,7 +263,7 @@ public class PreProcess {
 	}
 
 	private static final Pattern SEVEN = Pattern.compile(".*\\D7$");
-	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D7[il]$");
+	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D7[ilt1]$");
 	static int replaceSeven(List<String> line) {
 		int count = 0;
 		String nextWord = "";
@@ -275,8 +281,8 @@ public class PreProcess {
 			}
 			// ? gefolgt von i oder l
 			else if (word.equals("?")
-					&& (nextWord.equals("i")
-							|| nextWord.equals("l"))) {
+					&& (nextWord.equals("i") || nextWord.equals("l")
+							|| nextWord.equals("t") || nextWord.equals("1"))) {
 				line.remove(i + 1);
 				line.set(i, "?!");
 				count++;
