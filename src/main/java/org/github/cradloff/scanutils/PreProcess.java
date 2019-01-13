@@ -84,17 +84,18 @@ public class PreProcess {
 		Map<String, String> map = FileAccess.readRechtschreibungCSV(basedir);
 		// Wörterbuch einlesen
 		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
+		Set<String> silben = FileAccess.readDict(basedir, "silben.dic");
 
 		// alle Dateien verarbeiten
 		File logfile = new File(basedir, "changes.log");
 		try (PrintWriter log = new PrintWriter(logfile)) {
 			for (File input : params.getInputs()) {
-				preProcess(input, params, log, map, dict);
+				preProcess(input, params, log, map, dict, silben);
 			}
 		}
 	}
 
-	private static void preProcess(File input, Parameter params, PrintWriter log, Map<String, String> map, Set<String> dict)
+	private static void preProcess(File input, Parameter params, PrintWriter log, Map<String, String> map, Set<String> dict, Set<String> silben)
 			throws IOException, FileNotFoundException {
 		long start = System.currentTimeMillis();
 		System.out.println("Verarbeite Datei " + input.getPath());
@@ -104,7 +105,7 @@ public class PreProcess {
 		try (Reader in = new FileReader(backup);
 				Writer out = new FileWriter(input);
 				) {
-			int count = new PreProcess(params).preProcess(in, out, log, map, dict);
+			int count = new PreProcess(params).preProcess(in, out, log, map, dict, silben);
 
 			System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
 					count, (System.currentTimeMillis() - start));
@@ -128,7 +129,7 @@ public class PreProcess {
 		return tokens;
 	}
 
-	public int preProcess(Reader in, Writer out, PrintWriter log, Map<String, String> map, Set<String> dict) throws IOException {
+	public int preProcess(Reader in, Writer out, PrintWriter log, Map<String, String> map, Set<String> dict, Set<String> silben) throws IOException {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
 		Set<String> ciDict = TextUtils.addUpperCase(dict);
 		BufferedReader reader = new BufferedReader(in);
@@ -179,7 +180,7 @@ public class PreProcess {
 					token = "»";
 				}
 
-				replacement = process(token, map, ciDict); map.get(token);
+				replacement = process(token, map, ciDict, silben);
 				if (replacement.equals(token)) {
 					writer.print(token);
 				} else {
@@ -200,7 +201,7 @@ public class PreProcess {
 		return count;
 	}
 
-	private String process(String token, Map<String, String> map, Set<String> ciDict) {
+	private String process(String token, Map<String, String> map, Set<String> ciDict, Set<String> silben) {
 		String result = token;
 		// ggf. Bindestriche entfernen, außer am Wortende
 		String word = TextUtils.removeDashes(token);
@@ -211,6 +212,10 @@ public class PreProcess {
 		// Korrektur vorhanden?
 		else if (map.containsKey(token)) {
 			result = map.get(token);
+		}
+		// keine Ersetzung von Silben
+		else if (silben.contains(word)) {
+			result = word;
 		}
 		// Wort ohne Bindestriche in Korrektur-Map?
 		else if (map.containsKey(word)) {
