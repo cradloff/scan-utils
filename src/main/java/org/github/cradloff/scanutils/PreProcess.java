@@ -173,10 +173,9 @@ public class PreProcess {
 				}
 
 				// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
-				if ("»".equals(token) && i > 0
-						&& (TextUtils.isWord(line.get(i - 1)) || TextUtils.isSatzzeichen(line.get(i - 1)))) {
+				if ("»".equals(token) && wordBefore(line, i) && ! wordAfter(line, i)) {
 					token = "«";
-				} else if ("«".equals(token) && i < line.size() - 1 && TextUtils.isWord(line.get(i + 1))) {
+				} else if ("«".equals(token) && wordAfter(line, i) && ! wordBefore(line, i)) {
 					token = "»";
 				}
 
@@ -199,6 +198,14 @@ public class PreProcess {
 		while (line != EOF);
 
 		return count;
+	}
+
+	private boolean wordBefore(List<String> line, int i) {
+		return i > 0 && (TextUtils.isWord(line.get(i - 1)) || TextUtils.isSatzzeichen(line.get(i - 1)));
+	}
+
+	private boolean wordAfter(List<String> line, int i) {
+		return i < line.size() - 1 && TextUtils.isWord(line.get(i + 1));
 	}
 
 	private String process(String token, Map<String, String> map, Set<String> ciDict, Set<String> silben) {
