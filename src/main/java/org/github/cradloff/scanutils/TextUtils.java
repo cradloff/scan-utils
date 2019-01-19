@@ -100,6 +100,15 @@ public class TextUtils {
 		return ch == '-' || ch == '—';
 	}
 
+	public static boolean isWhitespace(String s) {
+		for (int i = 0; i < s.length(); i++) {
+			if (! Character.isWhitespace(s.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public static boolean endsWithDash(String s) {
 		return s.length() > 1
 				&& isDash(s.charAt(s.length() - 1))

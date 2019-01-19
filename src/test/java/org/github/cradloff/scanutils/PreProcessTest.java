@@ -118,6 +118,8 @@ public class PreProcessTest {
 		checkPreProcess("Alllei «miene» Eint-chenl Zsu Wasser-teich!\n", "Alle! »meine« Entchen! Zu Wasser-teich!\n", dict, silben, spellcheck, 4);
 		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, silben, spellcheck, 4);
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
+		// durch Leerzeichen getrennte Wörter zusammenfassen
+		checkPreProcess("Ai ie mi ene Ent chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
 		// Ersetzung von Zeichen durch Ausrufezeichen
 		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, silben, spellcheck, 3);
 		// keine Entfernung von Bindestrichen nach Backslash

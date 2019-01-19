@@ -75,6 +75,15 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.isWord(" "));
 	}
 
+	@Test public void isWhitespace() {
+		assertTrue(TextUtils.isWhitespace(""));
+		assertTrue(TextUtils.isWhitespace(" "));
+		assertTrue(TextUtils.isWhitespace(" \t\r\n "));
+		assertFalse(TextUtils.isWhitespace("."));
+		assertFalse(TextUtils.isWhitespace("a"));
+		assertFalse(TextUtils.isWhitespace("5"));
+	}
+
 	@Test public void testAddUpperCase() {
 		Set<String> dict = new HashSet<>();
 		dict.add("klein");

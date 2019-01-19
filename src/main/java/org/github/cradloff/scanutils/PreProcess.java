@@ -167,9 +167,9 @@ public class PreProcess {
 				String token = line.get(i);
 
 				// in Tags keine Ersetzungen durchführen
-				if ("<".equals(token)) {
+				if ("<".equals(token) || "</".equals(token)) {
 					tag = true;
-				} else if (">".equals(token)) {
+				} else if (">".equals(token) || "/>".equals(token)) {
 					tag = false;
 				} else if (tag) {
 					writer.print(token);
@@ -199,6 +199,21 @@ public class PreProcess {
 
 				// Wörter ersetzen
 				String replacement = process(token, map, ciDict, silben);
+
+				// durch Leerzeichen getrennte Wörter zusammenfassen
+				if (replacement.equals(token) && whitespaceAfter(line, i) && wordAfter(line, i + 1)) {
+					String word = token + line.get(i + 2);
+					replacement = process(word, map, ciDict, silben);
+					// kein Erfolg?
+					if (replacement.equals(word) && ! ciDict.contains(replacement)) {
+						replacement = token;
+					} else {
+						// bei Erfolg die nachfolgenden Token löschen
+						line.remove(i + 1);
+						line.remove(i + 1);
+					}
+				}
+
 				if (replacement.equals(token)) {
 					writer.print(token);
 				} else {
@@ -248,6 +263,10 @@ public class PreProcess {
 
 	private boolean wordAfter(List<String> line, int i) {
 		return i < line.size() - 1 && TextUtils.isWord(line.get(i + 1));
+	}
+
+	private boolean whitespaceAfter(List<String> line, int i) {
+		return i < line.size() - 1 && TextUtils.isWhitespace(line.get(i + 1));
 	}
 
 	private String process(String token, Map<String, String> map, Set<String> ciDict, Set<String> silben) {
