@@ -15,8 +15,6 @@ public class TextUtils {
 		// << und >> in « und » umwandeln
 		result = result.replaceAll("<<", "«");
 		result = result.replaceAll(">>", "»");
-		// ,, durch » ersetzen
-		result = result.replaceAll("[,.]{2}(\\p{Alnum})", "»$1");
 
 		// gerade Anführungszeichen durch typographische ersetzen
 		result = result.replace('\'', '’');
@@ -49,7 +47,7 @@ public class TextUtils {
 			} else {
 				newState = State.OTHER;
 			}
-			if ((state != newState || newState == State.OTHER) && i > 0) {
+			if (state != newState && i > 0) {
 				result.add(sb.toString());
 				sb.setLength(0);
 			}

@@ -118,10 +118,6 @@ public class PreProcess {
 		if (line == null) {
 			tokens = EOF;
 		} else {
-			// Satzzeichen ersetzen
-			line = TextUtils.satzzeichenErsetzen(line);
-			// Punkte und Anführungszeichen in Wörtern entfernen
-			line = line.replaceAll("(\\p{IsAlphabetic})[.»«](\\p{javaLowerCase})", "$1$2");
 			// Zeile in Token zerlegen
 			tokens = TextUtils.split(line);
 		}
@@ -139,47 +135,70 @@ public class PreProcess {
 		int count = 0;
 		do {
 			nextLine = nextLine(reader);
+
 			// ggf. Pagebreak nach unten verschieben
 			if (line.equals(PAGEBREAK) && nextLine.isEmpty() && nextLine != EOF) {
 				line = nextLine;
 				nextLine = PAGEBREAK;
 			}
+
+			// Leerzeilen überspringen
+			if (line.isEmpty()) {
+				writer.println();
+				line = nextLine;
+				continue;
+			}
+
 			// 7er etc. ersetzen
 			count += replaceSeven(line);
 			// Brüche ersetzen
 			count += replaceFraction(line);
+			// Worttrennung am Zeilenende zusammenfassen
+			if (mergeLinebreak(line, nextLine)) {
+				// ist die Folge-Zeile jetzt leer?
+				if (nextLine.isEmpty()) {
+					// Zeile überspringen
+					nextLine = nextLine(reader);
+				}
+			}
 
+			boolean tag = false;
 			for (int i = 0; i < line.size(); i++) {
 				String token = line.get(i);
-				String replacement;
-				// Worttrennung am Zeilenende?
-				if (i == line.size() - 1 && TextUtils.endsWithDash(token)
-						&& ! nextLine.isEmpty() && Character.isAlphabetic(nextLine.get(0).charAt(0))) {
-					// Wörter zusammenfügen
-					token += nextLine.remove(0);
-					// Satzzeichen in die aktuelle Zeile übernehmen
-					while (! nextLine.isEmpty() && TextUtils.isSatzzeichen(nextLine.get(0))) {
-						line.add(nextLine.remove(0));
-					}
-					// Leerzeichen am Zeilenanfang entfernen.
-					while (! nextLine.isEmpty() && " ".equals(nextLine.get(0))) {
-						nextLine.remove(0);
-					}
-					// ist die Folge-Zeile jetzt leer?
-					if (nextLine.isEmpty()) {
-						// Zeile überspringen
-						nextLine = nextLine(reader);
-					}
+
+				// in Tags keine Ersetzungen durchführen
+				if ("<".equals(token)) {
+					tag = true;
+				} else if (">".equals(token)) {
+					tag = false;
+				} else if (tag) {
+					writer.print(token);
+					continue;
+				}
+
+				// Satzzeichen in Wörtern entfernen
+				while (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[.,»«\"]") && wordAfter(line, i + 1)) {
+					token += line.get(i + 2);
+					line.remove(i + 1);
+					line.remove(i + 1);
+				}
+
+				// Satzzeichen ersetzen
+				token = TextUtils.satzzeichenErsetzen(token);
+				// ,, durch » ersetzen
+				if (token.matches("[,.]{2}") && wordAfter(line, i)) {
+					token = "»";
 				}
 
 				// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
-				if ("»".equals(token) && wordBefore(line, i) && ! wordAfter(line, i)) {
-					token = "«";
+				if (token.endsWith("»") && wordBefore(line, i) && ! wordAfter(line, i)) {
+					token = token.replace("»", "«");
 				} else if ("«".equals(token) && wordAfter(line, i) && ! wordBefore(line, i)) {
 					token = "»";
 				}
 
-				replacement = process(token, map, ciDict, silben);
+				// Wörter ersetzen
+				String replacement = process(token, map, ciDict, silben);
 				if (replacement.equals(token)) {
 					writer.print(token);
 				} else {
@@ -200,8 +219,31 @@ public class PreProcess {
 		return count;
 	}
 
+	private boolean mergeLinebreak(List<String> line, List<String> nextLine) {
+		boolean merged = false;
+		// Worttrennung am Zeilenende?
+		String token = line.get(line.size() - 1);
+		if (TextUtils.endsWithDash(token)
+				&& ! nextLine.isEmpty() && Character.isAlphabetic(nextLine.get(0).charAt(0))) {
+			// Wörter zusammenfügen
+			token += nextLine.remove(0);
+			line.set(line.size() - 1, token);
+			// Satzzeichen in die aktuelle Zeile übernehmen
+			while (! nextLine.isEmpty() && TextUtils.isSatzzeichen(nextLine.get(0))) {
+				line.add(nextLine.remove(0));
+			}
+			// Leerzeichen am Zeilenanfang entfernen.
+			while (! nextLine.isEmpty() && " ".equals(nextLine.get(0))) {
+				nextLine.remove(0);
+			}
+			merged = true;
+		}
+
+		return merged;
+	}
+
 	private boolean wordBefore(List<String> line, int i) {
-		return i > 0 && (TextUtils.isWord(line.get(i - 1)) || TextUtils.isSatzzeichen(line.get(i - 1)));
+		return i > 0 && (TextUtils.isWord(line.get(i - 1)));
 	}
 
 	private boolean wordAfter(List<String> line, int i) {
@@ -274,14 +316,23 @@ public class PreProcess {
 		return result;
 	}
 
-	private static final Pattern SEVEN = Pattern.compile(".*\\D7$");
-	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D7[ilt1]$");
+	private static final Pattern SEVEN = Pattern.compile(".*\\D[72]$");
+	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D[72][ilt1]$");
 	static int replaceSeven(List<String> line) {
 		int count = 0;
 		String nextWord = "";
+		boolean tag = false;
 		for (int i = line.size() - 1; i >= 0; i--) {
 			// '7' am Wortende durch '?' ersetzen
 			String word = line.get(i);
+			if (">".equals(word) || "/>".equals(word)) {
+				tag = true;
+			} else if ("<".equals(word) || "</".equals(word)) {
+				tag = false;
+			} else if (tag) {
+				continue;
+			}
+
 			if (SEVEN_PLUS.matcher(word).matches()) {
 				line.set(i, word.substring(0, word.length() - 2));
 				line.add(i + 1, "?!");

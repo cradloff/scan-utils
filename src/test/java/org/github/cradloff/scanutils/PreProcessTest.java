@@ -20,11 +20,16 @@ public class PreProcessTest {
 	@Test public void testSeven() {
 		checkSeven("Wort ohne 7.", "Wort ohne 7.", 0);
 		checkSeven("Absatz 7l und 7i", "Absatz 7l und 7i", 0);
+		checkSeven("Absatz 2l und 21", "Absatz 2l und 21", 0);
+		checkSeven("<h2>Titel</h2>", "<h2>Titel</h2>", 0);
+
 		checkSeven("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!", 3);
+		checkSeven("Wort2 mit2l zwei21", "Wort? mit?! zwei?!", 3);
 		checkSeven("Wort7 mit7t sieben71", "Wort? mit?! sieben?!", 3);
 		checkSeven("Wort? mit?l sieben?i", "Wort? mit?! sieben?!", 2);
 		checkSeven("Wort? mit?t sieben?1", "Wort? mit?! sieben?!", 2);
 		checkSeven("57 Wörter mit 7 Silben7", "57 Wörter mit 7 Silben?", 1);
+		checkSeven("<h2>Wort7 mit7t zwei21</h2>", "<h2>Wort? mit?! zwei?!</h2>", 3);
 	}
 
 	private void checkSeven(String line, String expected, int expectedCount) {
@@ -136,6 +141,9 @@ public class PreProcessTest {
 		checkPreProcess("<@pagebreak/>\n\n", "\n<@pagebreak/>\n", dict, silben, spellcheck, 0);
 		// keine Ersetzung von Silben (wenn z.B. Bindestrich fehlt)
 		checkPreProcess("Ent ch en\n", "Ent ch en\n", dict, silben, spellcheck, 0);
+		// keine Ersetzungen in HTML-Tags
+		checkPreProcess("<h2>Sehiss rvoauf!</h2>\n", "<h2>Schiff voraus!</h2>\n", dict, silben, spellcheck, 2);
+		checkPreProcess("<a href='aiie.mer'>Sehiss rvoauf!</a>", "<a href='aiie.mer'>Schiff voraus!</a>\n", dict, silben, spellcheck, 2);
 	}
 
 	private void checkPreProcess(String line, String expected, Set<String> dict, Set<String> silben, Map<String, String> spellcheck, int expectedCount) throws IOException {

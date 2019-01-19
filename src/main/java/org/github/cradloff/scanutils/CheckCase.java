@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -99,14 +97,14 @@ public class CheckCase {
 	}
 
 	/** Satzzeichen, die einen Satz beenden ('>' beendet ein Tag) */
-	private static final Set<String> SATZZEICHEN = new HashSet<>(Arrays.asList(".", "!", "?", ":", "»", "«", ">"));
+	private static final String SATZZEICHEN = "[.!?:»«>]*";
 	/** Prüft, ob das übergebene Wort am Satzanfang steht */
 	static boolean satzAnfang(List<String> lastLine, List<String> line, int i) {
 		boolean satzAnfang = false;
 		boolean wortVorhanden = false;
 		for (int pos = i - 1; pos >= 0 && ! satzAnfang && ! wortVorhanden; pos--) {
 			String word = line.get(pos);
-			if (SATZZEICHEN.contains(word)) {
+			if (word.matches(SATZZEICHEN)) {
 				satzAnfang = true;
 			} else if (Character.isLetter(word.charAt(0))) {
 				wortVorhanden = true;
@@ -121,7 +119,7 @@ public class CheckCase {
 			} else {
 				for (int pos = lastLine.size() - 1; pos >= 0 && ! satzAnfang && ! wortVorhanden; pos--) {
 					String word = lastLine.get(pos);
-					if (SATZZEICHEN.contains(word)) {
+					if (word.matches(SATZZEICHEN)) {
 						satzAnfang = true;
 					} else if (Character.isLetter(word.charAt(0))) {
 						wortVorhanden = true;

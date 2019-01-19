@@ -18,12 +18,13 @@ public class TextUtilsTest {
 		checkSplit("Alle mei-ne Ent—chen", "Alle", " ", "mei-ne", " ", "Ent—chen");
 		checkSplit("Alle, meine 'Entchen’", "Alle", ",", " ", "meine", " ", "'Entchen’");
 		checkSplit("Alle meine Ent-", "Alle", " ", "meine", " ", "Ent-");
+		checkSplit(">>Alle ,,meine,, Entchen?!<<", ">>", "Alle", " ", ",,", "meine", ",,", " ", "Entchen", "?!<<");
 		checkSplit("auf- und abwärts", "auf", "-", " ", "und", " ", "abwärts");
 		checkSplit("Insel-Cafee", "Insel", "-", "Cafee");
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
 		checkSplit("wollen wir?", "wollen", " ", "wir", "?");
-		checkSplit("wollen wir?!", "wollen", " ", "wir", "?", "!");
-		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", ".", ".", ".");
+		checkSplit("wollen wir?!", "wollen", " ", "wir", "?!");
+		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", "...");
 	}
 
 	private void checkSplit(String line, String... wordsExcpected) {
@@ -64,11 +65,8 @@ public class TextUtilsTest {
 
 	@Test public void testSatzzeichenErsetzen() {
 		assertEquals("", TextUtils.satzzeichenErsetzen(""));
-		assertEquals("»Hier. Da ist’s.«", TextUtils.satzzeichenErsetzen(",,Hier· Da ist's.«"));
+		assertEquals("Hier. Da ist’s.", TextUtils.satzzeichenErsetzen("Hier· Da ist's."));
 		assertEquals("»Hier — dort —«", TextUtils.satzzeichenErsetzen(">>Hier -- dort -—<<"));
-		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen(".,Hier... -- dort -—<<"));
-		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen(",.Hier... -- dort -—<<"));
-		assertEquals("»Hier... — dort —«", TextUtils.satzzeichenErsetzen("..Hier... -- dort -—<<"));
 	}
 
 	@Test public void isWord() {
