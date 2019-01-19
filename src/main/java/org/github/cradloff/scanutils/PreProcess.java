@@ -167,9 +167,9 @@ public class PreProcess {
 				String token = line.get(i);
 
 				// in Tags keine Ersetzungen durchführen
-				if ("<".equals(token) || "</".equals(token)) {
+				if (startOfTag(token)) {
 					tag = true;
-				} else if (">".equals(token) || "/>".equals(token)) {
+				} else if (endOfTag(token)) {
 					tag = false;
 				} else if (tag) {
 					writer.print(token);
@@ -179,8 +179,7 @@ public class PreProcess {
 				// Satzzeichen in Wörtern entfernen
 				while (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[.,»«\"]") && wordAfter(line, i + 1)) {
 					token += line.get(i + 2);
-					line.remove(i + 1);
-					line.remove(i + 1);
+					remove(line, i + 1, 2);
 				}
 
 				// Satzzeichen ersetzen
@@ -201,7 +200,8 @@ public class PreProcess {
 				String replacement = process(token, map, ciDict, silben);
 
 				// durch Leerzeichen getrennte Wörter zusammenfassen
-				if (replacement.equals(token) && whitespaceAfter(line, i) && wordAfter(line, i + 1)) {
+				if (TextUtils.isWord(token) && whitespaceAfter(line, i) && wordAfter(line, i + 1)
+						&& replacement.equals(token) && ! ciDict.contains(replacement) && ! ciDict.contains(line.get(i + 2))) {
 					String word = token + line.get(i + 2);
 					replacement = process(word, map, ciDict, silben);
 					// kein Erfolg?
@@ -209,8 +209,7 @@ public class PreProcess {
 						replacement = token;
 					} else {
 						// bei Erfolg die nachfolgenden Token löschen
-						line.remove(i + 1);
-						line.remove(i + 1);
+						remove(line, i + 1, 2);
 					}
 				}
 
@@ -255,18 +254,6 @@ public class PreProcess {
 		}
 
 		return merged;
-	}
-
-	private boolean wordBefore(List<String> line, int i) {
-		return i > 0 && (TextUtils.isWord(line.get(i - 1)));
-	}
-
-	private boolean wordAfter(List<String> line, int i) {
-		return i < line.size() - 1 && TextUtils.isWord(line.get(i + 1));
-	}
-
-	private boolean whitespaceAfter(List<String> line, int i) {
-		return i < line.size() - 1 && TextUtils.isWhitespace(line.get(i + 1));
 	}
 
 	private String process(String token, Map<String, String> map, Set<String> ciDict, Set<String> silben) {
@@ -344,9 +331,9 @@ public class PreProcess {
 		for (int i = line.size() - 1; i >= 0; i--) {
 			// '7' am Wortende durch '?' ersetzen
 			String word = line.get(i);
-			if (">".equals(word) || "/>".equals(word)) {
+			if (endOfTag(word)) {
 				tag = true;
-			} else if ("<".equals(word) || "</".equals(word)) {
+			} else if (startOfTag(word)) {
 				tag = false;
 			} else if (tag) {
 				continue;
@@ -423,14 +410,19 @@ public class PreProcess {
 					if (bruch != null) {
 						// Zeichenketten durch Bruch ersetzen
 						words.set(i - 1, bruch);
-						words.remove(i + 1);
-						words.remove(i);
+						remove(words, i, 2);
 						count++;
 					}
 				}
 			}
 		}
 		return count;
+	}
+
+	private static void remove(List<?> values, int index, int count) {
+		for (int i = 0; i < count; i++) {
+			values.remove(index);
+		}
 	}
 
 	/** Ersetzt vertauschte s/f, v/r/o, etc. */
@@ -555,5 +547,25 @@ public class PreProcess {
 		}
 
 		return result;
+	}
+
+	private boolean wordBefore(List<String> line, int i) {
+		return i > 0 && (TextUtils.isWord(line.get(i - 1)));
+	}
+
+	private boolean wordAfter(List<String> line, int i) {
+		return i < line.size() - 1 && TextUtils.isWord(line.get(i + 1));
+	}
+
+	private boolean whitespaceAfter(List<String> line, int i) {
+		return i < line.size() - 1 && TextUtils.isWhitespace(line.get(i + 1));
+	}
+
+	private static boolean endOfTag(String token) {
+		return ">".equals(token) || "/>".equals(token);
+	}
+
+	private static boolean startOfTag(String token) {
+		return "<".equals(token) || "</".equals(token) || "<@".equals(token) || "</@".equals(token);
 	}
 }
