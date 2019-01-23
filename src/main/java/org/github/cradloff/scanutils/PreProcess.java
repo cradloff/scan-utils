@@ -472,7 +472,7 @@ public class PreProcess {
 		if (sc.containsKey(entries[0])) {
 			sc.get(entries[0]).addAll(values);
 		} else {
-			sc.put(entries[0], values);
+			sc.put(entries[0], new ArrayList<>(values));
 		}
 	}
 	private static void replaceCharacters(String input, Set<String> dict, Collection<String> result, int end, int threshold) {
