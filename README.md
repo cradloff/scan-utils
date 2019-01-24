@@ -57,6 +57,14 @@ Ersetzt in der angegebenen Datei alle Wörter, die fälschlicherweise groß bzw.
 klein geschrieben sind. Die Wörter, die korrigiert werden sollen, werden aus
 der Datei `kleinschreibung.txt` ausgelesen.
 
+__CheckQuotes__
+* Prüft die öffnenden und schließenden Anführungszeichen in einer Datei.
+
+Aufruf: `checkquotes.sh <Dateiname(n)>`
+
+Prüft die öffnenden und schließenden Anführungszeichen in den angegebenen Dateien.
+Die Ergebnisse der Prüfung werden in der Datei `checkquotes.log` ausgegeben.
+
 __KoboAnnotationExtractor__
 * Extrahiert aus den Annotations des Kobo-eReaders die Texte und gibt sie sortiert
 in der Datei `annotations.log` aus.
