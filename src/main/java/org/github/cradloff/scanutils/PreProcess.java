@@ -291,6 +291,12 @@ public class PreProcess {
 		else if (Character.isLowerCase(word.charAt(0))
 				&& ciDict.contains(TextUtils.toUpperCase(word))) {
 			result = TextUtils.toUpperCase(word);
+		}
+		// oder passt die Groß-/Kleinschreibung nicht (z.B. "eS")?
+		else if (! ciDict.contains(word) && ciDict.contains(word.toLowerCase())) {
+			result = word.toLowerCase();
+		} else if (! ciDict.contains(word) && ciDict.contains(TextUtils.toUpperCase(word.toLowerCase()))) {
+			result = TextUtils.toUpperCase(word.toLowerCase());
 		} else {
 			// überflüssige Buchstaben entfernen
 			String candidate = removeSil(word, ciDict);
