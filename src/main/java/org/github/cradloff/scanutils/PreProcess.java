@@ -209,6 +209,7 @@ public class PreProcess {
 						replacement = token;
 					} else {
 						// bei Erfolg die nachfolgenden Token löschen
+						token += line.get(i + 1) + line.get(i + 2);
 						remove(line, i + 1, 2);
 					}
 				}
