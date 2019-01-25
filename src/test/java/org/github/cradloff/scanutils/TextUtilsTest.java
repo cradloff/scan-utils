@@ -25,6 +25,8 @@ public class TextUtilsTest {
 		checkSplit("wollen wir?", "wollen", " ", "wir", "?");
 		checkSplit("wollen wir?!", "wollen", " ", "wir", "?!");
 		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", "...");
+		checkSplit("Und -—- Dann", "Und", " ", "-—-", " ", "Dann");
+		checkSplit("Und dann -—-", "Und", " ", "dann", " ", "-—-");
 	}
 
 	private void checkSplit(String line, String... wordsExcpected) {

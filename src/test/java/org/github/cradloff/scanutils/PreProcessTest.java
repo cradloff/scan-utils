@@ -108,7 +108,7 @@ public class PreProcessTest {
 		spellcheck.put("miene", "meine");
 		spellcheck.put("mer", "wer");
 		Set<String> silben = new HashSet<>(Arrays.asList("en", "ch"));
-		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "mal", "mir", "wir", "oh", "schwerfällig", "zu", "Piraten"));
+		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "mal", "mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, silben, spellcheck, 2);
@@ -128,7 +128,7 @@ public class PreProcessTest {
 		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« ...\n", dict, silben, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, silben, spellcheck, 0);
 		// einzelner Bindestrich am Zeilenende
-		checkPreProcess("er war hier —\nund dort\n", "er war hier —\nund dort\n", dict, silben, spellcheck, 0);
+		checkPreProcess("er war hier -—-\nund dort\n", "er war hier —\nund dort\n", dict, silben, spellcheck, 0);
 		// Bindestriche und Korrekturen bei Worttrennung am Zeilenende
 		checkPreProcess("Ai-\nie mie-\nne Ent-\nchen\n", "Alle\nmeine\nEntchen\n", dict, silben, spellcheck, 3);
 		// keine Ersetzung von Silben bei Worttrennung am Zeilenende

@@ -238,7 +238,7 @@ public class PreProcess {
 		boolean merged = false;
 		// Worttrennung am Zeilenende?
 		String token = line.get(line.size() - 1);
-		if (TextUtils.endsWithDash(token)
+		if (TextUtils.endsWithDash(token) && Character.isAlphabetic(token.codePointAt(0))
 				&& ! nextLine.isEmpty() && Character.isAlphabetic(nextLine.get(0).charAt(0))) {
 			// Wörter zusammenfügen
 			token += nextLine.remove(0);
