@@ -78,24 +78,32 @@ public class CheckQuotes {
 		for (List<String> currLine : paragraph) {
 			i++;
 			for (String token : currLine) {
-				// sowohl öffnende als auch schließende Quote?
-				if (token.contains("»") && token.contains("«")) {
+				// sowohl öffnendes als auch schließendes Anführungszeichen?
+				if (hasStartQuote(token) && hasEndQuote(token)) {
 					logError(out, line + i, line + i, 0);
 					errors++;
-				} else if (token.contains("»")) {
+				} else if (hasStartQuote(token)) {
 					quotes++;
-				} else if (token.contains("«")) {
+				} else if (hasEndQuote(token)) {
 					quotes--;
 				}
 			}
 		}
 
 		if (quotes != 0) {
-			logError(out, line, line + paragraph.size(), quotes);
+			logError(out, line, line + paragraph.size() - 1, quotes);
 			errors += Math.abs(quotes);
 		}
 
 		return errors;
+	}
+
+	private static boolean hasEndQuote(String token) {
+		return token.contains("«") || token.contains("„");
+	}
+
+	private static boolean hasStartQuote(String token) {
+		return token.contains("»") || token.contains("“");
 	}
 
 	private static void logError(PrintWriter out, int lineStart, int lineEnd, int quotes) {
