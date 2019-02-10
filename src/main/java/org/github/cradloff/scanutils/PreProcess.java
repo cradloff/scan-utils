@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 /**
@@ -127,17 +129,18 @@ public class PreProcess {
 
 	public int preProcess(Reader in, Writer out, PrintWriter log, Map<String, String> map, Set<String> dict, Set<String> silben) throws IOException {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
-		Set<String> ciDict = TextUtils.addUpperCase(dict);
+		SortedSet<String> ciDict = new TreeSet<>(TextUtils.addUpperCase(dict));
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		List<String> line = nextLine(reader);
+		List<String> prevLine = Arrays.asList("BOF");
 		List<String> nextLine;
 		int count = 0;
 		do {
 			nextLine = nextLine(reader);
 
 			// ggf. Pagebreak nach unten verschieben
-			if (line.equals(PAGEBREAK) && nextLine.isEmpty() && nextLine != EOF) {
+			if (line.equals(PAGEBREAK) && ! prevLine.isEmpty() && nextLine.isEmpty() && nextLine != EOF) {
 				line = nextLine;
 				nextLine = PAGEBREAK;
 			}
@@ -145,6 +148,7 @@ public class PreProcess {
 			// Leerzeilen überspringen
 			if (line.isEmpty()) {
 				writer.println();
+				prevLine = line;
 				line = nextLine;
 				continue;
 			}
@@ -215,7 +219,22 @@ public class PreProcess {
 				}
 
 				if (replacement.equals(token)) {
-					writer.print(token);
+					// nichts gefunden?
+					if (! ciDict.contains(token)) {
+						// ggf. zusammengeschriebene Wörter wieder trennen
+						SortedSet<String> headSet = ciDict.headSet(token);
+						String prefix = headSet.isEmpty() ? null : headSet.last();
+						if (prefix != null && token.startsWith(prefix)) {
+							String postfix = token.substring(prefix.length());
+							if (ciDict.contains(postfix)) {
+								count++;
+								writer.print(prefix);
+								writer.print(" ");
+								replacement = postfix;
+							}
+						}
+					}
+					writer.print(replacement);
 				} else {
 					count++;
 					writer.print(replacement);
@@ -227,6 +246,7 @@ public class PreProcess {
 			}
 
 			writer.println();
+			prevLine = line;
 			line = nextLine;
 		}
 		while (line != EOF);

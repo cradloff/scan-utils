@@ -122,6 +122,10 @@ public class PreProcessTest {
 		checkPreProcess("piraten-SchIff vorauS\n", "Piraten-Schiff voraus\n", dict, silben, spellcheck, 3);
 		// durch Leerzeichen getrennte Wörter zusammenfassen
 		checkPreProcess("Ai ie mi ene Ent chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
+		// zusammengeschriebene Wörter wieder trennen
+		checkPreProcess("Allemal zumir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 2);
+		// aber nur, wenn beide Wort-Bestandteile im Wörterbuch stehen
+		checkPreProcess("Alleher zudir\n", "Alleher zudir\n", dict, silben, spellcheck, 0);
 		// Ersetzung von Zeichen durch Ausrufezeichen
 		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, silben, spellcheck, 3);
 		// keine Entfernung von Bindestrichen nach Backslash
