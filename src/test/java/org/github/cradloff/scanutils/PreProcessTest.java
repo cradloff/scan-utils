@@ -66,6 +66,7 @@ public class PreProcessTest {
 		checkRemoveSil("suns", "uns", dict);
 		checkRemoveSil("siishr", "ihr", dict);
 		checkRemoveSil("Kliusb", "Klub", dict);
+		checkRemoveSil("Klxiusb", "Klub", dict);
 		// 's' am Ende eines groß geschriebenen Wortes ignorieren
 		checkRemoveSil("Kliusbs", "Klubs", dict);
 		checkRemoveSil("Hlarst", "Harst", dict);

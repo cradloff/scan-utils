@@ -527,7 +527,7 @@ public class PreProcess {
 		}
 	}
 
-	/** Entfernt überflüssige 's', 'i' und 'l' aus Wörtern. */
+	/** Entfernt überflüssige 's', 'i', 'l' und 'x' aus Wörtern. */
 	public static String removeSil(String input, Set<String> dict) {
 		// an allen Positionen die Zeichen entfernen und prüfen, ob sie im Wörterbuch enthalten sind
 		List<String> candidates = new ArrayList<>();
@@ -545,7 +545,7 @@ public class PreProcess {
 	private static void removeSil(String input, Set<String> dict, Collection<String> result, int end) {
 		for (int i = end; i >= 0; i--) {
 			char ch = input.charAt(i);
-			if (ch == 's' || ch == 'i' || ch == 'l') {
+			if (ch == 's' || ch == 'i' || ch == 'l' || ch == 'x') {
 				StringBuilder sb = new StringBuilder(input);
 				String candidate = sb.deleteCharAt(i).toString();
 				if (dict.contains(candidate)) {
