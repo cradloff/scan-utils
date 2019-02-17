@@ -27,6 +27,7 @@ public class TextUtilsTest {
 		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", "...");
 		checkSplit("Und -—- Dann", "Und", " ", "-—-", " ", "Dann");
 		checkSplit("Und dann -—-", "Und", " ", "dann", " ", "-—-");
+		checkSplit("Modellauto und -schiff", "Modellauto", " ", "und", " ", "-schiff");
 	}
 
 	private void checkSplit(String line, String... wordsExcpected) {

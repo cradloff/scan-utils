@@ -311,7 +311,10 @@ public class PreProcess {
 		// ist das Wort fälschlicherweise klein geschrieben?
 		else if (Character.isLowerCase(word.charAt(0))
 				&& ciDict.contains(TextUtils.toUpperCase(word))) {
-			result = TextUtils.toUpperCase(word);
+			// nicht, wenn das Wort mit Bindestrich beginnt
+			if (! token.startsWith("-")) {
+				result = TextUtils.toUpperCase(word);
+			}
 		}
 		// oder passt die Groß-/Kleinschreibung nicht (z.B. "eS")?
 		else if (! ciDict.contains(word) && ciDict.contains(word.toLowerCase())) {

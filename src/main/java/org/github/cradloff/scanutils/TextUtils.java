@@ -42,8 +42,9 @@ public class TextUtils {
 			}
 			// Bindestriche, außer vor Großbuchstaben, werden ebenfalls wie Buchstaben behandelt
 			else if (isDash(ch)
-					&& (i == line.length() - 1 || Character.isLowerCase(line.charAt(i + 1)))) {
-				newState = state; // Zustand bleibt erhalten
+					&& (i == line.length() - 1 && state == State.WORD
+					|| i < line.length() - 1 && Character.isLowerCase(line.charAt(i + 1)))) {
+				newState = State.WORD;
 			} else {
 				newState = State.OTHER;
 			}
