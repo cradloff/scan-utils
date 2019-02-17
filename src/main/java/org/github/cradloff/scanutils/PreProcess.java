@@ -222,15 +222,16 @@ public class PreProcess {
 					// nichts gefunden?
 					if (! ciDict.contains(token)) {
 						// ggf. zusammengeschriebene Wörter wieder trennen
-						SortedSet<String> headSet = ciDict.headSet(token);
-						String prefix = headSet.isEmpty() ? null : headSet.last();
-						if (prefix != null && token.startsWith(prefix)) {
-							String postfix = token.substring(prefix.length());
-							if (ciDict.contains(postfix)) {
+						// jedes Teil-Wort muss mindestene zwei Zeichen haben
+						for (int j = 1; j < token.length() -1; j++) {
+							String prefix = token.substring(0, j);
+							String suffix = token.substring(j);
+							if (ciDict.contains(prefix) && ciDict.contains(suffix)) {
 								count++;
 								writer.print(prefix);
 								writer.print(" ");
-								replacement = postfix;
+								replacement = suffix;
+								break;
 							}
 						}
 					}
