@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +30,8 @@ public class CheckCase {
 
 		// Wörterbuch einlesen
 		File basedir = FileAccess.basedir(inputs.get(0));
-		Set<String> dict = FileAccess.readDict(basedir, "kleinschreibung.txt");
+		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
+		dict = removeAmbigous(dict);
 
 		for (File input : inputs) {
 			System.out.println("Verarbeite Datei " + input.getPath());
@@ -43,6 +45,30 @@ public class CheckCase {
 						count, (System.currentTimeMillis() - start));
 			}
 		}
+	}
+
+	/** Entfernt Wörter, die sowohl in Groß- als auch in Kleinschreibung vorhanden sind */
+	private static Set<String> removeAmbigous(Set<String> dict) {
+		// Wörter mit eindeutiger Groß-/Kleinschreibung auf die beiden Sets verteilen
+		Set<String> upper = new HashSet<>();
+		Set<String> lower = new HashSet<>();
+		for (String word : dict) {
+			if (Character.isLowerCase(word.charAt(0))) {
+				String ucWord = TextUtils.toUpperCase(word);
+				if (! dict.contains(ucWord)) {
+					lower.add(word);
+				}
+			} else {
+				String lcWord = word.toLowerCase();
+				if (! dict.contains(lcWord)) {
+					upper.add(word);
+				}
+			}
+		}
+
+		// wieder in einem Set zusammenfassen
+		upper.addAll(lower);
+		return upper;
 	}
 
 	int checkCase(Reader in, Writer out, Set<String> dict) throws IOException {
@@ -78,7 +104,7 @@ public class CheckCase {
 		for (int i = 0; i < line.size(); i++) {
 			String word = line.get(i);
 			String lcWord = word.toLowerCase();
-			String ucWord = Character.toUpperCase(word.charAt(0)) + word.substring(1);
+			String ucWord = TextUtils.toUpperCase(word);
 			// das Wort beginnt mit einem Großbuchstaben, ist im Wörterbuch klein vorhanden?
 			if (Character.isUpperCase(word.charAt(0))
 					&& dict.contains(lcWord) && ! satzAnfang(lastLine, line, i)) {
@@ -97,7 +123,7 @@ public class CheckCase {
 	}
 
 	/** Satzzeichen, die einen Satz beenden ('>' beendet ein Tag) */
-	private static final String SATZZEICHEN = "[.!?:»«>]*";
+	private static final String SATZZEICHEN = ".*[.!?:»«>]+";
 	/** Prüft, ob das übergebene Wort am Satzanfang steht */
 	static boolean satzAnfang(List<String> lastLine, List<String> line, int i) {
 		boolean satzAnfang = false;

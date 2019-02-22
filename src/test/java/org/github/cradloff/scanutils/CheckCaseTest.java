@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class CheckCaseTest {
 
-	@Test public void testToLower() {
+	@Test public void testFixCase() {
 		checkToLower("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.", 0);
 		checkToLower("", "Zu anfang Und Zu klein.", "Zu Anfang und zu klein.", 3);
 		checkToLower("", "ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 3);
@@ -44,13 +44,15 @@ public class CheckCaseTest {
 		checkSatzAnfang(true, "", "Ende?! Anfang");
 		checkSatzAnfang(true, "", "Ende: Anfang");
 		checkSatzAnfang(true, "", "Ende. - Anfang");
-		checkSatzAnfang(true, "", "Ende. - Anfang");
+		checkSatzAnfang(true, "", "Ende. — Anfang");
+		checkSatzAnfang(true, "", "Ende —! Anfang");
 		checkSatzAnfang(true, "", "<h1>Anfang");
 		checkSatzAnfang(true, "Ende.", "Anfang");
 		checkSatzAnfang(true, "Ende. -", "Anfang");
 		checkSatzAnfang(false, "Am", "Anfang");
 	}
 
+	/** prüft, ob das letzte Wort der Zeile am Satzanfang steht */
 	private void checkSatzAnfang(boolean expected, String lastLine, String line) {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);

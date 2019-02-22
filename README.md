@@ -55,7 +55,8 @@ Aufruf: `checkcase.sh <Dateiname(n)>`
 
 Ersetzt in der angegebenen Datei alle Wörter, die fälschlicherweise groß bzw.
 klein geschrieben sind. Die Wörter, die korrigiert werden sollen, werden aus
-der Datei `kleinschreibung.txt` ausgelesen.
+der Datei `german.dic` ausgelesen. Wörter, die sowohl groß als auch klein
+geschrieben vorhanden sind, werden ignoriert.
 
 __CheckQuotes__
 * Prüft die öffnenden und schließenden Anführungszeichen in einer Datei.
@@ -83,6 +84,6 @@ Für Rechtschreibkorrekturen wird eine Datei `rechtschreibung.csv` nach den
 selben Regeln gesucht. Die Datei enthält durch Leerzeichen oder Tab getrennt,
 ein falsch geschriebenes Wort und die korrigierte Fassung.
 
-Für die Korrektur der Groß-/Kleinschreibung wird eine Datei namens
-`kleinschreibung.txt` gesucht. Sie enthält pro Zeile ein Wort, dass, außer am
-Satzanfang, immer groß geschrieben wird.
+Silben, die bei der Wort-Korrektur nicht verändert werden sollen, werden in
+`silben.dic` gespeichert.
+
