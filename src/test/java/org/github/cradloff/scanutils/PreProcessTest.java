@@ -3,7 +3,6 @@ package org.github.cradloff.scanutils;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -75,7 +74,7 @@ public class PreProcessTest {
 	}
 
 	private void checkRemoveSil(String input, String expected, Set<String> dict) {
-		String actual = PreProcess.removeSil(input, dict);
+		String actual = LineProcessor.removeSil(input, dict);
 		assertEquals(expected, actual);
 	}
 
@@ -99,11 +98,11 @@ public class PreProcessTest {
 	}
 
 	private void checkReplaceCharacters(String input, String expected, Set<String> dict) {
-		String actual = PreProcess.replaceCharacters(input, dict, 5);
+		String actual = LineProcessor.replaceCharacters(input, dict, 5);
 		assertEquals(expected, actual);
 	}
 
-	@Test public void testPreProcess() throws IOException {
+	@Test public void testPreProcess() throws Exception {
 		Map<String, String> spellcheck = new HashMap<>();
 		spellcheck.put("Aiie", "Alle");
 		spellcheck.put("miene", "meine");
@@ -156,9 +155,20 @@ public class PreProcessTest {
 		// keine Ersetzungen in HTML-Tags
 		checkPreProcess("<h2>Sehiss rvoauf!</h2>\n", "<h2>Schiff voraus!</h2>\n", dict, silben, spellcheck, 2);
 		checkPreProcess("<a href='aiie.mer'>Sehiss rvoauf!</a>", "<a href='aiie.mer'>Schiff voraus!</a>\n", dict, silben, spellcheck, 2);
+		// Test mit mehreren Zeilen
+		checkPreProcess("Al-le meine Ent-chen\n"
+				+ "piraten-SchIff vorauS\n"
+				+ "\n"
+				+ "Allemal zumir\n",
+
+				"Alle meine Entchen\n"
+				+ "Piraten-Schiff voraus\n"
+				+ "\n"
+				+ "Alle mal zu mir\n", dict, silben, spellcheck, 7);
 	}
 
-	private void checkPreProcess(String line, String expected, Set<String> dict, Set<String> silben, Map<String, String> spellcheck, int expectedCount) throws IOException {
+	private void checkPreProcess(String line, String expected, Set<String> dict, Set<String> silben, Map<String, String> spellcheck, int expectedCount)
+			throws Exception {
 		PreProcess pp = new PreProcess(new PreProcess.Parameter());
 		try (
 				StringReader in = new StringReader(line);

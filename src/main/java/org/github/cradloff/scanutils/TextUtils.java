@@ -133,4 +133,12 @@ public class TextUtils {
 		return sb.toString();
 	}
 
+	public static boolean endOfTag(String token) {
+		return ">".equals(token) || "/>".equals(token);
+	}
+
+	public static boolean startOfTag(String token) {
+		return "<".equals(token) || "</".equals(token) || "<@".equals(token) || "</@".equals(token);
+	}
+
 }
