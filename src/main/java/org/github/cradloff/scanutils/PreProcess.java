@@ -459,8 +459,13 @@ public class PreProcess {
 	/** Ersetzt vertauschte s/f, v/r/o, etc. */
 	public static String replaceCharacters(String input, Set<String> dict, int threshold) {
 		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
+		// der Anfangsbuchstabe wird sowohl in Groß- als auch in Kleinschreibweise gesucht
 		List<String> candidates = new ArrayList<>();
-		replaceCharacters(input, dict, candidates, input.length() - 1, threshold);
+		String lower = input.toLowerCase();
+		replaceCharacters(lower, dict, candidates, input.length() - 1, threshold);
+		String upper = TextUtils.toUpperCase(lower);
+		replaceCharacters(upper, dict, candidates, input.length() - 1, threshold);
+		// den Kandidaten mit den wenigsten Unterschieden zum Original heraussuchen
 		String result = bestMatch(input, candidates);
 
 		return result;

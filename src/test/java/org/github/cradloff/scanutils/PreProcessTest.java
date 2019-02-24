@@ -121,6 +121,8 @@ public class PreProcessTest {
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
 		// Groß-/Kleinschreibung korrigieren
 		checkPreProcess("piraten-SchIff vorauS\n", "Piraten-Schiff voraus\n", dict, silben, spellcheck, 3);
+		checkPreProcess("pixaten-SchIss vorauS\n", "Piraten-Schiff voraus\n", dict, silben, spellcheck, 3);
+		// nicht nach einem Bindestrich
 		checkPreProcess("Modellauto und -schiff\n", "Modellauto und -schiff\n", dict, silben, spellcheck, 0);
 		// durch Leerzeichen getrennte Wörter zusammenfassen
 		checkPreProcess("Ai ie mi ene Ent chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
