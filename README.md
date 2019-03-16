@@ -31,10 +31,13 @@ Optionen:
 __SpellCheck__
 * gibt falsch geschriebene Wörter in einer Datei aus
 
-Aufruf: `spellcheck.sh <Dateiname(n)>`
+Aufruf: `spellcheck.sh [-<threshold>] <Dateiname(n)>`
 
 Alle Wörter in der Datei werden gegen ein Wörterbuch geprüft. Nicht gefundene
 Wörter werden in `spellcheck.log` ausgegeben.
+
+Wenn angegeben, werden nur Wörter ausgegeben, die mindestens <threshold> mal
+vorkommen.
 
 __CreateDictionary__
 * Erzeugt ein Wörterbuch aus Texten

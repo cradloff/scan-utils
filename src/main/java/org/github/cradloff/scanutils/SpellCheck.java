@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,12 +22,18 @@ public class SpellCheck {
 	public static void main(String... args) throws IOException {
 		long start = System.currentTimeMillis();
 		if (args.length < 1) {
-			System.out.println("Aufruf: SpellCheck <Dateiname(n)>");
+			System.out.println("Aufruf: SpellCheck [-<threshold>] <Dateiname(n)>");
 
 			return;
 		}
 
-		List<File> inputs = FileAccess.checkExists(args);
+		List<String> params = new ArrayList<>(Arrays.asList(args));
+		int threshold = 1;
+		if (params.get(0).matches("-\\d+")) {
+			threshold = Integer.parseInt(params.remove(0).substring(1));
+		}
+
+		List<File> inputs = FileAccess.checkExists(params.toArray(new String[params.size()]));
 		// keine Dateien gefunden?
 		if (inputs.isEmpty()) {
 			return;
@@ -57,12 +65,16 @@ public class SpellCheck {
 			}
 
 			// und ausgeben
+			int count = 0;
 			for (String word : words.uniqueSet()) {
-				out.printf("%s\t%,d%n", word, words.getCount(word));
+				if (words.getCount(word) >= threshold) {
+					count++;
+					out.printf("%s\t%,d%n", word, words.getCount(word));
+				}
 			}
 
 			System.out.printf("Anzahl nicht gefundener Wörter: %,d, Zeit: %,dms%n",
-					words.uniqueSet().size(), (System.currentTimeMillis() - start));
+					count, (System.currentTimeMillis() - start));
 		}
 	}
 }
