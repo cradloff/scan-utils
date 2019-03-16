@@ -72,7 +72,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		}
 
 		public void log(String token, String replacement) {
-			log.add(token + "\\t" + replacement);
+			log.add(token + "\t" + replacement);
 		}
 
 		public List<String> log() {
