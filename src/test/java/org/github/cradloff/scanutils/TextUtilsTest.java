@@ -87,6 +87,33 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.isWhitespace("5"));
 	}
 
+	@Test public void startOfTag() {
+		assertTrue(TextUtils.startOfTag("<"));
+		assertTrue(TextUtils.startOfTag("</"));
+		assertTrue(TextUtils.startOfTag("<@"));
+		assertTrue(TextUtils.startOfTag("</@"));
+		// Satzzeichen vor dem Kleinerzeichen werden ignoriert
+		assertTrue(TextUtils.startOfTag("?!</@"));
+
+		assertFalse(TextUtils.startOfTag("<?!"));
+		assertFalse(TextUtils.startOfTag("<<"));
+		assertFalse(TextUtils.startOfTag("<<<"));
+		assertFalse(TextUtils.startOfTag("?!<<"));
+	}
+
+	@Test public void endOfTag() {
+		assertTrue(TextUtils.endOfTag(">"));
+		assertTrue(TextUtils.endOfTag("/>"));
+		// Satzzeichen nach dem Größerzeichen ignorieren
+		assertTrue(TextUtils.endOfTag(">?!"));
+		assertTrue(TextUtils.endOfTag(">..."));
+
+		assertFalse(TextUtils.endOfTag("?!>"));
+		assertFalse(TextUtils.endOfTag(">>"));
+		assertFalse(TextUtils.endOfTag(">>>"));
+		assertFalse(TextUtils.endOfTag(">>?!"));
+	}
+
 	@Test public void testAddUpperCase() {
 		Set<String> dict = new HashSet<>();
 		dict.add("klein");

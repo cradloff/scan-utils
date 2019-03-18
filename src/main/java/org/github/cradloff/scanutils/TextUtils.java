@@ -134,11 +134,11 @@ public class TextUtils {
 	}
 
 	public static boolean endOfTag(String token) {
-		return ">".equals(token) || "/>".equals(token);
+		return token.startsWith(">") && ! token.startsWith(">>") || token.startsWith("/>");
 	}
 
 	public static boolean startOfTag(String token) {
-		return "<".equals(token) || "</".equals(token) || "<@".equals(token) || "</@".equals(token);
+		return token.endsWith("<") && ! token.endsWith("<<") || token.endsWith("</") || token.endsWith("<@") || token.endsWith("</@");
 	}
 
 }

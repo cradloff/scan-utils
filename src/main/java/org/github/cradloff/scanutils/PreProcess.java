@@ -159,6 +159,7 @@ public class PreProcess {
 			} else {
 				// 7er etc. ersetzen
 				count += replaceSeven(line);
+				count += replaceSpecial(line);
 				// Brüche ersetzen
 				count += replaceFraction(line);
 				// Worttrennung am Zeilenende zusammenfassen
@@ -234,6 +235,54 @@ public class PreProcess {
 				count++;
 			}
 			nextWord = word;
+		}
+
+		return count;
+	}
+
+	static int replaceSpecial(List<String> line) {
+		// Größer- und Kleinerzeichen außer in Tags ersetzen
+		// Position des letzten Kleinerzeichens merken
+		int count = 0;
+		int lessThan = -1;
+		for (int i = 0; i < line.size(); i++) {
+			String token = line.get(i);
+			if (TextUtils.startOfTag(token)) {
+				// haben wir schon ein Kleinerzeichen gefunden?
+				if (lessThan >= 0) {
+					// das letzte Kleinerzeichen ersetzen
+					line.set(lessThan, "ch");
+					count++;
+				}
+				lessThan = i;
+			} else if (TextUtils.endOfTag(token)) {
+				// sind wir in einem Tag?
+				if (lessThan >= 0) {
+					lessThan = -1;
+				} else if (i > 0) {
+					// das letzte Größerzeichen ersetzen
+					line.set(i, "ck");
+					count++;
+				}
+			} else if ("{".equals(token)) {
+				line.set(i, "sch");
+				count++;
+			}
+		}
+		if (lessThan >= 0) {
+			// das letzte Kleinerzeichen ersetzen
+			line.set(lessThan, "ch");
+			count++;
+		}
+
+		// wenn Sonderzeichen ersetzt wurden, dann die aufeinanderfolgenden Texte zusammenfassen
+		if (count > 0) {
+			for (int i = line.size() - 2; i >= 0; i--) {
+				if (TextUtils.isWord(line.get(i)) && TextUtils.isWord(line.get(i + 1))) {
+					String s = line.remove(i + 1);
+					line.set(i, line.get(i) + s);
+				}
+			}
 		}
 
 		return count;

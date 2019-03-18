@@ -39,6 +39,39 @@ public class PreProcessTest {
 		assertEquals("count", expectedCount, count);
 	}
 
+	@Test public void testSpecial() {
+		checkSpecial("Wort ohne Sonderzeichen", "Wort ohne Sonderzeichen", 0);
+		checkSpecial("no< ni<t", "noch nicht", 2);
+		checkSpecial("Er bli>te zurü>", "Er blickte zurück", 2);
+		checkSpecial("Er ni>te ni<t", "Er nickte nicht", 2);
+		checkSpecial("dur<s<nittli<", "durchschnittlich", 3);
+		// keine Ersetzung in Tags
+		checkSpecial("Er <em>nickte nicht</em>", "Er <em>nickte nicht</em>", 0);
+		checkSpecial("Super<em>duper</em>gut", "Super<em>duper</em>gut", 0);
+		checkSpecial("<@pagebreak/>", "<@pagebreak/>", 0);
+		// aber dazwischen
+		checkSpecial("Er <em>ni>te nicht</em>", "Er <em>nickte nicht</em>", 1);
+		checkSpecial("Er <em>nickte ni<t</em>", "Er <em>nickte nicht</em>", 1);
+		checkSpecial("Er ni>te<br/>ni<t", "Er nickte<br/>nicht", 2);
+		// keine Ersetzung am Zeilenanfang (Formatierung mit >)
+		checkSpecial("> Er ni>te ni<t", "> Er nickte nicht", 2);
+		// keine Ersetzung von >> und <<
+		checkSpecial("Er >>ni>te<< ni<t", "Er >>nickte<< nicht", 2);
+
+		// geschweifte Klammer wird durch 'sch' ersetzt
+		checkSpecial("Er {wieg {on", "Er schwieg schon", 2);
+
+		// gemischt
+		checkSpecial("<em>Er {wieg s<on</em>", "<em>Er schwieg schon</em>", 2);
+	}
+
+	private void checkSpecial(String line, String expected, int expectedCount) {
+		List<String> words = TextUtils.split(line);
+		int count = PreProcess.replaceSpecial(words);
+		assertEquals(TextUtils.split(expected), words);
+		assertEquals("count", expectedCount, count);
+	}
+
 	@Test public void testFraction() {
 		checkFraction("Um 1/2 12 Uhr", "Um ½ 12 Uhr", 1);
 		checkFraction("1/2 1/3 2/3 1/4 3/4 1/5 2/5 3/5 4/5 1/6 5/6 1/7 1/8 3/8 5/8 7/8 1/9 1/10", "½ ⅓ ⅔ ¼ ¾ ⅕ ⅖ ⅗ ⅘ ⅙ ⅚ ⅐ ⅛ ⅜ ⅝ ⅞ ⅑ ⅒", 18);
@@ -110,6 +143,7 @@ public class PreProcessTest {
 		Set<String> silben = new HashSet<>(Arrays.asList("en", "ch"));
 		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "mal", "mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
+		checkPreProcess("Alle meine Ent<en {wimmen zum S<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 3);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Aisie ,,miesne<< Ent.chen\n", "Alle »meine« Entchen\n", dict, silben, spellcheck, 2);
@@ -156,15 +190,15 @@ public class PreProcessTest {
 		checkPreProcess("<h2>Sehiss rvoauf!</h2>\n", "<h2>Schiff voraus!</h2>\n", dict, silben, spellcheck, 2);
 		checkPreProcess("<a href='aiie.mer'>Sehiss rvoauf!</a>", "<a href='aiie.mer'>Schiff voraus!</a>\n", dict, silben, spellcheck, 2);
 		// Test mit mehreren Zeilen
-		checkPreProcess("Al-le meine Ent-chen\n"
-				+ "piraten-SchIff vorauS\n"
+		checkPreProcess("Al-le meine Ent-<en\n"
+				+ "piraten-S<Iff vorauS\n"
 				+ "\n"
 				+ "Allemal zumir\n",
 
 				"Alle meine Entchen\n"
 				+ "Piraten-Schiff voraus\n"
 				+ "\n"
-				+ "Alle mal zu mir\n", dict, silben, spellcheck, 7);
+				+ "Alle mal zu mir\n", dict, silben, spellcheck, 8);
 	}
 
 	private void checkPreProcess(String line, String expected, Set<String> dict, Set<String> silben, Map<String, String> spellcheck, int expectedCount)
