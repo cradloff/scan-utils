@@ -22,7 +22,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class KoboAnnotationExtractor {
 	public static void main(String... args) throws Exception {
 		// Parameter prüfen
-		if (args.length != 1) {
+		if (args.length < 1) {
 			System.err.println("Aufruf: KoboAnnotationExtractor <Dateiname(n)>");
 
 			return;
@@ -46,6 +46,7 @@ public class KoboAnnotationExtractor {
 				System.out.println("Schreibe annotations.log");
 				Collections.sort(records);
 
+				out.println(records.get(0).getTitle());
 				for (Record record : records) {
 					if (!lastFile.equals(record.getFilename())) {
 						lastFile = record.getFilename();
@@ -65,46 +66,53 @@ public class KoboAnnotationExtractor {
 
 	private static List<Record> parse(File annotation) throws ParserConfigurationException, SAXException, IOException {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
+		factory.setNamespaceAware(true);
 		SAXParser parser = factory.newSAXParser();
 		final List<Record> records = new ArrayList<>();
 		parser.parse(annotation, new DefaultHandler() {
-			String start, targetText, contentText;
+			String start, targetText, contentText, title;
 			boolean text = false, target = false, content = false;
 			StringBuilder sb = new StringBuilder();
 
 			@Override
 			public void startElement(String uri, String localName, String qName, Attributes attributes)
 					throws SAXException {
-				if ("annotation".equals(qName)) {
+				if ("title".equals(localName)) {
+					text = true;
+					title = null;
+				} else if ("annotation".equals(localName)) {
 					targetText = null;
 					contentText = null;
-				} else if ("fragment".equals(qName)) {
+				} else if ("fragment".equals(localName)) {
 					start = attributes.getValue("start");
-				} else if ("text".equals(qName)) {
+				} else if ("text".equals(localName)) {
 					text = true;
 					sb.setLength(0);
-				} else if ("target".equals(qName)) {
+				} else if ("target".equals(localName)) {
 					target = true;
-				} else if ("content".equals(qName)) {
+				} else if ("content".equals(localName)) {
 					content = true;
 				}
 			}
 
 			@Override
 			public void endElement(String uri, String localName, String qName) throws SAXException {
-				if ("text".equals(qName)) {
+				if ("title".equals(localName)) {
+					text = false;
+					title = sb.toString();
+				} else if ("text".equals(localName)) {
 					text = false;
 					if (target) {
 						targetText = sb.toString();
 					} else if (content) {
 						contentText = sb.toString();
 					}
-				} else if ("target".equals(qName)) {
+				} else if ("target".equals(localName)) {
 					target = false;
-				} else if ("content".equals(qName)) {
+				} else if ("content".equals(localName)) {
 					content = false;
-				} else if ("annotation".equals(qName)) {
-					Record record = new Record(start, targetText, contentText);
+				} else if ("annotation".equals(localName)) {
+					Record record = new Record(title, start, targetText, contentText);
 					records.add(record);
 				}
 			}
@@ -120,17 +128,23 @@ public class KoboAnnotationExtractor {
 	}
 
 	static class Record implements Comparable<Record> {
+		private String title;
 		private String filename;
 		private Point point;
 		private String targetText;
 		private String contentText;
 
-		public Record(String start, String targetText, String contentText) {
+		public Record(String title, String start, String targetText, String contentText) {
+			this.title = title;
 			String s[] = start.split("#");
 			this.filename = s[0];
 			this.point = new Point(s[1]);
 			this.targetText = targetText;
 			this.contentText = contentText;
+		}
+
+		public String getTitle() {
+			return title;
 		}
 
 		public String getFilename() {
