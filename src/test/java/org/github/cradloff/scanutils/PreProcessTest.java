@@ -140,6 +140,10 @@ public class PreProcessTest {
 		spellcheck.put("Aiie", "Alle");
 		spellcheck.put("miene", "meine");
 		spellcheck.put("mer", "wer");
+		spellcheck.put("“", "«");
+		spellcheck.put("”", "«");
+		spellcheck.put("„", "»");
+
 		Set<String> silben = new HashSet<>(Arrays.asList("en", "ch"));
 		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "mal", "mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
@@ -147,6 +151,7 @@ public class PreProcessTest {
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Aisie ,,miesne<< Ent.chen\n", "Alle »meine« Entchen\n", dict, silben, spellcheck, 2);
+		checkPreProcess("Alle „meine“ „Entchen”\n", "Alle »meine« »Entchen«\n", dict, silben, spellcheck, 4);
 		checkPreProcess("Ai-ie mi-ene ent-chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, silben, spellcheck, 4);
 		checkPreProcess("Alllei «miene» Eint-chenl Zsu Wasser-teich!\n", "Alle! »meine« Entchen! Zu Wasser-teich!\n", dict, silben, spellcheck, 4);

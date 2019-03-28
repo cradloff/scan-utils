@@ -184,7 +184,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		// ggf. Bindestriche entfernen, außer am Wortende
 		String word = TextUtils.removeDashes(token);
 		// im Wörterbuch vorhanden?
-		if (TextUtils.isSatzzeichen(token) || ciDict.contains(token)) {
+		if (ciDict.contains(token)) {
 			// nichts zu tun
 		}
 		// Korrektur vorhanden?
@@ -192,7 +192,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			result = map.get(token);
 		}
 		// Satzzeichen?
-		else if (" ".equals(token)) {
+		else if (" ".equals(token) || TextUtils.isSatzzeichen(token)) {
 			// nichts zu tun
 		}
 		// keine Ersetzung von Silben
