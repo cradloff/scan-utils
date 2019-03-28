@@ -104,6 +104,8 @@ public class TextUtilsTest {
 	@Test public void endOfTag() {
 		assertTrue(TextUtils.endOfTag(">"));
 		assertTrue(TextUtils.endOfTag("/>"));
+		assertTrue(TextUtils.endOfTag("\">"));
+		assertTrue(TextUtils.endOfTag("\"/>"));
 		// Satzzeichen nach dem Größerzeichen ignorieren
 		assertTrue(TextUtils.endOfTag(">?!"));
 		assertTrue(TextUtils.endOfTag(">..."));

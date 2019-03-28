@@ -194,6 +194,7 @@ public class PreProcessTest {
 		// keine Ersetzungen in HTML-Tags
 		checkPreProcess("<h2>Sehiss rvoauf!</h2>\n", "<h2>Schiff voraus!</h2>\n", dict, silben, spellcheck, 2);
 		checkPreProcess("<a href='aiie.mer'>Sehiss rvoauf!</a>", "<a href='aiie.mer'>Schiff voraus!</a>\n", dict, silben, spellcheck, 2);
+		checkPreProcess("<img src=\"aiie.mer\"/>\n", "<img src=\"aiie.mer\"/>\n", dict, silben, spellcheck, 0);
 		// Test mit mehreren Zeilen
 		checkPreProcess("Al-le meine Ent-<en\n"
 				+ "piraten-S<Iff vorauS\n"

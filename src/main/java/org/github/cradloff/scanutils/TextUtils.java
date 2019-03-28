@@ -134,7 +134,8 @@ public class TextUtils {
 	}
 
 	public static boolean endOfTag(String token) {
-		return token.startsWith(">") && ! token.startsWith(">>") || token.startsWith("/>");
+		return token.startsWith(">") && ! token.startsWith(">>") || token.startsWith("'>") || token.startsWith("\">")
+				|| token.startsWith("/>") || token.startsWith("'/>") || token.startsWith("\"/>");
 	}
 
 	public static boolean startOfTag(String token) {
