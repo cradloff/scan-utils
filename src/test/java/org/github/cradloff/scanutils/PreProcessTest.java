@@ -49,6 +49,7 @@ public class PreProcessTest {
 		checkSpecial("Er <em>nickte nicht</em>", "Er <em>nickte nicht</em>", 0);
 		checkSpecial("Super<em>duper</em>gut", "Super<em>duper</em>gut", 0);
 		checkSpecial("<@pagebreak/>", "<@pagebreak/>", 0);
+		checkSpecial("<p style=\"white-space: pre-wrap;\">", "<p style=\"white-space: pre-wrap;\">", 0);
 		// aber dazwischen
 		checkSpecial("Er <em>ni>te nicht</em>", "Er <em>nickte nicht</em>", 1);
 		checkSpecial("Er <em>nickte ni<t</em>", "Er <em>nickte nicht</em>", 1);

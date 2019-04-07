@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class TextUtils {
 
@@ -133,9 +134,9 @@ public class TextUtils {
 		return sb.toString();
 	}
 
+	private static final Pattern END_OF_TAG = Pattern.compile("['\"/;]*>.*");
 	public static boolean endOfTag(String token) {
-		return token.startsWith(">") && ! token.startsWith(">>") || token.startsWith("'>") || token.startsWith("\">")
-				|| token.startsWith("/>") || token.startsWith("'/>") || token.startsWith("\"/>");
+		return END_OF_TAG.matcher(token).matches() && ! token.startsWith(">>");
 	}
 
 	public static boolean startOfTag(String token) {
