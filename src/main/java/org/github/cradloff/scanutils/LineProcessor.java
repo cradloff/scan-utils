@@ -156,7 +156,9 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 					for (int j = 1; j < token.length() -1; j++) {
 						String prefix = token.substring(0, j);
 						String suffix = token.substring(j);
-						if (ciDict.contains(prefix) && ciDict.contains(suffix)) {
+						if (ciDict.contains(prefix) && ciDict.contains(suffix)
+								// keine einzelnen Silben abtrennen
+								&& ! silben.contains(prefix) && ! silben.contains(suffix)) {
 							result.changed();
 							result.print(prefix);
 							result.print(" ");
@@ -262,15 +264,30 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	public static String replaceCharacters(String input, Set<String> dict, int threshold) {
 		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
 		// der Anfangsbuchstabe wird sowohl in Groß- als auch in Kleinschreibweise gesucht
+		String[] variants = caseVariants(input);
 		List<String> candidates = new ArrayList<>();
-		String lower = input.toLowerCase();
-		replaceCharacters(lower, dict, candidates, input.length() - 1, threshold);
-		String upper = TextUtils.toUpperCase(lower);
-		replaceCharacters(upper, dict, candidates, input.length() - 1, threshold);
+		threshold = replaceCharacters(variants[0], dict, candidates, input.length() - 1, threshold) - 1;
+		replaceCharacters(variants[1], dict, candidates, input.length() - 1, threshold);
 		// den Kandidaten mit den wenigsten Unterschieden zum Original heraussuchen
 		String result = bestMatch(input, candidates);
 
 		return result;
+	}
+
+	private static String[] caseVariants(String input) {
+		String lower = input.toLowerCase();
+		String upper = TextUtils.toUpperCase(lower);
+		String variants[] = new String[2];
+		// zuerst wird in der Original-Schreibweise gesucht
+		if (Character.isLowerCase(input.charAt(0))) {
+			variants[0] = lower;
+			variants[1] = upper;
+		} else {
+			variants[0] = upper;
+			variants[1] = lower;
+		}
+
+		return variants;
 	}
 
 	// Map mit typischen Vertauschungen
@@ -313,7 +330,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			sc.put(entries[0], new ArrayList<>(values));
 		}
 	}
-	private static void replaceCharacters(String input, Set<String> dict, Collection<String> result, int end, int threshold) {
+	private static int replaceCharacters(String input, Set<String> dict, Collection<String> result, int end, int threshold) {
 		for (int i = end; i >= 0; i--) {
 			// erste passende Stelle suchen
 			String tail = input.substring(i);
@@ -326,15 +343,20 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 						String candidate = input.substring(0, i) + replacement + input.substring(i + chars.length());
 						if (dict.contains(candidate)) {
 							result.add(candidate);
+							// wenn wir einen Kandidaten gefunden haben, macht es keinen Sinn,
+							// nach Wörtern mit mehr Unterschieden zu suchen
+							threshold = 1;
 						}
 						// weitere Kandidaten erzeugen
 						if (i > 0 && threshold > 1) {
-							replaceCharacters(candidate, dict, result, i - 1, threshold - 1);
+							threshold = replaceCharacters(candidate, dict, result, i - 1, threshold - 1);
 						}
 					}
 				}
 			}
 		}
+
+		return threshold + 1;
 	}
 
 	/** Entfernt überflüssige 's', 'i', 'l' und 'x' aus Wörtern. */
