@@ -88,27 +88,28 @@ public class PreProcessTest {
 		assertEquals("count", expectedCount, count);
 	}
 
-	@Test public void testRemoveSil() {
-		Set<String> dict = new HashSet<>(Arrays.asList("dein", "uns", "ihr", "Klub", "Harst"));
-		checkRemoveSil("dein", "dein", dict);
-		checkRemoveSil("uns", "uns", dict);
-		checkRemoveSil("ihr", "ihr", dict);
-		checkRemoveSil("Harsts", "Harsts", dict);
-		checkRemoveSil("dseins", "deins", dict);
-		checkRemoveSil("uinss", "uns", dict);
-		checkRemoveSil("suns", "uns", dict);
-		checkRemoveSil("siishr", "ihr", dict);
-		checkRemoveSil("Kliusb", "Klub", dict);
-		checkRemoveSil("Klxiusb", "Klub", dict);
+	@Test public void testRemoveSilh() {
+		Set<String> dict = new HashSet<>(Arrays.asList("dein", "uns", "ihr", "Klub", "Harst", "schwammen"));
+		checkRemoveSilh("dein", "dein", dict);
+		checkRemoveSilh("uns", "uns", dict);
+		checkRemoveSilh("ihr", "ihr", dict);
+		checkRemoveSilh("Harsts", "Harsts", dict);
+		checkRemoveSilh("dseins", "deins", dict);
+		checkRemoveSilh("uinss", "uns", dict);
+		checkRemoveSilh("suns", "uns", dict);
+		checkRemoveSilh("siishr", "ihr", dict);
+		checkRemoveSilh("Kliusb", "Klub", dict);
+		checkRemoveSilh("Klxiusb", "Klub", dict);
+		checkRemoveSilh("sschhwammen", "schwammen", dict);
 		// 's' am Ende eines groß geschriebenen Wortes ignorieren
-		checkRemoveSil("Kliusbs", "Klubs", dict);
-		checkRemoveSil("Hlarst", "Harst", dict);
-		checkRemoveSil("Hlairsst", "Harst", dict);
-		checkRemoveSil("Hlairssts", "Harsts", dict);
+		checkRemoveSilh("Kliusbs", "Klubs", dict);
+		checkRemoveSilh("Hlarst", "Harst", dict);
+		checkRemoveSilh("Hlairsst", "Harst", dict);
+		checkRemoveSilh("Hlairssts", "Harsts", dict);
 	}
 
-	private void checkRemoveSil(String input, String expected, Set<String> dict) {
-		String actual = LineProcessor.removeSil(input, dict);
+	private void checkRemoveSilh(String input, String expected, Set<String> dict) {
+		String actual = LineProcessor.removeSilh(input, dict);
 		assertEquals(expected, actual);
 	}
 
@@ -117,14 +118,14 @@ public class PreProcessTest {
 		checkReplaceCharacters("Schiff", "Schiff", dict);
 		checkReplaceCharacters("voraus", "voraus", dict);
 
-//		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", dict);
-//		checkReplaceCharacters("5ehiss", "Schiff", dict);
-//		checkReplaceCharacters("rvoauf", "voraus", dict);
-//		checkReplaceCharacters("Vech", "Deck", dict);
-//		checkReplaceCharacters("Vceli", "Deck", dict);
-//		checkReplaceCharacters("Derhrecler", "Verbrecher", dict);
-//		checkReplaceCharacters("3innner", "Zimmer", dict);
-//		checkReplaceCharacters("Ziniwer", "Zimmer", dict);
+		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", dict);
+		checkReplaceCharacters("5ehiss", "Schiff", dict);
+		checkReplaceCharacters("rvoauf", "voraus", dict);
+		checkReplaceCharacters("Vech", "Deck", dict);
+		checkReplaceCharacters("Vceli", "Deck", dict);
+		checkReplaceCharacters("Derhrecler", "Verbrecher", dict);
+		checkReplaceCharacters("3innner", "Zimmer", dict);
+		checkReplaceCharacters("Ziniwer", "Zimmer", dict);
 
 		// Übereinstimmung mit den wenigsten Abweichungen vom Original werden bevorzugt
 		checkReplaceCharacters("scin", "sein", dict);
@@ -148,7 +149,7 @@ public class PreProcessTest {
 		spellcheck.put("„", "»");
 
 		Set<String> silben = new HashSet<>(Arrays.asList("en", "ch"));
-		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "mal", "mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten"));
+		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "hier", "mal", "mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum S<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 3);
 		// meine ist nicht im Dictionary

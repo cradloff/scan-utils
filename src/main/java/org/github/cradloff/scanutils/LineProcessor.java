@@ -230,11 +230,11 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			result = TextUtils.toUpperCase(word.toLowerCase());
 		} else {
 			// überflüssige Buchstaben entfernen
-			String candidate = removeSil(word, ciDict);
+			String candidate = removeSilh(word, ciDict);
 
 			// nicht gefunden? mit den Rechtschreib-Ersetzungen nochmal prüfen
 			if (candidate.equals(word)) {
-				candidate = removeSil(word, map.keySet());
+				candidate = removeSilh(word, map.keySet());
 				if (map.containsKey(candidate)) {
 					candidate = map.get(candidate);
 				}
@@ -359,11 +359,11 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		return threshold + 1;
 	}
 
-	/** Entfernt überflüssige 's', 'i', 'l' und 'x' aus Wörtern. */
-	public static String removeSil(String input, Set<String> dict) {
+	/** Entfernt überflüssige 's', 'i', 'l', 'h' und 'x' aus Wörtern. */
+	public static String removeSilh(String input, Set<String> dict) {
 		// an allen Positionen die Zeichen entfernen und prüfen, ob sie im Wörterbuch enthalten sind
 		List<String> candidates = new ArrayList<>();
-		removeSil(input, dict, candidates, input.length() - 1);
+		removeSilh(input, dict, candidates, input.length() - 1);
 		String result = bestMatch(input, candidates);
 
 		// 's' am Wortende ignorieren
@@ -374,16 +374,16 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		return result;
 	}
 
-	private static void removeSil(String input, Set<String> dict, Collection<String> result, int end) {
+	private static void removeSilh(String input, Set<String> dict, Collection<String> result, int end) {
 		for (int i = end; i >= 0; i--) {
 			char ch = input.charAt(i);
-			if (ch == 's' || ch == 'i' || ch == 'l' || ch == 'x') {
+			if (ch == 's' || ch == 'i' || ch == 'l' || ch == 'h' || ch == 'x') {
 				StringBuilder sb = new StringBuilder(input);
 				String candidate = sb.deleteCharAt(i).toString();
 				if (dict.contains(candidate)) {
 					result.add(candidate);
 				}
-				removeSil(candidate, dict, result, i - 1);
+				removeSilh(candidate, dict, result, i - 1);
 			}
 		}
 	}
