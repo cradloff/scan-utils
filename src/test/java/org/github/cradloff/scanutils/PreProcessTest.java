@@ -50,10 +50,12 @@ public class PreProcessTest {
 		checkSpecial("Super<em>duper</em>gut", "Super<em>duper</em>gut", 0);
 		checkSpecial("<@pagebreak/>", "<@pagebreak/>", 0);
 		checkSpecial("<p style=\"white-space: pre-wrap;\">", "<p style=\"white-space: pre-wrap;\">", 0);
+		checkSpecial("<tr><td>Text</td></tr>", "<tr><td>Text</td></tr>", 0);
 		// aber dazwischen
 		checkSpecial("Er <em>ni>te nicht</em>", "Er <em>nickte nicht</em>", 1);
 		checkSpecial("Er <em>nickte ni<t</em>", "Er <em>nickte nicht</em>", 1);
 		checkSpecial("Er ni>te<br/>ni<t", "Er nickte<br/>nicht", 2);
+		checkSpecial("<tr><td>Er ni>te ni<t</td></tr>", "<tr><td>Er nickte nicht</td></tr>", 2);
 		// keine Ersetzung am Zeilenanfang (Formatierung mit >)
 		checkSpecial("> Er ni>te ni<t", "> Er nickte nicht", 2);
 		// keine Ersetzung von >> und <<

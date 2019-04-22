@@ -247,15 +247,7 @@ public class PreProcess {
 		int lessThan = -1;
 		for (int i = 0; i < line.size(); i++) {
 			String token = line.get(i);
-			if (TextUtils.startOfTag(token)) {
-				// haben wir schon ein Kleinerzeichen gefunden?
-				if (lessThan >= 0) {
-					// das letzte Kleinerzeichen ersetzen
-					line.set(lessThan, "ch");
-					count++;
-				}
-				lessThan = i;
-			} else if (TextUtils.endOfTag(token)) {
+			if (TextUtils.endOfTag(token)) {
 				// sind wir in einem Tag?
 				if (lessThan >= 0) {
 					lessThan = -1;
@@ -264,7 +256,17 @@ public class PreProcess {
 					line.set(i, "ck");
 					count++;
 				}
-			} else if ("{".equals(token)) {
+			}
+			if (TextUtils.startOfTag(token)) {
+				// haben wir schon ein Kleinerzeichen gefunden?
+				if (lessThan >= 0) {
+					// das letzte Kleinerzeichen ersetzen
+					line.set(lessThan, "ch");
+					count++;
+				}
+				lessThan = i;
+			}
+			if ("{".equals(token)) {
 				line.set(i, "sch");
 				count++;
 			}
