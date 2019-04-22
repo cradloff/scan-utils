@@ -90,6 +90,20 @@ public class PreProcessTest {
 		assertEquals("count", expectedCount, count);
 	}
 
+	@Test public void testWhitespace() {
+		// einige Satzzeichen kommen ausschließlich nach Wörtern, nie vor Leerzeichen
+		checkWhitespace("Hier! ist, alles. in; Ordnung: ok?!", "Hier! ist, alles. in; Ordnung: ok?!", 0);
+		checkWhitespace("Hier ! ist , alles . in ; Ordnung : ok ?!", "Hier! ist, alles. in; Ordnung: ok?!", 6);
+	}
+
+	private void checkWhitespace(String line, String expected, int expectedCount) {
+		List<String> words = TextUtils.split(line);
+		int count = PreProcess.checkWhitespace(words);
+		String actual = String.join("", words);
+		assertEquals(expected, actual);
+		assertEquals("count", expectedCount, count);
+	}
+
 	@Test public void testRemoveSilh() {
 		Set<String> dict = new HashSet<>(Arrays.asList("dein", "uns", "ihr", "Klub", "Harst", "schwammen"));
 		checkRemoveSilh("dein", "dein", dict);

@@ -162,6 +162,8 @@ public class PreProcess {
 				count += replaceSpecial(line);
 				// Brüche ersetzen
 				count += replaceFraction(line);
+				// Leerzeichen entfernen/einfügen
+				count += checkWhitespace(line);
 				// Worttrennung am Zeilenende zusammenfassen
 				if (mergeLinebreak(line, nextLine)) {
 					// ist die Folge-Zeile jetzt leer?
@@ -351,6 +353,35 @@ public class PreProcess {
 		for (int i = 0; i < count; i++) {
 			values.remove(index);
 		}
+	}
+
+	/** Satzzeichen, die immer nach einem Wort stehen */
+	private static final String SATZZEICHEN_NACH_WORT = ".,;:!?";
+	enum State { WHITESPACE, OTHER, SATZZEICHEN };
+	static int checkWhitespace(List<String> line) {
+		int count = 0;
+		State state = State.OTHER;
+		for (int i = 0; i < line.size(); i++) {
+			String token = line.get(i);
+			if (TextUtils.isWhitespace(token)) {
+				state = State.WHITESPACE;
+			} else if (isSatzzeichenNachWort(token)) {
+				if (state == State.WHITESPACE) {
+					line.remove(--i);
+					count++;
+				}
+				state = State.SATZZEICHEN;
+			} else {
+				state = State.OTHER;
+			}
+		}
+
+		return count;
+	}
+	private static boolean isSatzzeichenNachWort(String token) {
+		return SATZZEICHEN_NACH_WORT.indexOf(token.charAt(0)) >= 0
+				// als zweites Zeichen ist nur ! oder « zulässig
+				&& (token.length() == 1 || token.charAt(1) == '!' || token.charAt(1) == '«');
 	}
 
 	private boolean mergeLinebreak(List<String> line, List<String> nextLine) {
