@@ -27,24 +27,25 @@ public class TextUtils {
 	}
 
 	enum State { WHITESPACE, WORD, OTHER }
-	public static List<String> split(String line) {
+	public static List<String> split(CharSequence line) {
 		StringBuilder sb = new StringBuilder();
 		List<String> result = new ArrayList<>();
 		State state = State.WHITESPACE;
-		for (int i = 0; i < line.length(); i++) {
+		final int len = line.length();
+		for (int i = 0; i < len; i++) {
 			char ch = line.charAt(i);
 			State newState;
 			if (Character.isWhitespace(ch)) {
 				newState = State.WHITESPACE;
 			}
-			// Backslash, Apostrophe und Ziffern werden wie Buchstabe behandelt
+			// Backslash, Apostrophe und Ziffern werden wie Buchstaben behandelt
 			else if (Character.isLetter(ch) || ch == '\\' || ch == '\'' || ch == '’' || Character.isDigit(ch)) {
 				newState = State.WORD;
 			}
 			// Bindestriche, außer vor Großbuchstaben, werden ebenfalls wie Buchstaben behandelt
 			else if (isDash(ch)
-					&& (i == line.length() - 1 && state == State.WORD
-					|| i < line.length() - 1 && Character.isLowerCase(line.charAt(i + 1)))) {
+					&& (i == len - 1 && state == State.WORD
+					|| i < len - 1 && Character.isLowerCase(line.charAt(i + 1)))) {
 				newState = State.WORD;
 			} else {
 				newState = State.OTHER;
@@ -139,8 +140,9 @@ public class TextUtils {
 		return END_OF_TAG.matcher(token).matches() && ! token.startsWith(">>");
 	}
 
+	private static final Pattern START_OF_TAG = Pattern.compile(".*<[/@,.]*");
 	public static boolean startOfTag(String token) {
-		return token.endsWith("<") && ! token.endsWith("<<") || token.endsWith("</") || token.endsWith("<@") || token.endsWith("</@");
+		return START_OF_TAG.matcher(token).matches() && ! token.endsWith("<<");
 	}
 
 }

@@ -100,6 +100,12 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		for (int i = 0; i < line.size(); i++) {
 			String token = line.get(i);
 
+			// Leerzeichen ausgeben und mit dem nächsten Token weitermachen
+			if (" ".equals(token)) {
+				result.print(token);
+				continue;
+			}
+
 			// in Tags keine Ersetzungen durchführen
 			if (TextUtils.startOfTag(token)) {
 				tag = true;

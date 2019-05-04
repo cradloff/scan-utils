@@ -45,6 +45,7 @@ public class PreProcessTest {
 		checkSpecial("Er bli>te zurü>", "Er blickte zurück", 2);
 		checkSpecial("Er ni>te ni<t", "Er nickte nicht", 2);
 		checkSpecial("dur<s<nittli<", "durchschnittlich", 3);
+		checkSpecial("Er setzte si<,", "Er setzte sich,", 1);
 		// keine Ersetzung in Tags
 		checkSpecial("Er <em>nickte nicht</em>", "Er <em>nickte nicht</em>", 0);
 		checkSpecial("Super<em>duper</em>gut", "Super<em>duper</em>gut", 0);
@@ -224,7 +225,7 @@ public class PreProcessTest {
 				"Alle meine Entchen\n"
 				+ "Piraten-Schiff voraus\n"
 				+ "\n"
-				+ "Alle mal zu mir\n", dict, silben, spellcheck, 8);
+				+ "Alle mal zu mir\n", dict, silben, spellcheck, 9);
 	}
 
 	private void checkPreProcess(String line, String expected, Set<String> dict, Set<String> silben, Map<String, String> spellcheck, int expectedCount)

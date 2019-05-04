@@ -254,8 +254,8 @@ public class PreProcess {
 				if (lessThan >= 0) {
 					lessThan = -1;
 				} else if (i > 0) {
-					// das letzte Größerzeichen ersetzen
-					line.set(i, "ck");
+					// das aktuelle Größerzeichen ersetzen
+					line.set(i, token.replace(">", "ck"));
 					count++;
 				}
 			}
@@ -263,7 +263,7 @@ public class PreProcess {
 				// haben wir schon ein Kleinerzeichen gefunden?
 				if (lessThan >= 0) {
 					// das letzte Kleinerzeichen ersetzen
-					line.set(lessThan, "ch");
+					line.set(lessThan, line.get(lessThan).replace("<", "ch"));
 					count++;
 				}
 				lessThan = i;
@@ -275,18 +275,19 @@ public class PreProcess {
 		}
 		if (lessThan >= 0) {
 			// das letzte Kleinerzeichen ersetzen
-			line.set(lessThan, "ch");
+			line.set(lessThan, line.get(lessThan).replace("<", "ch"));
 			count++;
 		}
 
-		// wenn Sonderzeichen ersetzt wurden, dann die aufeinanderfolgenden Texte zusammenfassen
+		// wenn Sonderzeichen ersetzt wurden, dann die Zeile neu splitten
 		if (count > 0) {
-			for (int i = line.size() - 2; i >= 0; i--) {
-				if (TextUtils.isWord(line.get(i)) && TextUtils.isWord(line.get(i + 1))) {
-					String s = line.remove(i + 1);
-					line.set(i, line.get(i) + s);
-				}
+			StringBuilder sb = new StringBuilder(100);
+			for (int i = 0; i < line.size(); i++) {
+				sb.append(line.get(i));
 			}
+			List<String> newLine = TextUtils.split(sb);
+			line.clear();
+			line.addAll(newLine);
 		}
 
 		return count;
