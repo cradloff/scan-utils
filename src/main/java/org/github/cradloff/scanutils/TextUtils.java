@@ -140,7 +140,7 @@ public class TextUtils {
 		return END_OF_TAG.matcher(token).matches() && ! token.startsWith(">>");
 	}
 
-	private static final Pattern START_OF_TAG = Pattern.compile(".*<[/@,.]*");
+	private static final Pattern START_OF_TAG = Pattern.compile("[^<]*<[/@,.]*");
 	public static boolean startOfTag(String token) {
 		return START_OF_TAG.matcher(token).matches() && ! token.endsWith("<<");
 	}

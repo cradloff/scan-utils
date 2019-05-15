@@ -60,6 +60,7 @@ public class PreProcessTest {
 		// keine Ersetzung am Zeilenanfang (Formatierung mit >)
 		checkSpecial("> Er ni>te ni<t", "> Er nickte nicht", 2);
 		// keine Ersetzung von >> und <<
+		checkSpecial("Er >>ni>te<<.", "Er >>nickte<<.", 1);
 		checkSpecial("Er >>ni>te<< ni<t", "Er >>nickte<< nicht", 2);
 
 		// geschweifte Klammer wird durch 'sch' ersetzt
