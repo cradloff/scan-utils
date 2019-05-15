@@ -49,11 +49,20 @@ public class CheckQuotes {
 		out.println(input.getName());
 		int errors = 0;
 
-		try (Reader in = new FileReader(input);
-				BufferedReader reader = new BufferedReader(in);) {
-			String line;
-			int lineNo = 0;
-			List<List<String>> paragraph = new ArrayList<>();
+		try (Reader in = new FileReader(input);) {
+			errors = checkQuotes(in, out);
+		}
+		out.println();
+
+		return errors;
+	}
+
+	static int checkQuotes(Reader in, PrintWriter out) throws IOException {
+		String line;
+		int errors = 0;
+		int lineNo = 0;
+		List<List<String>> paragraph = new ArrayList<>();
+		try (BufferedReader reader = new BufferedReader(in);) {
 			while ((line = reader.readLine()) != null) {
 				lineNo++;
 				if (line.trim().isEmpty()) {
@@ -63,11 +72,9 @@ public class CheckQuotes {
 					paragraph.add(TextUtils.split(line));
 				}
 			}
-
-			errors += checkQuotes(paragraph, out, lineNo - paragraph.size());
 		}
-		out.println();
 
+		errors += checkQuotes(paragraph, out, lineNo - paragraph.size());
 		return errors;
 	}
 
@@ -99,11 +106,11 @@ public class CheckQuotes {
 	}
 
 	private static boolean hasEndQuote(String token) {
-		return token.contains("«") || token.contains("„");
+		return token.contains("«") || token.contains("“");
 	}
 
 	private static boolean hasStartQuote(String token) {
-		return token.contains("»") || token.contains("“");
+		return token.contains("»") || token.contains("„");
 	}
 
 	private static void logError(PrintWriter out, int lineStart, int lineEnd, int quotes) {
