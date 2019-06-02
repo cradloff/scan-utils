@@ -138,6 +138,7 @@ public class PreProcessTest {
 
 		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", dict);
 		checkReplaceCharacters("5ehiss", "Schiff", dict);
+		checkReplaceCharacters("$ehiss", "Schiff", dict);
 		checkReplaceCharacters("rvoauf", "voraus", dict);
 		checkReplaceCharacters("Vech", "Deck", dict);
 		checkReplaceCharacters("Vceli", "Deck", dict);
@@ -169,7 +170,7 @@ public class PreProcessTest {
 		Set<String> silben = new HashSet<>(Arrays.asList("en", "ch"));
 		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "hier", "mal", "mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
-		checkPreProcess("Alle meine Ent<en {wimmen zum S<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 3);
+		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Aisie ,,miesne<< Ent.chen\n", "Alle »meine« Entchen\n", dict, silben, spellcheck, 2);

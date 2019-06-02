@@ -15,19 +15,19 @@ public class TextUtilsTest {
 	@Test public void testSplit() {
 		checkSplit("Alle meine Entchen", "Alle", " ", "meine", " ", "Entchen");
 		checkSplit(" Alle  meine  Entchen ", " ", "Alle", "  ", "meine", "  ", "Entchen", " ");
-		checkSplit("Alle mei-ne Ent—chen", "Alle", " ", "mei-ne", " ", "Ent—chen");
+		checkSplit("A1le mei-ne Ent—chen", "A1le", " ", "mei-ne", " ", "Ent—chen");
 		checkSplit("Alle, meine 'Entchen’", "Alle", ",", " ", "meine", " ", "'Entchen’");
 		checkSplit("Alle meine Ent-", "Alle", " ", "meine", " ", "Ent-");
-		checkSplit(">>Alle ,,meine,, Entchen?!<<", ">>", "Alle", " ", ",,", "meine", ",,", " ", "Entchen", "?!<<");
+		checkSplit(">>Alle ,,meine,, €ntchen?!<<", ">>", "Alle", " ", ",,", "meine", ",,", " ", "€ntchen", "?!<<");
 		checkSplit("auf- und abwärts", "auf", "-", " ", "und", " ", "abwärts");
 		checkSplit("Insel-Cafee", "Insel", "-", "Cafee");
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
-		checkSplit("wollen wir?", "wollen", " ", "wir", "?");
-		checkSplit("wollen wir?!", "wollen", " ", "wir", "?!");
+		checkSplit("wóllen wir?", "wóllen", " ", "wir", "?");
+		checkSplit("wøllen wir?!", "wøllen", " ", "wir", "?!");
 		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", "...");
 		checkSplit("Und -—- Dann", "Und", " ", "-—-", " ", "Dann");
 		checkSplit("Und dann -—-", "Und", " ", "dann", " ", "-—-");
-		checkSplit("Modellauto und -schiff", "Modellauto", " ", "und", " ", "-schiff");
+		checkSplit("Mode£lauto und -schiff", "Mode£lauto", " ", "und", " ", "-schiff");
 	}
 
 	private void checkSplit(String line, String... wordsExcpected) {

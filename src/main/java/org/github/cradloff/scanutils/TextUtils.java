@@ -39,7 +39,7 @@ public class TextUtils {
 				newState = State.WHITESPACE;
 			}
 			// Backslash, Apostrophe und Ziffern werden wie Buchstaben behandelt
-			else if (Character.isLetter(ch) || ch == '\\' || ch == '\'' || ch == '’' || Character.isDigit(ch)) {
+			else if (Character.isJavaIdentifierPart(ch) || ch == '\\' || ch == '\'' || ch == '’') {
 				newState = State.WORD;
 			}
 			// Bindestriche, außer vor Großbuchstaben, werden ebenfalls wie Buchstaben behandelt
