@@ -68,7 +68,7 @@ public class TextUtils {
 	public static Set<String> addUpperCase(Set<String> dict) {
 		Set<String> ciDict = new HashSet<>(dict);
 		for (String s : dict) {
-			if (Character.isLowerCase(s.charAt(0))) {
+			if (! s.isEmpty() && Character.isLowerCase(s.charAt(0))) {
 				String t = toUpperCase(s);
 				ciDict.add(t);
 			}
