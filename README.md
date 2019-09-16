@@ -5,6 +5,17 @@ Kleine Tools um Fehler aus gescannten Texten zu entfernen.
 Tools
 -----
 
+__PrepareText__
+* Entfernt Schmierzeichen
+* ersetzt einige Sonderzeichen im Text
+
+Aufruf: `prepareText.sh <Dateiname(n)>`
+
+Das Tool sollte einmalig vor der eigentlichen Bearbeitung gestartet werden.
+Es werden Schmierzeichen wie Slashes und Pipe-Zeichen am Anfang und Ende der
+Zeile entfernt, und einige Sonderzeichen in Anführungszeichen bzw. Bindestriche
+umgewandelt.
+
 __PreProcess__
 * Ersetzt Satzzeichen: doppelte Bindestriche durch m-breiten Bindestrich,
   << und >> durch « und », gerade Apostrophen durch typographische und
