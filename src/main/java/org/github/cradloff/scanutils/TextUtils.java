@@ -89,6 +89,16 @@ public class TextUtils {
 		return true;
 	}
 
+	/** Prüft, ob vor der angegebenen Position ein Wort kommt */
+	public static boolean wordBefore(List<String> line, int i) {
+		return i > 0 && (isWord(line.get(i - 1)));
+	}
+
+	/** Prüft, ob nach der angegebenen Position ein Wort kommt */
+	public static boolean wordAfter(List<String> line, int i) {
+		return i < line.size() - 1 && isWord(line.get(i + 1));
+	}
+
 	public static boolean isSatzzeichen(String s) {
 		for (int i = 0; i < s.length(); i++) {
 			if (Character.isWhitespace(s.charAt(i))

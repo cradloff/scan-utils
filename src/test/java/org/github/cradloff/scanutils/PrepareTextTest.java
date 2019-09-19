@@ -16,20 +16,22 @@ public class PrepareTextTest {
 		checkRemoveLitter(",Text mit Schmierzeichen vorn,", "Text mit Schmierzeichen vorn,");
 		checkRemoveLitter("; Text mit Schmierzeichen vorn;", "Text mit Schmierzeichen vorn;");
 		checkRemoveLitter(": Text mit Schmierzeichen vorn:", "Text mit Schmierzeichen vorn:");
+		checkRemoveLitter("_ Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
 		checkRemoveLitter("| Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
 		checkRemoveLitter("i Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
 		checkRemoveLitter("/ Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
 		checkRemoveLitter("\\ Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
-		checkRemoveLitter("i | / \\ Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
+		checkRemoveLitter("i | / \\‘’., Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
 
 		checkRemoveLitter("Text mit Schmierzeichen hinten |", "Text mit Schmierzeichen hinten");
 		checkRemoveLitter("Text mit Schmierzeichen hinten i", "Text mit Schmierzeichen hinten");
 		checkRemoveLitter("Text mit Schmierzeichen hinten j", "Text mit Schmierzeichen hinten");
+		checkRemoveLitter("Text mit Schmierzeichen hinten _", "Text mit Schmierzeichen hinten");
 		checkRemoveLitter("Text mit Schmierzeichen hinten /", "Text mit Schmierzeichen hinten");
 		checkRemoveLitter("Text mit Schmierzeichen hinten :", "Text mit Schmierzeichen hinten");
 		checkRemoveLitter("Text mit Schmierzeichen hinten ;", "Text mit Schmierzeichen hinten");
 		checkRemoveLitter("Text mit Schmierzeichen hinten \\", "Text mit Schmierzeichen hinten");
-		checkRemoveLitter("Text mit Schmierzeichen hinten | i j / ; : \\", "Text mit Schmierzeichen hinten");
+		checkRemoveLitter("Text mit Schmierzeichen hinten | i j / ; : \\ ‘’ . ,", "Text mit Schmierzeichen hinten");
 	}
 
 	private void checkRemoveLitter(String input, String expected) {
@@ -38,8 +40,11 @@ public class PrepareTextTest {
 	}
 
 	@Test public void changeQuotes() {
-		checkChangeQuotes("Er sprach: *Hinweg!*", "Er sprach: \"Hinweg!\"");
-		checkChangeQuotes("Er sprach: ®Hinweg!®", "Er sprach: \"Hinweg!\"");
+		checkChangeQuotes("Er sprach: *Hinweg!*", "Er sprach: »Hinweg!«");
+		checkChangeQuotes("Er sprach: ®Hinweg!®", "Er sprach: »Hinweg!«");
+		checkChangeQuotes("Er sprach: \"Hinweg!\"", "Er sprach: »Hinweg!«");
+		checkChangeQuotes("Er sprach: “Hinweg!”", "Er sprach: »Hinweg!«");
+		checkChangeQuotes("Er sprach: „Hinweg!”", "Er sprach: »Hinweg!«");
 	}
 
 	private void checkChangeQuotes(String input, String expected) {
@@ -59,14 +64,36 @@ public class PrepareTextTest {
 		assertEquals(expected, actual);
 	}
 
+	@Test public void changeSpecial() {
+		checkSpecial("Wort ohne Sonderzeichen", "Wort ohne Sonderzeichen");
+
+		// "<" wird durch "ch" ersetzt
+		checkSpecial("no< ni<t", "noch nicht");
+		// ">" durch "ck"
+		checkSpecial("Er bli>te zurü>", "Er blickte zurück");
+		checkSpecial("Er ni>te ni<t", "Er nickte nicht");
+		checkSpecial("Komm ni<t zurü>", "Komm nicht zurück");
+		checkSpecial("dur<s<nittli<", "durchschnittlich");
+		checkSpecial("Er setzte si<,", "Er setzte sich,");
+
+		// "{" wird durch "sch" ersetzt, nach einen "s" nur durch "ch"
+		checkSpecial("zwi{en den Büs{en", "zwischen den Büschen");
+	}
+
+	private void checkSpecial(String input, String expected) {
+		String actual = PrepareText.changeSpecial(input);
+		assertEquals(expected, actual);
+	}
+
 	@Test public void prepareText() throws IOException {
 		checkPrepareText("Normaler Text,\nmit mehreren\nZeilen\n", "Normaler Text,\nmit mehreren\nZeilen\n");
 
-		checkPrepareText("| Text mit ,\n,Schmierzeichen\nund *Anführungszeichen® \n und Binde=\nstrich»\nen |",
-				"Text mit\nSchmierzeichen\nund \"Anführungszeichen\"\nund Binde-\nstrich-\nen\n");
+		checkPrepareText("| Text -- mit ,\n,Schmierzei<en\nund \"Anführungszeichen® \n und Binde=\nstrich»\nen |",
+				"Text — mit\nSchmierzeichen\nund »Anführungszeichen«\nund Binde-\nstrich-\nen\n");
 		checkPrepareText("\\|/ Text mit ,\n;Schmierzeichen\n:und *Anführungszeichen® \n und Binde=\nstrich»\nen i",
-				"Text mit\nSchmierzeichen\nund \"Anführungszeichen\"\nund Binde-\nstrich-\nen\n");
+				"Text mit\nSchmierzeichen\nund »Anführungszeichen«\nund Binde-\nstrich-\nen\n");
 		checkPrepareText("Text mit vielen\n\n\n\nLeerzeilen", "Text mit vielen\n\nLeerzeilen\n");
+		checkPrepareText("Text' mit >>Sonderzeichen<<", "Text’ mit »Sonderzeichen«\n");
 	}
 
 	private void checkPrepareText(String line, String expected) throws IOException {

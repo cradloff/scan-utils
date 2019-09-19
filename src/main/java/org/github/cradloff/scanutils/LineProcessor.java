@@ -117,7 +117,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			}
 
 			// Satzzeichen in Wörtern entfernen
-			while (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[.,»«\"]") && wordAfter(line, i + 1)) {
+			while (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[.,»«\"]") && TextUtils.wordAfter(line, i + 1)) {
 				token += line.get(i + 2);
 				PreProcess.remove(line, i + 1, 2);
 			}
@@ -125,14 +125,14 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			// Satzzeichen ersetzen
 			token = TextUtils.satzzeichenErsetzen(token);
 			// ,, durch » ersetzen
-			if (token.matches("[,.]{2}") && wordAfter(line, i)) {
+			if (token.matches("[,.]{2}") && TextUtils.wordAfter(line, i)) {
 				token = "»";
 			}
 
 			// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
-			if (token.endsWith("»") && wordBefore(line, i) && ! wordAfter(line, i)) {
+			if (token.endsWith("»") && TextUtils.wordBefore(line, i) && ! TextUtils.wordAfter(line, i)) {
 				token = token.replace("»", "«");
-			} else if ("«".equals(token) && wordAfter(line, i) && ! wordBefore(line, i)) {
+			} else if ("«".equals(token) && TextUtils.wordAfter(line, i) && ! TextUtils.wordBefore(line, i)) {
 				token = "»";
 			}
 
@@ -140,7 +140,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			String replacement = process(token);
 
 			// durch Leerzeichen getrennte Wörter zusammenfassen
-			if (TextUtils.isWord(token) && whitespaceAfter(line, i) && wordAfter(line, i + 1)
+			if (TextUtils.isWord(token) && whitespaceAfter(line, i) && TextUtils.wordAfter(line, i + 1)
 					&& replacement.equals(token) && ! ciDict.contains(replacement) && ! ciDict.contains(line.get(i + 2))) {
 				String word = token + line.get(i + 2);
 				replacement = process(word);
@@ -413,14 +413,6 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		}
 
 		return result;
-	}
-
-	private static boolean wordBefore(List<String> line, int i) {
-		return i > 0 && (TextUtils.isWord(line.get(i - 1)));
-	}
-
-	private static boolean wordAfter(List<String> line, int i) {
-		return i < line.size() - 1 && TextUtils.isWord(line.get(i + 1));
 	}
 
 	private static boolean whitespaceAfter(List<String> line, int i) {
