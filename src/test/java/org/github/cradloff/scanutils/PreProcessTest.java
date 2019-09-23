@@ -107,31 +107,6 @@ public class PreProcessTest {
 		assertEquals("count", expectedCount, count);
 	}
 
-	@Test public void testRemoveSilh() {
-		Set<String> dict = new HashSet<>(Arrays.asList("dein", "uns", "ihr", "Klub", "Harst", "schwammen"));
-		checkRemoveSilh("dein", "dein", dict);
-		checkRemoveSilh("uns", "uns", dict);
-		checkRemoveSilh("ihr", "ihr", dict);
-		checkRemoveSilh("Harsts", "Harsts", dict);
-		checkRemoveSilh("dseins", "deins", dict);
-		checkRemoveSilh("uinss", "uns", dict);
-		checkRemoveSilh("suns", "uns", dict);
-		checkRemoveSilh("siishr", "ihr", dict);
-		checkRemoveSilh("Kliusb", "Klub", dict);
-		checkRemoveSilh("Klxiusb", "Klub", dict);
-		checkRemoveSilh("sschhwammen", "schwammen", dict);
-		// 's' am Ende eines groß geschriebenen Wortes ignorieren
-		checkRemoveSilh("Kliusbs", "Klubs", dict);
-		checkRemoveSilh("Hlarst", "Harst", dict);
-		checkRemoveSilh("Hlairsst", "Harst", dict);
-		checkRemoveSilh("Hlairssts", "Harsts", dict);
-	}
-
-	private void checkRemoveSilh(String input, String expected, Set<String> dict) {
-		String actual = LineProcessor.removeSilh(input, dict);
-		assertEquals(expected, actual);
-	}
-
 	@Test public void testReplaceCharacters() {
 		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "Deck", "Verbrecher", "Zimmer", "sein", "fein", "Backenmuskulatur"));
 		checkReplaceCharacters("Schiff", "Schiff", dict);
@@ -174,12 +149,12 @@ public class PreProcessTest {
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, silben, spellcheck, 2);
-		checkPreProcess("Aisie ,,miesne<< Ent.chen\n", "Alle »meine« Entchen\n", dict, silben, spellcheck, 2);
+		checkPreProcess("Aiie ,,miene<< Ent.chen\n", "Alle »meine« Entchen\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Alle „meine“ „Entchen”\n", "Alle »meine« »Entchen«\n", dict, silben, spellcheck, 4);
 		checkPreProcess("Ai-ie mi-ene ent-chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, silben, spellcheck, 4);
-		checkPreProcess("Alllei «miene» Eint-chenl Zsu Wasser-teich!\n", "Alle! »meine« Entchen! Zu Wasser-teich!\n", dict, silben, spellcheck, 4);
-		checkPreProcess("Ail»liel msal zsu msirl\n", "Alle! mal zu mir!\n", dict, silben, spellcheck, 4);
+		checkPreProcess("Alle «miene» Ent-chen Zu Wasser-teich!\n", "Alle »meine« Entchen Zu Wasser-teich!\n", dict, silben, spellcheck, 2);
+		checkPreProcess("Al»le mal zu mir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 0);
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
 		// Groß-/Kleinschreibung korrigieren
 		checkPreProcess("piraten-SchIff vorauS\n", "Piraten-Schiff voraus\n", dict, silben, spellcheck, 3);

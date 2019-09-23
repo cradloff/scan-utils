@@ -235,31 +235,10 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		} else if (! ciDict.contains(word) && ciDict.contains(TextUtils.toUpperCase(word.toLowerCase()))) {
 			result = TextUtils.toUpperCase(word.toLowerCase());
 		} else {
-			// überflüssige Buchstaben entfernen
-			String candidate = removeSilh(word, ciDict);
-
-			// nicht gefunden? mit den Rechtschreib-Ersetzungen nochmal prüfen
-			if (candidate.equals(word)) {
-				candidate = removeSilh(word, map.keySet());
-				if (map.containsKey(candidate)) {
-					candidate = map.get(candidate);
-				}
-			}
-
-			// jetzt gefunden?
+			// gängige Vertauschungen durchführen
+			String candidate = replaceCharacters(word, ciDict, params.getLevel());
 			if (! candidate.equals(word)) {
 				result = candidate;
-				// wenn das Original mit 'i' oder 'l' geendet hat, kommt wahrscheinlich ein Ausrufezeichen
-				if ((word.endsWith("i") || word.endsWith("l"))
-						&& ! (candidate.endsWith("i") || candidate.endsWith("l"))) {
-					result += "!";
-				}
-			} else {
-				// gängige Vertauschungen durchführen
-				candidate = replaceCharacters(word, ciDict, params.getLevel());
-				if (! candidate.equals(word)) {
-					result = candidate;
-				}
 			}
 		}
 
@@ -363,35 +342,6 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		}
 
 		return threshold + 1;
-	}
-
-	/** Entfernt überflüssige 's', 'i', 'l', 'h' und 'x' aus Wörtern. */
-	public static String removeSilh(String input, Set<String> dict) {
-		// an allen Positionen die Zeichen entfernen und prüfen, ob sie im Wörterbuch enthalten sind
-		List<String> candidates = new ArrayList<>();
-		removeSilh(input, dict, candidates, input.length() - 1);
-		String result = bestMatch(input, candidates);
-
-		// 's' am Wortende ignorieren
-		if (input.endsWith("s") && ! result.endsWith("s")) {
-			result += "s";
-		}
-
-		return result;
-	}
-
-	private static void removeSilh(String input, Set<String> dict, Collection<String> result, int end) {
-		for (int i = end; i >= 0; i--) {
-			char ch = input.charAt(i);
-			if (ch == 's' || ch == 'i' || ch == 'l' || ch == 'h' || ch == 'x') {
-				StringBuilder sb = new StringBuilder(input);
-				String candidate = sb.deleteCharAt(i).toString();
-				if (dict.contains(candidate)) {
-					result.add(candidate);
-				}
-				removeSilh(candidate, dict, result, i - 1);
-			}
-		}
 	}
 
 	private static String bestMatch(String input, List<String> candidates) {
