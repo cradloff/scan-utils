@@ -21,7 +21,7 @@ public class PrepareTextTest {
 		checkRemoveLitter("i Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
 		checkRemoveLitter("/ Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
 		checkRemoveLitter("\\ Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
-		checkRemoveLitter("i | / \\‘’., Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
+		checkRemoveLitter("i | / \\ ‘’., Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
 
 		checkRemoveLitter("Text mit Schmierzeichen hinten |", "Text mit Schmierzeichen hinten");
 		checkRemoveLitter("Text mit Schmierzeichen hinten i", "Text mit Schmierzeichen hinten");
@@ -40,6 +40,7 @@ public class PrepareTextTest {
 	}
 
 	@Test public void changeQuotes() {
+		checkChangeQuotes("Er sprach: *Hinweg*", "Er sprach: »Hinweg«");
 		checkChangeQuotes("Er sprach: *Hinweg!*", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: ®Hinweg!®", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: \"Hinweg!\"", "Er sprach: »Hinweg!«");
@@ -57,6 +58,7 @@ public class PrepareTextTest {
 
 		checkChangeDash("Trenn=", "Trenn-");
 		checkChangeDash("Trenn»", "Trenn-");
+		checkChangeDash("Da = passierte es!", "Da — passierte es!");
 	}
 
 	private void checkChangeDash(String input, String expected) {
@@ -66,6 +68,10 @@ public class PrepareTextTest {
 
 	@Test public void changeSpecial() {
 		checkSpecial("Wort ohne Sonderzeichen", "Wort ohne Sonderzeichen");
+		checkSpecial("<@pagebreak/>", "<@pagebreak/>");
+
+		// "\" wird durch "s" ersetzt
+		checkSpecial("\\o war\\!", "so wars!");
 
 		// "<" wird durch "ch" ersetzt
 		checkSpecial("no< ni<t", "noch nicht");
@@ -76,8 +82,12 @@ public class PrepareTextTest {
 		checkSpecial("dur<s<nittli<", "durchschnittlich");
 		checkSpecial("Er setzte si<,", "Er setzte sich,");
 
+		checkSpecial("Es i} gut.", "Es ist gut.");
+
 		// "{" wird durch "sch" ersetzt, nach einen "s" nur durch "ch"
 		checkSpecial("zwi{en den Büs{en", "zwischen den Büschen");
+		// "{<" wird durch "sch" ersetzt
+		checkSpecial("zwis{<en den Bü{<en", "zwischen den Büschen");
 	}
 
 	private void checkSpecial(String input, String expected) {
@@ -90,7 +100,7 @@ public class PrepareTextTest {
 
 		checkPrepareText("| Text -- mit ,\n,Schmierzei<en\nund \"Anführungszeichen® \n und Binde=\nstrich»\nen |",
 				"Text — mit\nSchmierzeichen\nund »Anführungszeichen«\nund Binde-\nstrich-\nen\n");
-		checkPrepareText("\\|/ Text mit ,\n;Schmierzeichen\n:und *Anführungszeichen® \n und Binde=\nstrich»\nen i",
+		checkPrepareText("\\ |/ Text mit ,\n;Schmierzeichen\n:und *Anführungszeichen® \n und Binde=\nstrich»\nen i",
 				"Text mit\nSchmierzeichen\nund »Anführungszeichen«\nund Binde-\nstrich-\nen\n");
 		checkPrepareText("Text mit vielen\n\n\n\nLeerzeilen", "Text mit vielen\n\nLeerzeilen\n");
 		checkPrepareText("Text' mit >>Sonderzeichen<<", "Text’ mit »Sonderzeichen«\n");

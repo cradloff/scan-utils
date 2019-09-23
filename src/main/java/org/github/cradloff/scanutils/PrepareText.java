@@ -53,9 +53,12 @@ public class PrepareText {
 			String line;
 			boolean hasEmptyLine = false;
 			while ((line = reader.readLine()) != null) {
-				String result = removeLitter(line);
-				result = changeQuotes(result);
+				String result = line;
+				// doppelte Kommas durch Quote ersetzen
+				result = result.replace(",,", "\"");
+				result = removeLitter(result);
 				result = changeDash(result);
+				result = changeQuotes(result);
 				result = TextUtils.satzzeichenErsetzen(result);
 				result = changeSpecial(result);
 				boolean emptyLine = result.isBlank();
@@ -75,13 +78,13 @@ public class PrepareText {
 		String result = line;
 		do {
 			// Schmierzeichen vorne entfernen
-			String s = result.replaceAll("^[|/\\\\,.;:_‘’© ]+", "");
+			String s = result.replaceAll("^[|/,.;:_‘’©>' ]+", "");
 			// folgende Zeichen nur entfernen, wenn sie von einem Leerzeichen gefolgt werden
-			s = s.replaceAll("^[ij] ", "");
+			s = s.replaceAll("^[\\\\“”\",¿(){}a-zA-Z0-9] ", "");
 
 			// Schmierzeichen hinten entfernen
 			s = s.replaceAll("[|/\\\\_‘’© ]+$", "");
-			s = s.replaceAll(" [ijy,.;:]$", "");
+			s = s.replaceAll(" [,.;:'()a-zA-Z0-9]$", "");
 
 			changed = ! s.equals(result);
 			result = s;
@@ -90,19 +93,25 @@ public class PrepareText {
 		return result;
 	}
 
-	private static final String QUOTE_CHARS = "\"®*„“”";
+	private static final String QUOTE_CHARS = "\"®*„“”—";
 	static String changeQuotes(String line) {
 		// Zeile in Token zerlegen
 		List<String> tokens = TextUtils.split(line);
 		for (int i = 0; i < tokens.size(); i++) {
 			String token = tokens.get(i);
-			CharSequence lastChar = token.substring(token.length() - 1, token.length());
-			if (QUOTE_CHARS.contains(lastChar)
-					&& TextUtils.wordBefore(tokens, i) && ! TextUtils.wordAfter(tokens, i)) {
-				tokens.set(i, token.substring(0, token.length() - 1) + "«");
-			} else if (QUOTE_CHARS.contains(token)
-					&& TextUtils.wordAfter(tokens, i) && ! TextUtils.wordBefore(tokens, i)) {
-				tokens.set(i, "»");
+			if (token.length() > 1) {
+				String lastChar = token.substring(token.length() - 1, token.length());
+				if (QUOTE_CHARS.contains(lastChar)) {
+					tokens.set(i, token.substring(0, token.length() - 1) + "«");
+				} else if (QUOTE_CHARS.contains(token.substring(0, 1))) {
+					tokens.set(i, "»" + token.substring(1));
+				}
+			} else if (QUOTE_CHARS.contains(token)) {
+				if (TextUtils.wordBefore(tokens, i)) {
+					tokens.set(i, "«");
+				} else {
+					tokens.set(i, "»");
+				}
 			}
 		}
 
@@ -110,14 +119,38 @@ public class PrepareText {
 	}
 
 	static String changeDash(String line) {
-		return line.replaceAll("[»=]$", "-");
+		// Trennzeichen am Zeilenende
+		String result = line.replaceAll("[»=]$", "-");
+		// Gleichheitszeichen im Text
+		result = result.replace(" = ", " — ");
+
+		return result;
 	}
 
 	public static String changeSpecial(String line) {
-		String result = line.replace("<", "ch");
-		result = result.replace(">", "ck");
+		// Pagebreaks ignorieren
+		if ("<@pagebreak/>".equals(line)) {
+			return line;
+		}
+
+		String result = line;
+		result = result.replace("\\", "s");
+
+		result = result.replace("s{<", "sch");
 		result = result.replace("s{", "sch");
+		result = result.replace("{<", "sch");
 		result = result.replace("{", "sch");
+
+		result = result.replace("}", "st");
+
+		result = result.replace("c<", "ch");
+		result = result.replace("<h", "ch");
+		result = result.replace("<", "ch");
+
+		result = result.replace("c>", "ck");
+		result = result.replace("d>", "ck");
+		result = result.replace(">k", "ck");
+		result = result.replace(">", "ck");
 
 		return result;
 	}
