@@ -93,7 +93,7 @@ public class PrepareText {
 		return result;
 	}
 
-	private static final String QUOTE_CHARS = "\"®*„“”—";
+	private static final String QUOTE_CHARS = "\"®*„“”";
 	static String changeQuotes(String line) {
 		// Zeile in Token zerlegen
 		List<String> tokens = TextUtils.split(line);

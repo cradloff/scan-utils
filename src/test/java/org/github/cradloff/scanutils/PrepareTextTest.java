@@ -104,6 +104,7 @@ public class PrepareTextTest {
 				"Text mit\nSchmierzeichen\nund »Anführungszeichen«\nund Binde-\nstrich-\nen\n");
 		checkPrepareText("Text mit vielen\n\n\n\nLeerzeilen", "Text mit vielen\n\nLeerzeilen\n");
 		checkPrepareText("Text' mit >>Sonderzeichen<<", "Text’ mit »Sonderzeichen«\n");
+		checkPrepareText("werden. — Beeile Dich.“ — u", "werden. — Beeile Dich.« —\n");
 	}
 
 	private void checkPrepareText(String line, String expected) throws IOException {
