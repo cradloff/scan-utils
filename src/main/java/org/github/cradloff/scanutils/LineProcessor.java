@@ -246,13 +246,13 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	}
 
 	/** Ersetzt vertauschte s/f, v/r/o, etc. */
-	public static String replaceCharacters(String input, Set<String> dict, int threshold) {
+	public static String replaceCharacters(String input, SortedSet<String> dict, int threshold) {
 		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
 		// der Anfangsbuchstabe wird sowohl in Groß- als auch in Kleinschreibweise gesucht
 		String[] variants = caseVariants(input);
 		List<String> candidates = new ArrayList<>();
-		threshold = replaceCharacters(variants[0], dict, candidates, input.length() - 1, threshold) - 1;
-		replaceCharacters(variants[1], dict, candidates, input.length() - 1, threshold);
+		int newThreshold = replaceCharacters(variants[0], dict, candidates, 0, threshold) - 1;
+		replaceCharacters(variants[1], dict, candidates, 0, newThreshold);
 		// den Kandidaten mit den wenigsten Unterschieden zum Original heraussuchen
 		String result = bestMatch(input, candidates);
 
@@ -315,33 +315,54 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			sc.put(entries[0], new ArrayList<>(values));
 		}
 	}
-	private static int replaceCharacters(String input, Set<String> dict, Collection<String> result, int end, int threshold) {
-		for (int i = end; i >= 0; i--) {
-			// erste passende Stelle suchen
-			String tail = input.substring(i);
+	private static int replaceCharacters(String input, SortedSet<String> dict, Collection<String> result, int start, int threshold) {
+		// sind wir schon am Ende angelangt?
+		if (start == input.length()) {
+			return threshold;
+		}
+
+		int newThreshold = threshold;
+		// zuerst mit dem unveränderten Zeichen weitersuchen
+		String head = input.substring(0, start);
+		// mit dem Teil des Dictionary weiterarbeiten, dass mit dem Prefix anfängt
+		SortedSet<String> subSet = dict.subSet(head, head + "\uffff");
+		if (hasPrefix(subSet, head)) {
+			newThreshold = replaceCharacters(input, subSet, result, start + 1, newThreshold);
+
+			// dann mit allen möglichen Ersetzungen
+			String tail = input.substring(start);
 			Map<String, List<String>> map = SIMILAR_CHARS.subMap(tail.substring(0, 1), true, tail, true);
 			for (Entry<String, List<String>> entry : map.entrySet()) {
 				String chars = entry.getKey();
 				if (tail.startsWith(chars)) {
+					String suffix = tail.substring(chars.length());
 					// durch alle anderen Zeichen ersetzen
 					for (String replacement : entry.getValue()) {
-						String candidate = input.substring(0, i) + replacement + input.substring(i + chars.length());
-						if (dict.contains(candidate)) {
+						String candidate = head + replacement + suffix;
+						if (subSet.contains(candidate)) {
 							result.add(candidate);
 							// wenn wir einen Kandidaten gefunden haben, macht es keinen Sinn,
-							// nach Wörtern mit mehr Unterschieden zu suchen
-							threshold = 1;
+							// weiter nach Wörtern mit mehr Unterschieden zu suchen
+							newThreshold = 1;
 						}
+
 						// weitere Kandidaten erzeugen
-						if (i > 0 && threshold > 1) {
-							threshold = replaceCharacters(candidate, dict, result, i - 1, threshold - 1);
+						if (hasPrefix(subSet, head + replacement) && newThreshold > 1) {
+							int x = replaceCharacters(candidate, subSet, result, start + replacement.length(), newThreshold - 1);
+							newThreshold = Math.min(x + 1, newThreshold);
 						}
 					}
 				}
 			}
 		}
 
-		return threshold + 1;
+		return newThreshold;
+	}
+
+	/** gibt es im Wörterbuch einen Eintrag, der mit dem angegebenen Eintrag beginnt? */
+	private static boolean hasPrefix(SortedSet<String> dict, String prefix) {
+		SortedSet<String> subSet = dict.tailSet(prefix);
+		return ! subSet.isEmpty() && subSet.first().startsWith(prefix);
 	}
 
 	private static String bestMatch(String input, List<String> candidates) {

@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.junit.Test;
 
@@ -108,7 +110,7 @@ public class PreProcessTest {
 	}
 
 	@Test public void testReplaceCharacters() {
-		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "Deck", "Verbrecher", "Zimmer", "sein", "fein", "Backenmuskulatur"));
+		TreeSet<String> dict = new TreeSet<>(Arrays.asList("Schiff", "voraus", "Deck", "Verbrecher", "Zimmer", "sein", "fein", "Backenmuskulatur"));
 		checkReplaceCharacters("Schiff", "Schiff", dict);
 		checkReplaceCharacters("voraus", "voraus", dict);
 
@@ -129,7 +131,7 @@ public class PreProcessTest {
 		checkReplaceCharacters("fctn", "fein", dict);
 	}
 
-	private void checkReplaceCharacters(String input, String expected, Set<String> dict) {
+	private void checkReplaceCharacters(String input, String expected, SortedSet<String> dict) {
 		String actual = LineProcessor.replaceCharacters(input, dict, 5);
 		assertEquals(expected, actual);
 	}
