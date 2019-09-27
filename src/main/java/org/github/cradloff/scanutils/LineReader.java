@@ -95,7 +95,8 @@ public class LineReader {
 		lines.set(i2, tmp);
 	}
 
-	public void skip(int i) {
+	public void skip(int i) throws IOException {
 		lines.remove(i + prevContext);
+		doReadLine();
 	}
 }

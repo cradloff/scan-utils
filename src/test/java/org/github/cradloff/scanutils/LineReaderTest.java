@@ -63,4 +63,36 @@ public class LineReaderTest {
 
 		assertFalse(lineReader.readLine());
 	}
+
+	@Test public void skip() throws IOException {
+		assertTrue(lineReader.readLine());
+		assertSame(LineReader.EOF, lineReader.prev());
+		assertEquals(Arrays.asList("eins"), lineReader.current());
+		assertEquals(Arrays.asList("zwei"), lineReader.next());
+		assertEquals(Arrays.asList("drei"), lineReader.next(2));
+		assertTrue(lineReader.hasNext());
+		assertTrue(lineReader.hasNext(2));
+
+		lineReader.skip(1); // skip "zwei"
+
+		assertTrue(lineReader.readLine());
+		assertEquals(Arrays.asList("eins"), lineReader.prev());
+		assertEquals(Arrays.asList("drei"), lineReader.current());
+		assertEquals(Arrays.asList("vier"), lineReader.next());
+		assertEquals(Arrays.asList("fünf"), lineReader.next(2));
+		assertTrue(lineReader.hasNext());
+		assertTrue(lineReader.hasNext(2));
+
+		lineReader.skip(1); // skip "vier"
+
+		assertTrue(lineReader.readLine());
+		assertEquals(Arrays.asList("drei"), lineReader.prev());
+		assertEquals(Arrays.asList("fünf"), lineReader.current());
+		assertSame(LineReader.EOF, lineReader.next());
+		assertSame(LineReader.EOF, lineReader.next(2));
+		assertFalse(lineReader.hasNext());
+		assertFalse(lineReader.hasNext(2));
+
+		assertFalse(lineReader.readLine());
+	}
 }

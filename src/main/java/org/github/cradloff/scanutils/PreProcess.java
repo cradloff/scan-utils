@@ -115,7 +115,7 @@ public class PreProcess {
 	public int preProcess(Reader in, Writer out, PrintWriter log, Map<String, String> map, Set<String> dict, Set<String> silben) throws IOException, InterruptedException, ExecutionException {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
 		SortedSet<String> ciDict = new TreeSet<>(TextUtils.addUpperCase(dict));
-		LineReader reader = new LineReader(in);
+		LineReader reader = new LineReader(in, 1, 2);
 		int count = 0;
 		// Pro Prozessor ein Thread
 		int cpus = Runtime.getRuntime().availableProcessors();
