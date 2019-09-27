@@ -1,6 +1,5 @@
 package org.github.cradloff.scanutils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -9,7 +8,6 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +59,6 @@ public class PreProcess {
 		}
 	}
 
-	/** leere Liste als Markierung für das Dateiende */
-	private static final List<String> EOF = new ArrayList<>();
 	/** Zeile mit einem Pagebreak */
 	private static final List<String> PAGEBREAK = TextUtils.split("<@pagebreak/>");
 	private Parameter params;
@@ -116,41 +112,25 @@ public class PreProcess {
 		}
 	}
 
-	private List<String> nextLine(BufferedReader reader) throws IOException {
-		String line = reader.readLine();
-		List<String> tokens;
-		if (line == null) {
-			tokens = EOF;
-		} else {
-			// Zeile in Token zerlegen
-			tokens = TextUtils.split(line);
-		}
-
-		return tokens;
-	}
-
 	public int preProcess(Reader in, Writer out, PrintWriter log, Map<String, String> map, Set<String> dict, Set<String> silben) throws IOException, InterruptedException, ExecutionException {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
 		SortedSet<String> ciDict = new TreeSet<>(TextUtils.addUpperCase(dict));
-		BufferedReader reader = new BufferedReader(in);
-		List<String> line = nextLine(reader);
-		List<String> prevLine = Arrays.asList("BOF");
-		List<String> nextLine;
+		LineReader reader = new LineReader(in);
 		int count = 0;
 		// Pro Prozessor ein Thread
 		int cpus = Runtime.getRuntime().availableProcessors();
 		ExecutorService executor = Executors.newFixedThreadPool(cpus);
 		List<Future<Result>> results = new ArrayList<>();
-		do {
+		while (reader.readLine()) {
 			/*
 			 * Die Zeilen werden zunächst vorverarbeitet
 			 */
-			nextLine = nextLine(reader);
+			List<String> line = reader.current();
 
 			// ggf. Pagebreak nach unten verschieben
-			if (line.equals(PAGEBREAK) && ! prevLine.isEmpty() && nextLine.isEmpty() && nextLine != EOF) {
-				line = nextLine;
-				nextLine = PAGEBREAK;
+			if (line.equals(PAGEBREAK) && ! reader.prev().isEmpty() && reader.hasNext() && reader.next().isEmpty()) {
+				reader.swap(0, 1);
+				line = reader.current();
 			}
 
 			// Leerzeilen überspringen
@@ -165,11 +145,11 @@ public class PreProcess {
 				// Leerzeichen entfernen/einfügen
 				count += checkWhitespace(line);
 				// Worttrennung am Zeilenende zusammenfassen
-				if (mergeLinebreak(line, nextLine)) {
+				if (mergeLinebreak(reader)) {
 					// ist die Folge-Zeile jetzt leer?
-					if (nextLine.isEmpty()) {
+					if (reader.next().isEmpty()) {
 						// Zeile überspringen
-						nextLine = nextLine(reader);
+						reader.skip(1);
 					}
 				}
 
@@ -178,11 +158,7 @@ public class PreProcess {
 				 */
 				results.add(executor.submit(new LineProcessor(params, line, map, ciDict, silben)));
 			}
-
-			prevLine = line;
-			line = nextLine;
 		}
-		while (line != EOF);
 
 		/*
 		 * Jetzt die Zeilen ausgeben
@@ -385,26 +361,45 @@ public class PreProcess {
 				&& (token.length() == 1 || token.charAt(1) == '!' || token.charAt(1) == '«');
 	}
 
-	private boolean mergeLinebreak(List<String> line, List<String> nextLine) {
+	private boolean mergeLinebreak(LineReader reader) {
+		List<String> line = reader.current();
+		if (line.isEmpty() || ! reader.hasNext()) {
+			return false;
+		}
+
 		boolean merged = false;
 		// Worttrennung am Zeilenende?
+		List<String> nextLine = reader.next();
 		String token = line.get(line.size() - 1);
-		if (TextUtils.endsWithDash(token) && Character.isAlphabetic(token.codePointAt(0))
-				&& ! nextLine.isEmpty() && Character.isAlphabetic(nextLine.get(0).charAt(0))) {
-			// Wörter zusammenfügen
-			token += nextLine.remove(0);
-			line.set(line.size() - 1, token);
-			// Satzzeichen in die aktuelle Zeile übernehmen
-			while (! nextLine.isEmpty() && TextUtils.isSatzzeichen(nextLine.get(0))) {
-				line.add(nextLine.remove(0));
+		if (TextUtils.endsWithDash(token) && Character.isAlphabetic(token.codePointAt(0))) {
+			// die Folge-Zeile beginnt mit einem Buchstaben?
+			if (! nextLine.isEmpty() && Character.isAlphabetic(nextLine.get(0).charAt(0))) {
+				merge(line, nextLine);
+				merged = true;
 			}
-			// Leerzeichen am Zeilenanfang entfernen.
-			while (! nextLine.isEmpty() && " ".equals(nextLine.get(0))) {
-				nextLine.remove(0);
+			// die Folgezeile ist ein Pagebreak und die übernächste Zeile beginnt mit einem Buchstaben?
+			else if (nextLine.equals(PAGEBREAK) && reader.hasNext(2)
+					&& ! reader.next(2).isEmpty() && Character.isAlphabetic(reader.next(2).get(0).charAt(0))) {
+				merge(line, reader.next(2));
+				merged = true;
 			}
-			merged = true;
 		}
 
 		return merged;
+	}
+
+	private void merge(List<String> line1, List<String> line2) {
+		// Wörter zusammenfügen
+		String token = line1.get(line1.size() - 1);
+		token += line2.remove(0);
+		line1.set(line1.size() - 1, token);
+		// Satzzeichen in die aktuelle Zeile übernehmen
+		while (! line2.isEmpty() && TextUtils.isSatzzeichen(line2.get(0))) {
+			line1.add(line2.remove(0));
+		}
+		// Leerzeichen am Zeilenanfang entfernen.
+		while (! line2.isEmpty() && " ".equals(line2.get(0))) {
+			line2.remove(0);
+		}
 	}
 }

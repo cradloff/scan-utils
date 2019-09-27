@@ -178,6 +178,8 @@ public class PreProcessTest {
 		checkPreProcess("er war hier -—-\nund dort\n", "er war hier —\nund dort\n", dict, silben, spellcheck, 0);
 		// Bindestriche und Korrekturen bei Worttrennung am Zeilenende
 		checkPreProcess("Ai-\nie mie-\nne Ent-\nchen\n", "Alle\nmeine\nEntchen\n", dict, silben, spellcheck, 3);
+		// Bindestriche und Pagebreaks
+		checkPreProcess("Alle mie-\n<@pagebreak/>\nne Entchen\n", "Alle meine\n<@pagebreak/>\nEntchen\n", dict, silben, spellcheck, 1);
 		// keine Ersetzung von Silben bei Worttrennung am Zeilenende
 		checkPreProcess("mer war im Zim-\nmer? Aiie!\n", "wer war im Zim-mer?\nAlle!\n", dict, silben, spellcheck, 2);
 		// und auch nicht in der Zeile
@@ -189,7 +191,7 @@ public class PreProcessTest {
 		// Brüche
 		checkPreProcess("Um 1/2 12 Uhr", "Um ½ 12 Uhr\n", dict, silben, spellcheck, 1);
 		// <preprocess> soll immer am Anfang eines Absatzes stehen
-		checkPreProcess("<@pagebreak/>\n\n", "\n<@pagebreak/>\n", dict, silben, spellcheck, 0);
+		checkPreProcess("Zeile 1\n<@pagebreak/>\n\nZeile 2\n", "Zeile 1\n\n<@pagebreak/>\nZeile 2\n", dict, silben, spellcheck, 0);
 		// keine Ersetzung von Silben (wenn z.B. Bindestrich fehlt)
 		checkPreProcess("Ent ch en\n", "Ent ch en\n", dict, silben, spellcheck, 0);
 		// keine Ersetzungen in HTML-Tags
