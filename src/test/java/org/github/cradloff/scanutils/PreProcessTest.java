@@ -146,7 +146,8 @@ public class PreProcessTest {
 		spellcheck.put("„", "»");
 
 		Set<String> silben = new HashSet<>(Arrays.asList("en", "ch"));
-		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "hier", "mal", "mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr"));
+		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "hier", "mal", "mir", "war", "wir", "oh",
+				"schwerfällig", "zu", "Piraten", "Uhr", "in"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
@@ -159,6 +160,8 @@ public class PreProcessTest {
 		checkPreProcess("Al»le mal zu mir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 0);
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Und dann — »2 Sonnen»,\n", "Und dann — »2 Sonnen«,\n", dict, silben, spellcheck, 0);
+		// keine Ersetzung von einzelnen Buchstaben
+		checkPreProcess("G. m. b. H.\n", "G. m. b. H.\n", dict, silben, spellcheck, 0);
 		// am Zeilenanfang werden Wörter ergänzt, die vorne abgeschnitten sind
 		checkPreProcess("iff oraus\nlle ine\nntchen\n", "Schiff oraus\nAlle ine\nEntchen\n", dict, silben, spellcheck, 3);
 		// aber nur, wenn sie mehr als zwei Zeichen haben

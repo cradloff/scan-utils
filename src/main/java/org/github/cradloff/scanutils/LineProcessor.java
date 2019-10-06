@@ -249,7 +249,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				}
 			}
 			result = TextUtils.reverse(shortest);
-		} else {
+		} else if (word.length() > 1) {
 			// gängige Vertauschungen durchführen
 			String candidate = replaceCharacters(word, ciDict, params.getLevel());
 			if (! candidate.equals(word)) {
