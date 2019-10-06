@@ -158,6 +158,10 @@ public class PreProcessTest {
 		checkPreProcess("Alle «miene» Ent-chen Zu Wasser-teich!\n", "Alle »meine« Entchen Zu Wasser-teich!\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Al»le mal zu mir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 0);
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
+		// am Zeilenanfang werden Wörter ergänzt, die vorne abgeschnitten sind
+		checkPreProcess("iff oraus\nlle ine\nntchen\n", "Schiff oraus\nAlle ine\nEntchen\n", dict, silben, spellcheck, 3);
+		// aber nur, wenn sie mehr als zwei Zeichen haben
+		checkPreProcess("ff oraus\nle ine\nen\n", "ff oraus\nle ine\nen\n", dict, silben, spellcheck, 0);
 		// Groß-/Kleinschreibung korrigieren
 		checkPreProcess("piraten-SchIff vorauS\n", "Piraten-Schiff voraus\n", dict, silben, spellcheck, 3);
 		checkPreProcess("pixaten-SchIss vorauS\n", "Piraten-Schiff voraus\n", dict, silben, spellcheck, 3);

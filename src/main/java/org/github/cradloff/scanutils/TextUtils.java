@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 public class TextUtils {
@@ -153,6 +155,20 @@ public class TextUtils {
 	private static final Pattern START_OF_TAG = Pattern.compile("[^<]*<[/@,.]*");
 	public static boolean startOfTag(String token) {
 		return START_OF_TAG.matcher(token).matches() && ! token.endsWith("<<");
+	}
+
+	/** Erzeugt ein Wörterbuch, in dem alle Einträge rückwärts enthalten sind (also z.B. "riw" statt "wir") */
+	public static SortedSet<String> inverse(Set<String> ciDict) {
+		SortedSet<String> result = new TreeSet<>();
+		for (String entry : ciDict) {
+			result.add(reverse(entry));
+		}
+
+		return result;
+	}
+
+	public static String reverse(String word) {
+		return new StringBuilder(word).reverse().toString();
 	}
 
 }

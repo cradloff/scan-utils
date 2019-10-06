@@ -84,12 +84,14 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	private List<String> line;
 	private Map<String, String> map;
 	private SortedSet<String> ciDict;
+	private SortedSet<String> invDict;
 	private Set<String> silben;
-	public LineProcessor(Parameter params, List<String> line, Map<String, String> map, SortedSet<String> ciDict, Set<String> silben) {
+	public LineProcessor(Parameter params, List<String> line, Map<String, String> map, SortedSet<String> ciDict, SortedSet<String> invDict, Set<String> silben) {
 		this.params = params;
 		this.line = line;
 		this.map = map;
 		this.ciDict = ciDict;
+		this.invDict = invDict;
 		this.silben = silben;
 	}
 
@@ -137,13 +139,13 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			}
 
 			// Wörter ersetzen
-			String replacement = process(token);
+			String replacement = process(i, token);
 
 			// durch Leerzeichen getrennte Wörter zusammenfassen
 			if (TextUtils.isWord(token) && whitespaceAfter(line, i) && TextUtils.wordAfter(line, i + 1)
 					&& replacement.equals(token) && ! ciDict.contains(replacement) && ! ciDict.contains(line.get(i + 2))) {
 				String word = token + line.get(i + 2);
-				replacement = process(word);
+				replacement = process(i, word);
 				// kein Erfolg?
 				if (replacement.equals(word) && ! ciDict.contains(replacement)) {
 					replacement = token;
@@ -187,7 +189,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		return result;
 	}
 
-	private String process(String token) {
+	private String process(int index, String token) {
 		String result = token;
 		// ggf. Bindestriche entfernen, außer am Wortende
 		String word = TextUtils.removeDashes(token);
@@ -234,6 +236,19 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			result = word.toLowerCase();
 		} else if (! ciDict.contains(word) && ciDict.contains(TextUtils.toUpperCase(word.toLowerCase()))) {
 			result = TextUtils.toUpperCase(word.toLowerCase());
+		}
+		// am Zeilenanfang prüfen ob es Wort gibt, das mit dem Token endet
+		else if (index == 0 && word.length() > 2 && hasPrefix(invDict, TextUtils.reverse(word))) {
+			// einfach das kürzeste passende Wort nehmen
+			String inv = TextUtils.reverse(word);
+			SortedSet<String> subSet = invDict.subSet(inv, inv + "\uffff");
+			String shortest = subSet.first();
+			for (String curr : subSet) {
+				if (curr.length() < shortest.length()) {
+					shortest = curr;
+				}
+			}
+			result = TextUtils.reverse(shortest);
 		} else {
 			// gängige Vertauschungen durchführen
 			String candidate = replaceCharacters(word, ciDict, params.getLevel());
