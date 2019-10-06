@@ -132,7 +132,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			}
 
 			// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
-			if (token.endsWith("»") && TextUtils.wordBefore(line, i) && ! TextUtils.wordAfter(line, i)) {
+			if (token.contains("»") && TextUtils.wordBefore(line, i) && ! TextUtils.wordAfter(line, i)) {
 				token = token.replace("»", "«");
 			} else if ("«".equals(token) && TextUtils.wordAfter(line, i) && ! TextUtils.wordBefore(line, i)) {
 				token = "»";
