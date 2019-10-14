@@ -251,7 +251,8 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			result = TextUtils.reverse(shortest);
 		} else if (word.length() > 1) {
 			// gängige Vertauschungen durchführen
-			String candidate = replaceCharacters(word, ciDict, params.getLevel());
+			int level = Math.min(params.getLevel(), word.length() - 1);
+			String candidate = replaceCharacters(token, ciDict, level);
 			if (! candidate.equals(word)) {
 				result = candidate;
 			}
@@ -302,6 +303,13 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			for (String s : similar.get("first")) {
 				addFirst(sc, s.split("\\s"));
 			}
+			// ein Bindestrich kann jeder beliebige Buchstabe oder auch nichts sein
+			List<String> replacement = new ArrayList<>();
+			replacement.add("");
+			for (char ch = 'a'; ch <= 'z'; ch++) {
+				replacement.add(Character.toString(ch));
+			}
+			sc.put("-", replacement);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

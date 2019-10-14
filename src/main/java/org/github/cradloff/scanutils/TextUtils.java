@@ -112,7 +112,7 @@ public class TextUtils {
 	}
 
 	public static boolean isDash(char ch) {
-		return ch == '-' || ch == '—';
+		return ch == '-' || ch == '—' || ch == '=';
 	}
 
 	public static boolean isWhitespace(String s) {

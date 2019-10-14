@@ -154,12 +154,14 @@ public class PreProcessTest {
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Aiie ,,miene<< Ent.chen\n", "Alle »meine« Entchen\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Alle „meine“ „Entchen”\n", "Alle »meine« »Entchen«\n", dict, silben, spellcheck, 4);
-		checkPreProcess("Ai-ie mi-ene ent-chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
+		checkPreProcess("Ai-ie mi-ene ent=chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, silben, spellcheck, 4);
 		checkPreProcess("Alle «miene» Ent-chen Zu Wasser-teich!\n", "Alle »meine« Entchen Zu Wasser-teich!\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Al»le mal zu mir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 0);
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Und dann — »2 Sonnen»,\n", "Und dann — »2 Sonnen«,\n", dict, silben, spellcheck, 0);
+		// ein Bindestrich kann für ein beliebiges Zeichen stehen
+		checkPreProcess("Ai-e me-ne En-ch-en\n", "Alle me-ne Entchen\n", dict, silben, spellcheck, 2);
 		// keine Ersetzung von einzelnen Buchstaben
 		checkPreProcess("G. m. b. H.\n", "G. m. b. H.\n", dict, silben, spellcheck, 0);
 		// am Zeilenanfang werden Wörter ergänzt, die vorne abgeschnitten sind
