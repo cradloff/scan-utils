@@ -31,7 +31,7 @@ import org.github.cradloff.scanutils.LineProcessor.Result;
  */
 public class PreProcess {
 	static class Parameter {
-		private int level = 4;
+		private int level = 6;
 		private List<File> inputs = new ArrayList<>();
 
 		public static Parameter parse(String[] args) {

@@ -37,7 +37,7 @@ Die geänderten Wörter werden in der Datei `changes.log` protokolliert.
 
 Optionen:
 * -[n] gibt an, wieviel Aufwand getrieben werden soll, um Wörter gegen das Wörterbuch
-  abzugleichen. Ein höherer Wert steht dabei für einen höheren Aufwand. Default: 4
+  abzugleichen. Ein höherer Wert steht dabei für einen höheren Aufwand. Default: 6
 
 __SpellCheck__
 * gibt falsch geschriebene Wörter in einer Datei aus
