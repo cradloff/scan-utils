@@ -165,7 +165,7 @@ public class PreProcessTest {
 		// keine Ersetzung von einzelnen Buchstaben
 		checkPreProcess("G. m. b. H.\n", "G. m. b. H.\n", dict, silben, spellcheck, 0);
 		// am Zeilenanfang werden Wörter ergänzt, die vorne abgeschnitten sind
-		checkPreProcess("iff oraus\nlle ine\nntchen\n", "Schiff oraus\nAlle ine\nEntchen\n", dict, silben, spellcheck, 3);
+		checkPreProcess("iff oraus\nlle ine\nntchen\n", "Schiff oraus\nalle ine\nEntchen\n", dict, silben, spellcheck, 3);
 		// aber nur, wenn sie mehr als zwei Zeichen haben
 		checkPreProcess("ff oraus\nle ine\nen\n", "ff oraus\nle ine\nen\n", dict, silben, spellcheck, 0);
 		// Groß-/Kleinschreibung korrigieren
