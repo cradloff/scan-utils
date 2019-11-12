@@ -8,7 +8,9 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -335,7 +337,7 @@ public class PreProcess {
 
 	/** Satzzeichen, die immer nach einem Wort stehen */
 	private static final String SATZZEICHEN_NACH_WORT = ".,;:!?";
-	enum State { WHITESPACE, OTHER, SATZZEICHEN };
+	enum State { WHITESPACE, OTHER, SATZZEICHEN }
 	static int checkWhitespace(List<String> line) {
 		int count = 0;
 		State state = State.OTHER;
@@ -362,6 +364,8 @@ public class PreProcess {
 				&& (token.length() == 1 || token.charAt(1) == '!' || token.charAt(1) == '«');
 	}
 
+	/** Schmierzeichen am Zeilenanfang */
+	private static final Set<String> SCHMIERZEICHEN_ZEILENBEGINN = new HashSet<>(Arrays.asList(",", "»", "«"));
 	private boolean mergeLinebreak(LineReader reader) {
 		List<String> line = reader.current();
 		if (line.isEmpty() || ! reader.hasNext()) {
@@ -373,8 +377,10 @@ public class PreProcess {
 		List<String> nextLine = reader.next();
 		String token = line.get(line.size() - 1);
 		if (TextUtils.endsWithDash(token) && Character.isAlphabetic(token.codePointAt(0))) {
-			// die Folge-Zeile beginnt mit einem Buchstaben?
-			if (! nextLine.isEmpty() && Character.isAlphabetic(nextLine.get(0).charAt(0))) {
+			// die Folge-Zeile beginnt mit einem Buchstaben oder einem Schmierzeichen?
+			if (! nextLine.isEmpty()
+					&& (Character.isAlphabetic(nextLine.get(0).charAt(0))
+							|| SCHMIERZEICHEN_ZEILENBEGINN.contains(nextLine.get(0)))) {
 				merge(line, nextLine);
 				merged = true;
 			}
@@ -392,7 +398,12 @@ public class PreProcess {
 	private void merge(List<String> line1, List<String> line2) {
 		// Wörter zusammenfügen
 		String token = line1.get(line1.size() - 1);
-		token += line2.remove(0);
+		String nextToken = line2.remove(0);
+		// Schmierzeichen am Zeilenanfang überspringen
+		if (SCHMIERZEICHEN_ZEILENBEGINN.contains(nextToken)) {
+			nextToken = line2.remove(0);
+		}
+		token += nextToken;
 		line1.set(line1.size() - 1, token);
 		// Satzzeichen in die aktuelle Zeile übernehmen
 		while (! line2.isEmpty() && TextUtils.isSatzzeichen(line2.get(0))) {

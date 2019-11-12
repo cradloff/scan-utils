@@ -188,6 +188,10 @@ public class PreProcessTest {
 		checkPreProcess("er war hier -—-\nund dort\n", "er war hier —\nund dort\n", dict, silben, spellcheck, 0);
 		// Bindestriche und Korrekturen bei Worttrennung am Zeilenende
 		checkPreProcess("Ai-\nie mie-\nne Ent-\nchen\n", "Alle\nmeine\nEntchen\n", dict, silben, spellcheck, 3);
+		// Bindestrich und Schmierzeichen am Zeilenanfang
+		checkPreProcess("Alle mie-\n»ne Entchen\n", "Alle meine\nEntchen\n", dict, silben, spellcheck, 1);
+		checkPreProcess("Alle mie-\n«ne Entchen\n", "Alle meine\nEntchen\n", dict, silben, spellcheck, 1);
+		checkPreProcess("Alle mie-\n,ne Entchen\n", "Alle meine\nEntchen\n", dict, silben, spellcheck, 1);
 		// Bindestriche und Pagebreaks
 		checkPreProcess("Alle mie-\n<@pagebreak/>\nne Entchen\n", "Alle meine\n<@pagebreak/>\nEntchen\n", dict, silben, spellcheck, 1);
 		// keine Ersetzung von Silben bei Worttrennung am Zeilenende
