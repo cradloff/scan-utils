@@ -78,7 +78,7 @@ public class PrepareText {
 		String result = line;
 		do {
 			// Schmierzeichen vorne entfernen
-			String s = result.replaceAll("^[|/,.;:_‘’©>' ]+", "");
+			String s = result.replaceAll("^[|/,‚.;:_‘’©>' ]+", "");
 			// folgende Zeichen nur entfernen, wenn sie von einem Leerzeichen gefolgt werden
 			s = s.replaceAll("^[\\\\“”\",¿(){}a-zA-Z0-9] ", "");
 

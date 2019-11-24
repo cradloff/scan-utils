@@ -14,6 +14,7 @@ public class PrepareTextTest {
 		checkRemoveLitter("iText ohne Schmierzeichen", "iText ohne Schmierzeichen");
 
 		checkRemoveLitter(",Text mit Schmierzeichen vorn,", "Text mit Schmierzeichen vorn,");
+		checkRemoveLitter("‚Text mit Schmierzeichen vorn,", "Text mit Schmierzeichen vorn,"); // Apostroph unten
 		checkRemoveLitter("; Text mit Schmierzeichen vorn;", "Text mit Schmierzeichen vorn;");
 		checkRemoveLitter(": Text mit Schmierzeichen vorn:", "Text mit Schmierzeichen vorn:");
 		checkRemoveLitter("_ Text mit Schmierzeichen vorn", "Text mit Schmierzeichen vorn");
