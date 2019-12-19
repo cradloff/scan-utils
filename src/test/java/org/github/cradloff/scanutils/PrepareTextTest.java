@@ -13,6 +13,8 @@ public class PrepareTextTest {
 	@Test public void removeLitter() {
 		checkRemoveLitter("iText ohne Schmierzeichen", "iText ohne Schmierzeichen");
 
+		checkRemoveLitter("Schmierzeichen_ mitten% im #Text", "Schmierzeichen mitten im Text");
+
 		checkRemoveLitter(",Text mit Schmierzeichen vorn,", "Text mit Schmierzeichen vorn,");
 		checkRemoveLitter("‚Text mit Schmierzeichen vorn,", "Text mit Schmierzeichen vorn,"); // Apostroph unten
 		checkRemoveLitter("; Text mit Schmierzeichen vorn;", "Text mit Schmierzeichen vorn;");

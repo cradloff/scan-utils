@@ -76,6 +76,10 @@ public class PrepareText {
 		// so lange wiederholen, bis sich nichts mehr ändert
 		boolean changed;
 		String result = line;
+
+		// Schmierzeichen an beliebigen Stellen entfernen
+		result = result.replaceAll("[#_%]", "");
+
 		do {
 			// Schmierzeichen vorne entfernen
 			String s = result.replaceAll("^[|/,‚.;:_‘’©>' ]+", "");
