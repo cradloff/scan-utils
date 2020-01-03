@@ -69,6 +69,6 @@ public class CheckCaseTest {
 		StringWriter out = new StringWriter();
 		cc.checkCase(in, out, dict);
 		String actual = out.toString();
-		assertEquals(expected, actual);
+		Assert.assertLinesEqual(expected, actual);
 	}
 }
