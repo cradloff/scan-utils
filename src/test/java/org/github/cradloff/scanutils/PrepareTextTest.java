@@ -117,7 +117,7 @@ public class PrepareTextTest {
 				) {
 			PrepareText.prepareText(in, new PrintWriter(out));
 			String actual = out.toString();
-			assertEquals(expected, actual);
+			Assert.assertLinesEqual(expected, actual);
 		}
 	}
 }

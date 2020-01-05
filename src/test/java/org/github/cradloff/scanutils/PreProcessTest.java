@@ -234,7 +234,7 @@ public class PreProcessTest {
 				) {
 			int count = pp.preProcess(in, out, log, spellcheck, dict, silben);
 			String actual = out.toString();
-			assertEquals(expected, actual);
+			Assert.assertLinesEqual(expected, actual);
 			assertEquals("count", expectedCount, count);
 		}
 	}
