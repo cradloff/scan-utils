@@ -69,7 +69,7 @@ public class TextUtilsTest {
 	@Test public void testSatzzeichenErsetzen() {
 		assertEquals("", TextUtils.satzzeichenErsetzen(""));
 		assertEquals("Hier. Da ist’s.", TextUtils.satzzeichenErsetzen("Hier· Da ist's."));
-		assertEquals("»Hier — dort —«", TextUtils.satzzeichenErsetzen(">>Hier -- dort -—<<"));
+		assertEquals("»Hier — dort — wo — anders —«", TextUtils.satzzeichenErsetzen(">>Hier -- dort -— wo == anders -=<<"));
 	}
 
 	@Test public void isWord() {

@@ -13,7 +13,7 @@ public class TextUtils {
 	public static String satzzeichenErsetzen(String line) {
 		String result = line;
 		// mehrfache Gedankenstriche zusammenfassen
-		result = result.replaceAll("[-—]{2,}", "—");
+		result = result.replaceAll("[-—=]{2,}", "—");
 
 		// << und >> in « und » umwandeln
 		result = result.replaceAll("<<", "«");
@@ -137,7 +137,7 @@ public class TextUtils {
 			char ch = word.charAt(i);
 			// alle Bindestriche außer am Wortende und nach einem Backslash entfernen
 			if (isDash(ch) && i < word.length() - 1 && last != '\\') {
-				;
+
 			} else {
 				sb.append(ch);
 			}
