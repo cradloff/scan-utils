@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class TextUtilsTest {
@@ -122,12 +123,16 @@ public class TextUtilsTest {
 		dict.add("Groß");
 		dict.add("beides");
 		dict.add("Beides");
+		// Umlaute werden aufgelöst
+		dict.add("über");
 
 		Set<String> dict2 = TextUtils.addUpperCase(dict);
-		assertEquals(4, dict.size());
-		assertEquals(5, dict2.size());
-		assertTrue(dict2.containsAll(dict));
-		assertTrue(dict2.contains("Klein"));
-		assertFalse(dict2.contains("groß"));
+		Assertions.assertThat(dict)
+			.hasSize(5)
+			.contains("klein", "Groß", "beides", "Beides", "über");
+		Assertions.assertThat(dict2)
+			.hasSize(7)
+			.contains("klein", "Klein", "Groß", "beides", "Beides", "über", "Ueber");
+		
 	}
 }

@@ -79,7 +79,20 @@ public class TextUtils {
 	}
 
 	public static String toUpperCase(String word) {
-		return Character.toUpperCase(word.charAt(0)) + word.substring(1);
+		// Umlaute werden aufgelöst
+		StringBuilder result = new StringBuilder(word.length());
+		if (word.charAt(0) == 'ö') {
+			result.append("Oe");
+		} else if (word.charAt(0) == 'ä') {
+			result.append("Ae");
+		} else if (word.charAt(0) == 'ü') {
+			result.append("Ue");
+		} else {
+			result.append(Character.toUpperCase(word.charAt(0)));
+		}
+		result.append(word, 1, word.length());
+		
+		return result.toString();
 	}
 
 	public static boolean isWord(String s) {
@@ -137,7 +150,7 @@ public class TextUtils {
 			char ch = word.charAt(i);
 			// alle Bindestriche außer am Wortende und nach einem Backslash entfernen
 			if (isDash(ch) && i < word.length() - 1 && last != '\\') {
-				;
+				
 			} else {
 				sb.append(ch);
 			}
