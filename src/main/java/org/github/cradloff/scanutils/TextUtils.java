@@ -13,7 +13,7 @@ public class TextUtils {
 	public static String satzzeichenErsetzen(String line) {
 		String result = line;
 		// mehrfache Gedankenstriche zusammenfassen
-		result = result.replaceAll("[-—]{2,}", "—");
+		result = result.replaceAll("[-—=]{2,}", "—");
 
 		// << und >> in « und » umwandeln
 		result = result.replaceAll("<<", "«");
