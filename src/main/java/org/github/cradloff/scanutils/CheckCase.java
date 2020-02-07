@@ -48,27 +48,26 @@ public class CheckCase {
 	}
 
 	/** Entfernt Wörter, die sowohl in Groß- als auch in Kleinschreibung vorhanden sind */
-	private static Set<String> removeAmbigous(Set<String> dict) {
-		// Wörter mit eindeutiger Groß-/Kleinschreibung auf die beiden Sets verteilen
-		Set<String> upper = new HashSet<>();
-		Set<String> lower = new HashSet<>();
+	static Set<String> removeAmbigous(Set<String> dict) {
+		// Wörter mit uneindeutiger Groß-/Kleinschreibung aus dem Ergebnis entfernen
+		Set<String> result = new HashSet<>(dict);
 		for (String word : dict) {
 			if (Character.isLowerCase(word.charAt(0))) {
 				String ucWord = TextUtils.toUpperCase(word);
-				if (! dict.contains(ucWord)) {
-					lower.add(word);
+				if (dict.contains(ucWord)) {
+					result.remove(word);
+					result.remove(ucWord);
 				}
 			} else {
 				String lcWord = word.toLowerCase();
-				if (! dict.contains(lcWord)) {
-					upper.add(word);
+				if (dict.contains(lcWord)) {
+					result.remove(word);
+					result.remove(lcWord);
 				}
 			}
 		}
 
-		// wieder in einem Set zusammenfassen
-		upper.addAll(lower);
-		return upper;
+		return result;
 	}
 
 	int checkCase(Reader in, Writer out, Set<String> dict) throws IOException {

@@ -20,13 +20,14 @@ public class CheckCaseTest {
 		checkToLower("", "ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 3);
 		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
 		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
+		checkToLower("", "über und über.", "über und über.", 0);
 	}
 
-	private Set<String> dict = new HashSet<>(Arrays.asList("Anfang", "Ende", "Wasser", "und", "zu"));
+	private Set<String> dict = new HashSet<>(Arrays.asList("Anfang", "Ende", "Wasser", "und", "über", "Ueber", "zu"));
 	private void checkToLower(String lastLine, String line, String expected, int expectedCount) {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);
-		int count = CheckCase.fixCase(lastWords, words, dict);
+		int count = CheckCase.fixCase(lastWords, words, CheckCase.removeAmbigous(dict));
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
 		assertEquals("count", expectedCount, count);
