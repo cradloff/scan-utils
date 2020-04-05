@@ -79,20 +79,17 @@ public class TextUtils {
 	}
 
 	public static String toUpperCase(String word) {
-		// Umlaute werden aufgelöst
-		StringBuilder result = new StringBuilder(word.length());
-		if (word.charAt(0) == 'ö') {
-			result.append("Oe");
-		} else if (word.charAt(0) == 'ä') {
-			result.append("Ae");
-		} else if (word.charAt(0) == 'ü') {
-			result.append("Ue");
-		} else {
-			result.append(Character.toUpperCase(word.charAt(0)));
+		char firstChar = word.charAt(0);
+		// Sonderbehandlung für Umlaute
+		String remainder = word.substring(1);
+		if (firstChar == 'ö') {
+			return "Oe" + remainder;
+		} else if (firstChar == 'ä') {
+			return "Ae" + remainder;
+		} else if (firstChar == 'ü') {
+			return "Ue" + remainder;
 		}
-		result.append(word, 1, word.length());
-		
-		return result.toString();
+		return Character.toUpperCase(firstChar) + remainder;
 	}
 
 	public static boolean isWord(String s) {

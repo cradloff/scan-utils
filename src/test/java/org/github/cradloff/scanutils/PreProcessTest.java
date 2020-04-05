@@ -202,6 +202,8 @@ public class PreProcessTest {
 		checkPreProcess("wir ess-\nen da-\nmals\n", "wir ess-en\nda-mals\n", dict, silben, spellcheck, 0);
 		// Ersetzung von Zeichen in Wörten mit Bindestrich
 		checkPreProcess("Ai-ie zum Pivaien-5chifs\n", "Alle zum Piraten-Schiff\n", dict, silben, spellcheck, 3);
+		// Wörter mit zusätzlichem Großbuchstaben am Anfang
+		checkPreProcess("PViraten VPiraten VPixaten", "Piraten Piraten Piraten", dict, silben, spellcheck, 3);
 		// Brüche
 		checkPreProcess("Um 1/2 12 Uhr", "Um ½ 12 Uhr\n", dict, silben, spellcheck, 1);
 		// <preprocess> soll immer am Anfang eines Absatzes stehen

@@ -256,6 +256,19 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			if (! candidate.equals(word)) {
 				result = candidate;
 			}
+			// Zwei Großbuchstaben am Wortbeginn?
+			else if (word.length() > 2
+					&& Character.isUpperCase(word.charAt(0))
+					&& Character.isUpperCase(word.charAt(1))) {
+				// jeweils eines der Zeichen löschen und damit versuchen
+				List<String> candidates = new ArrayList<>();
+				candidates.add(process(index, word.substring(1)));
+				candidates.add(process(index, word.charAt(0) + word.substring(2)));
+				candidate = bestMatch(token, candidates);
+				if (! candidate.equals(word)) {
+					result = candidate;
+				}
+			}
 		}
 
 		return result;

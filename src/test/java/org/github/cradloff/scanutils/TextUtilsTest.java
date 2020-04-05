@@ -117,6 +117,12 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.endOfTag(">>?!"));
 	}
 
+	@Test public void toUpperCase() {
+		assertEquals("Groß", TextUtils.toUpperCase("Groß"));
+		assertEquals("Groß", TextUtils.toUpperCase("groß"));
+		assertEquals("Ueber", TextUtils.toUpperCase("über"));
+	}
+
 	@Test public void testAddUpperCase() {
 		Set<String> dict = new HashSet<>();
 		dict.add("klein");
@@ -133,6 +139,6 @@ public class TextUtilsTest {
 		Assertions.assertThat(dict2)
 			.hasSize(7)
 			.contains("klein", "Klein", "Groß", "beides", "Beides", "über", "Ueber");
-		
+
 	}
 }
