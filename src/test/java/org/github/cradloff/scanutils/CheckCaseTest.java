@@ -20,10 +20,10 @@ public class CheckCaseTest {
 		checkToLower("", "ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 3);
 		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
 		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
-		checkToLower("", "über und über.", "über und über.", 0);
+		checkToLower("", "über und über.", "Ueber und über.", 1);
 	}
 
-	private Set<String> dict = new HashSet<>(Arrays.asList("Anfang", "Ende", "Wasser", "und", "über", "Ueber", "zu"));
+	private Set<String> dict = new HashSet<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
 	private void checkToLower(String lastLine, String line, String expected, int expectedCount) {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);
@@ -62,6 +62,7 @@ public class CheckCaseTest {
 
 	@Test public void testCheckCase() throws IOException {
 		checkCheckCase("Zu Lande Und Zu wasser\n", "Zu Lande und zu Wasser\n");
+		checkCheckCase("am anfang. und Am ende\n", "Am Anfang. Und am Ende\n");
 	}
 
 	private void checkCheckCase(String line, String expected) throws IOException {

@@ -104,15 +104,19 @@ public class CheckCase {
 			String word = line.get(i);
 			String lcWord = word.toLowerCase();
 			String ucWord = TextUtils.toUpperCase(word);
-			// das Wort beginnt mit einem Großbuchstaben, ist im Wörterbuch klein vorhanden?
+			// das Wort beginnt mit einem Großbuchstaben, ist im Wörterbuch nur klein vorhanden?
 			if (Character.isUpperCase(word.charAt(0))
+					&& ! dict.contains(ucWord)
 					&& dict.contains(lcWord) && ! satzAnfang(lastLine, line, i)) {
 				line.set(i, lcWord);
 				count++;
 			}
-			// das Wort beginnt mit einem Kleinbuchstaben und ist im Wörterbuch groß vorhanden?
+			// das Wort beginnt mit einem Kleinbuchstaben und ist im Wörterbuch nur groß vorhanden?
 			else if (Character.isLowerCase(word.charAt(0))
-					&& dict.contains(ucWord)) {
+					&& (dict.contains(ucWord)
+							&& ! dict.contains(lcWord)
+							// oder wir befinden uns am Satzanfang
+							|| satzAnfang(lastLine, line, i))) {
 				line.set(i, ucWord);
 				count++;
 			}
