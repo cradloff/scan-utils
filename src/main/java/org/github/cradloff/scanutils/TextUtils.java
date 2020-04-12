@@ -28,7 +28,7 @@ public class TextUtils {
 		return result;
 	}
 
-	enum State { WHITESPACE, WORD, OTHER }
+	enum State { WHITESPACE, WORD, TAG, OTHER }
 	public static List<String> split(CharSequence line) {
 		StringBuilder sb = new StringBuilder();
 		List<String> result = new ArrayList<>();
@@ -49,6 +49,8 @@ public class TextUtils {
 					&& (i == len - 1 && state == State.WORD
 					|| i < len - 1 && Character.isLowerCase(line.charAt(i + 1)))) {
 				newState = State.WORD;
+			} else if (ch == '<' || ch == '/' || ch == '@' || ch == '>') {
+				newState = State.TAG;
 			} else {
 				newState = State.OTHER;
 			}
@@ -147,7 +149,7 @@ public class TextUtils {
 			char ch = word.charAt(i);
 			// alle Bindestriche außer am Wortende und nach einem Backslash entfernen
 			if (isDash(ch) && i < word.length() - 1 && last != '\\') {
-				
+
 			} else {
 				sb.append(ch);
 			}

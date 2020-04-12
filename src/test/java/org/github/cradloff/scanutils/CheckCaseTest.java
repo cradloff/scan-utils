@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.github.cradloff.scanutils.CheckCase.Satzanfang;
 import org.junit.Test;
 
 public class CheckCaseTest {
@@ -33,36 +34,56 @@ public class CheckCaseTest {
 		assertEquals("count", expectedCount, count);
 	}
 
-	@Test public void testSatzAnfang() {
-		checkSatzAnfang(true, "", "");
-		checkSatzAnfang(true, "", "Anfang");
-		checkSatzAnfang(false, "", "Am Anfang");
-		checkSatzAnfang(false, "", "Am - Anfang");
-		checkSatzAnfang(false, "", "Am - \"Anfang\"");
-		checkSatzAnfang(true, "", "Ende. Anfang");
-		checkSatzAnfang(true, "", "Ende! Anfang");
-		checkSatzAnfang(true, "", "Ende? Anfang");
-		checkSatzAnfang(true, "", "Ende?! Anfang");
-		checkSatzAnfang(true, "", "Ende: Anfang");
-		checkSatzAnfang(true, "", "Ende. - Anfang");
-		checkSatzAnfang(true, "", "Ende. — Anfang");
-		checkSatzAnfang(true, "", "Ende —! Anfang");
-		checkSatzAnfang(true, "", "<h1>Anfang");
-		checkSatzAnfang(true, "Ende.", "Anfang");
-		checkSatzAnfang(true, "Ende. -", "Anfang");
-		checkSatzAnfang(false, "Am", "Anfang");
+	@Test public void testSatzanfang() {
+		checkSatzanfang(Satzanfang.JA, "");
+		checkSatzanfang(Satzanfang.JA, "Anfang");
+		checkSatzanfang(Satzanfang.NEIN, "Am Anfang");
+		checkSatzanfang(Satzanfang.NEIN, "Am - Anfang");
+		checkSatzanfang(Satzanfang.NEIN, "Am - \"Anfang\"");
+		checkSatzanfang(Satzanfang.JA, "Ende. Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende! Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende? Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende?! Anfang");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Ende: Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende. - Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende. — Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende —! Anfang");
+		checkSatzanfang(Satzanfang.JA, "<h1>Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende.", "Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende. -", "Anfang");
+		checkSatzanfang(Satzanfang.NEIN, "Am", "Anfang");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Vorsicht!« rief");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Wirklich?« fragte");
+		checkSatzanfang(Satzanfang.JA, "»Schluß.« Danach");
+		checkSatzanfang(Satzanfang.JA, "»Schluß«. Danach");
+		checkSatzanfang(Satzanfang.NEIN, "»Ich gehe,« sagte");
+		checkSatzanfang(Satzanfang.NEIN, "Nun — zunächst");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Nun —« zunächst");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage: vielleicht");
+		// Tags werden ignoriert
+		checkSatzanfang(Satzanfang.JA, "Ende. <em>Anfang");
+		checkSatzanfang(Satzanfang.NEIN, "Am <em>Anfang");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Vorsicht!« <em>rief");
 	}
 
 	/** prüft, ob das letzte Wort der Zeile am Satzanfang steht */
-	private void checkSatzAnfang(boolean expected, String lastLine, String line) {
+	private void checkSatzanfang(Satzanfang expected, String line) {
+		checkSatzanfang(expected, "", line);
+	}
+
+	/** prüft, ob das letzte Wort der Zeile am Satzanfang steht */
+	private void checkSatzanfang(Satzanfang expected, String lastLine, String line) {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);
-		assertEquals(expected, CheckCase.satzAnfang(lastWords, words, words.size() - 1));
+		assertEquals(expected, CheckCase.satzanfang(lastWords, words, words.size() - 1));
 	}
 
 	@Test public void testCheckCase() throws IOException {
 		checkCheckCase("Zu Lande Und Zu wasser\n", "Zu Lande und zu Wasser\n");
 		checkCheckCase("am anfang. und Am ende\n", "Am Anfang. Und am Ende\n");
+		// Tags werden ignoriert, dazwischen wird ersetzt
+		checkCheckCase("<h1 am='anfang'>am anfang</h1>", "<h1 am='anfang'>Am Anfang</h1>");
+		checkCheckCase("<@ende am='anfang'>am anfang</@ende>", "<@ende am='anfang'>Am Anfang</@ende>");
 	}
 
 	private void checkCheckCase(String line, String expected) throws IOException {

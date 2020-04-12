@@ -9,8 +9,10 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /** Korrigiert die Groß-/Kleinschreibung */
@@ -77,8 +79,6 @@ public class CheckCase {
 		List<String> lastLine = Collections.emptyList();
 		int count = 0;
 		do {
-			// Satzzeichen ersetzen
-			line = TextUtils.satzzeichenErsetzen(line);
 			// Zeile in Token zerlegen
 			List<String> s = TextUtils.split(line);
 			// Großschreibung durch Kleinschreibung ersetzen
@@ -100,68 +100,100 @@ public class CheckCase {
 	public static int fixCase(List<String> lastLine, List<String> line, Set<String> dict) {
 		// alle Wörter, die nicht am Zeilenanfang oder nach einem Punkt kommen, durch Kleinschreibweise ersetzen
 		int count = 0;
+		boolean tag = false;
 		for (int i = 0; i < line.size(); i++) {
 			String word = line.get(i);
-			String lcWord = word.toLowerCase();
-			String ucWord = TextUtils.toUpperCase(word);
-			// das Wort beginnt mit einem Großbuchstaben, ist im Wörterbuch nur klein vorhanden?
-			if (Character.isUpperCase(word.charAt(0))
-					&& ! dict.contains(ucWord)
-					&& dict.contains(lcWord) && ! satzAnfang(lastLine, line, i)) {
-				line.set(i, lcWord);
-				count++;
-			}
-			// das Wort beginnt mit einem Kleinbuchstaben und ist im Wörterbuch nur groß vorhanden?
-			else if (Character.isLowerCase(word.charAt(0))
-					&& (dict.contains(ucWord)
-							&& ! dict.contains(lcWord)
-							// oder wir befinden uns am Satzanfang
-							|| satzAnfang(lastLine, line, i))) {
-				line.set(i, ucWord);
-				count++;
+			// Tags überspringen
+			if (tag) {
+				if (TextUtils.endOfTag(word)) {
+					tag = false;
+				}
+			} else if (TextUtils.startOfTag(word)) {
+				tag = true;
+			} else {
+				String lcWord = word.toLowerCase();
+				String ucWord = TextUtils.toUpperCase(word);
+				// das Wort beginnt mit einem Großbuchstaben, ist im Wörterbuch nur klein vorhanden?
+				if (Character.isUpperCase(word.charAt(0))
+						&& ! dict.contains(ucWord)
+						&& dict.contains(lcWord)
+						&& satzanfang(lastLine, line, i) == Satzanfang.NEIN) {
+					line.set(i, lcWord);
+					count++;
+				}
+				// das Wort beginnt mit einem Kleinbuchstaben und ist im Wörterbuch nur groß vorhanden?
+				else if (Character.isLowerCase(word.charAt(0))
+						&& (dict.contains(ucWord)
+								&& ! dict.contains(lcWord)
+								// oder wir befinden uns am Satzanfang
+								|| satzanfang(lastLine, line, i) == Satzanfang.JA)) {
+					line.set(i, ucWord);
+					count++;
+				}
 			}
 		}
 
 		return count;
 	}
 
-	/** Satzzeichen, die einen Satz beenden ('>' beendet ein Tag) */
-	private static final String SATZZEICHEN = ".*[.!?:»«>]+";
+	public enum Satzanfang {
+		JA, NEIN, WEISS_NICHT
+	}
+	/** Map mit eindeutigen Hinweisen auf Satzanfänge */
+	private static final Map<String, Satzanfang> HINTS;
+	static {
+		HINTS = new HashMap<>();
+		HINTS.put(".", Satzanfang.JA);
+		HINTS.put(".«", Satzanfang.JA);
+		HINTS.put("«.", Satzanfang.JA);
+		HINTS.put("!", Satzanfang.JA);
+		HINTS.put("?", Satzanfang.JA);
+		HINTS.put("?!", Satzanfang.JA);
+		HINTS.put("—!", Satzanfang.JA);
+		HINTS.put(",", Satzanfang.NEIN);
+		HINTS.put(",«", Satzanfang.NEIN);
+		HINTS.put(";", Satzanfang.NEIN);
+		// nach einer wörtlichen Rede geht manchmal ein Satz weiter
+		HINTS.put("!«", Satzanfang.WEISS_NICHT);
+		HINTS.put("?«", Satzanfang.WEISS_NICHT);
+		HINTS.put("?!«", Satzanfang.WEISS_NICHT);
+		HINTS.put("—«", Satzanfang.WEISS_NICHT);
+		HINTS.put(":", Satzanfang.WEISS_NICHT);
+	}
 	/** Prüft, ob das übergebene Wort am Satzanfang steht */
-	static boolean satzAnfang(List<String> lastLine, List<String> line, int i) {
-		boolean satzAnfang = false;
-		boolean wortVorhanden = false;
-		for (int pos = i - 1; pos >= 0 && ! satzAnfang && ! wortVorhanden; pos--) {
-			String word = line.get(pos);
-			if (word.matches(SATZZEICHEN)) {
-				satzAnfang = true;
-			} else if (Character.isLetter(word.charAt(0))) {
-				wortVorhanden = true;
-			}
-		}
-
-		// weder Punkt noch Wort gefunden? -> vorhergehende Zeile analysieren
-		if (! satzAnfang && ! wortVorhanden) {
-			// Leerzeile?
+	static Satzanfang satzanfang(List<String> lastLine, List<String> line, int i) {
+		Satzanfang satzanfang = satzanfang(line, i);
+		// in der aktuellen Zeile nichts gefunden?
+		if (satzanfang == null) {
+			// ist die vorherige Zeile leer?
 			if (lastLine.isEmpty()) {
-				satzAnfang = true;
+				satzanfang = Satzanfang.JA;
 			} else {
-				for (int pos = lastLine.size() - 1; pos >= 0 && ! satzAnfang && ! wortVorhanden; pos--) {
-					String word = lastLine.get(pos);
-					if (word.matches(SATZZEICHEN)) {
-						satzAnfang = true;
-					} else if (Character.isLetter(word.charAt(0))) {
-						wortVorhanden = true;
-					}
-				}
+				satzanfang = satzanfang(lastLine, lastLine.size());
 			}
 		}
 
-		// immer noch nichts gefunden?
-		if (! wortVorhanden) {
-			satzAnfang = true;
-		}
+		return satzanfang;
+	}
 
-		return satzAnfang;
+	private static Satzanfang satzanfang(List<String> line, int i) {
+		boolean tag = false;
+		Satzanfang satzanfang = null;
+		for (int j = i - 1; j >= 0 && satzanfang == null; j--) {
+			String token = line.get(j);
+			// Tags überspringen
+			if (tag) {
+				if (TextUtils.startOfTag(token)) {
+					tag = false;
+				}
+			} else if (TextUtils.endOfTag(token)) {
+				tag = true;
+			} else if (TextUtils.isWord(token)) {
+				satzanfang = Satzanfang.NEIN;
+			} else {
+				satzanfang = HINTS.get(token);
+			}
+		}
+		return satzanfang;
 	}
 }

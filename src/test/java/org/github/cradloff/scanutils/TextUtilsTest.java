@@ -19,7 +19,7 @@ public class TextUtilsTest {
 		checkSplit("A1le mei-ne Ent—chen", "A1le", " ", "mei-ne", " ", "Ent—chen");
 		checkSplit("Alle, meine 'Entchen’", "Alle", ",", " ", "meine", " ", "'Entchen’");
 		checkSplit("Alle meine Ent-", "Alle", " ", "meine", " ", "Ent-");
-		checkSplit(">>Alle ,,meine,, €ntchen?!<<", ">>", "Alle", " ", ",,", "meine", ",,", " ", "€ntchen", "?!<<");
+		checkSplit(">>Alle ,,meine,, €ntchen?!<<", ">>", "Alle", " ", ",,", "meine", ",,", " ", "€ntchen", "?!", "<<");
 		checkSplit("auf- und abwärts", "auf", "-", " ", "und", " ", "abwärts");
 		checkSplit("Insel-Cafee", "Insel", "-", "Cafee");
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
@@ -29,6 +29,8 @@ public class TextUtilsTest {
 		checkSplit("Und -—- Dann", "Und", " ", "-—-", " ", "Dann");
 		checkSplit("Und dann -—-", "Und", " ", "dann", " ", "-—-");
 		checkSplit("Mode£lauto und -schiff", "Mode£lauto", " ", "und", " ", "-schiff");
+		checkSplit("<h1>1. Kapitel.</h1>", "<", "h1", ">", "1", ".", " ", "Kapitel", ".", "</", "h1", ">");
+		checkSplit("<@pagebreak 3/>", "<@", "pagebreak", " ", "3", "/>");
 	}
 
 	private void checkSplit(String line, String... wordsExcpected) {
