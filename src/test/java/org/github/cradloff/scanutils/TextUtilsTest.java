@@ -20,6 +20,7 @@ public class TextUtilsTest {
 		checkSplit("Alle, meine 'Entchen’", "Alle", ",", " ", "meine", " ", "'Entchen’");
 		checkSplit("Alle meine Ent-", "Alle", " ", "meine", " ", "Ent-");
 		checkSplit(">>Alle ,,meine,, €ntchen?!<<", ">>", "Alle", " ", ",,", "meine", ",,", " ", "€ntchen", "?!", "<<");
+		checkSplit("»Alle „meine“ €ntchen?!«", "»", "Alle", " ", "„", "meine", "“", " ", "€ntchen", "?!«");
 		checkSplit("auf- und abwärts", "auf", "-", " ", "und", " ", "abwärts");
 		checkSplit("Insel-Cafee", "Insel", "-", "Cafee");
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
@@ -31,6 +32,9 @@ public class TextUtilsTest {
 		checkSplit("Mode£lauto und -schiff", "Mode£lauto", " ", "und", " ", "-schiff");
 		checkSplit("<h1>1. Kapitel.</h1>", "<", "h1", ">", "1", ".", " ", "Kapitel", ".", "</", "h1", ">");
 		checkSplit("<@pagebreak 3/>", "<@", "pagebreak", " ", "3", "/>");
+		checkSplit("Âlle mein& €ntchen", "Âlle", " ", "mein&", " ", "€ntchen");
+		checkSplit("Þiræten-$ch|ﬀ vørauſ", "Þiræten", "-", "$ch|ﬀ", " ", "vørauſ");
+		checkSplit("(runde), [eckige] und {geschweifte} Klammern", "(", "runde", "),", " ", "[", "eckige", "]", " ", "und", " ", "{", "geschweifte", "}", " ", "Klammern");
 	}
 
 	private void checkSplit(String line, String... wordsExcpected) {

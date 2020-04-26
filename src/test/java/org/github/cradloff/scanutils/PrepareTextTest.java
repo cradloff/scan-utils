@@ -45,7 +45,6 @@ public class PrepareTextTest {
 	@Test public void changeQuotes() {
 		checkChangeQuotes("Er sprach: *Hinweg*", "Er sprach: »Hinweg«");
 		checkChangeQuotes("Er sprach: *Hinweg!*", "Er sprach: »Hinweg!«");
-		checkChangeQuotes("Er sprach: ®Hinweg!®", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: \"Hinweg!\"", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: “Hinweg!”", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: „Hinweg!”", "Er sprach: »Hinweg!«");

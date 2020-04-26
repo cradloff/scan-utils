@@ -179,6 +179,9 @@ public class PreProcessTest {
 		checkPreProcess("Allemal zumir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 2);
 		// aber nur, wenn beide Wort-Bestandteile im Wörterbuch stehen
 		checkPreProcess("Alleher zudir\n", "Alleher zudir\n", dict, silben, spellcheck, 0);
+		// Ersetzung von besonderen Zeichen
+		checkPreProcess("Âlle meine €ntch&n", "Alle meine Entchen", dict, silben, spellcheck, 2);
+		checkPreProcess("Þiræten-$ch|ﬀ vørauſ", "Piraten-Schiff voraus", dict, silben, spellcheck, 3);
 		// Ersetzung von Zeichen durch Ausrufezeichen
 		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, silben, spellcheck, 3);
 		// keine Entfernung von Bindestrichen nach Backslash

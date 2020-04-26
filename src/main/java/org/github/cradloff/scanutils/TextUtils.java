@@ -28,7 +28,8 @@ public class TextUtils {
 		return result;
 	}
 
-	enum State { WHITESPACE, WORD, TAG, OTHER }
+	enum State { WHITESPACE, WORD, TAG, PUNCTUATION }
+	private static final String PUNCTUATION_CHARS = ".,;:-—!?()[]{}»«„“”\"*_";
 	public static List<String> split(CharSequence line) {
 		StringBuilder sb = new StringBuilder();
 		List<String> result = new ArrayList<>();
@@ -40,19 +41,17 @@ public class TextUtils {
 			if (Character.isWhitespace(ch)) {
 				newState = State.WHITESPACE;
 			}
-			// Backslash, Apostrophe und Ziffern werden wie Buchstaben behandelt
-			else if (Character.isJavaIdentifierPart(ch) || ch == '\\' || ch == '\'' || ch == '’') {
-				newState = State.WORD;
-			}
 			// Bindestriche, außer vor Großbuchstaben, werden ebenfalls wie Buchstaben behandelt
 			else if (isDash(ch)
 					&& (i == len - 1 && state == State.WORD
 					|| i < len - 1 && Character.isLowerCase(line.charAt(i + 1)))) {
 				newState = State.WORD;
+			} else if (PUNCTUATION_CHARS.indexOf(ch) >= 0) {
+				newState = State.PUNCTUATION;
 			} else if (ch == '<' || ch == '/' || ch == '@' || ch == '>') {
 				newState = State.TAG;
 			} else {
-				newState = State.OTHER;
+				newState = State.WORD;
 			}
 			if (state != newState && i > 0) {
 				result.add(sb.toString());
