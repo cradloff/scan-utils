@@ -81,6 +81,7 @@ public class TextUtilsTest {
 
 	@Test public void isWord() {
 		assertTrue(TextUtils.isWord("Wort"));
+		assertTrue(TextUtils.isWord("ist’s"));
 		assertFalse(TextUtils.isWord("«"));
 		assertFalse(TextUtils.isWord(" "));
 	}

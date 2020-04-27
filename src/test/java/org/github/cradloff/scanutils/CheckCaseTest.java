@@ -22,6 +22,7 @@ public class CheckCaseTest {
 		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
 		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
 		checkToLower("", "über und über.", "Ueber und über.", 1);
+		checkToLower("", "Komm’ zu mir.", "Komm’ zu mir.", 0);
 	}
 
 	private Set<String> dict = new HashSet<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
@@ -52,6 +53,7 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.JA, "Ende.", "Anfang");
 		checkSatzanfang(Satzanfang.JA, "Ende. -", "Anfang");
 		checkSatzanfang(Satzanfang.NEIN, "Am", "Anfang");
+		checkSatzanfang(Satzanfang.NEIN, "Komm’ her");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Vorsicht!« rief");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Wirklich?« fragte");
 		checkSatzanfang(Satzanfang.JA, "»Schluß.« Danach");

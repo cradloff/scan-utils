@@ -95,7 +95,8 @@ public class TextUtils {
 
 	public static boolean isWord(String s) {
 		for (int i = 0; i < s.length(); i++) {
-			if (! Character.isAlphabetic(s.charAt(i))) {
+			char ch = s.charAt(i);
+			if (! Character.isAlphabetic(ch) && ch != '’') {
 				return false;
 			}
 		}
