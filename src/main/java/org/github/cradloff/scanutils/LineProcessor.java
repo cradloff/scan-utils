@@ -136,6 +136,8 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				token = token.replace("»", "«");
 			} else if ("«".equals(token) && TextUtils.wordAfter(line, i) && ! TextUtils.wordBefore(line, i)) {
 				token = "»";
+			} else if ("—»".equals(token)) {
+				token = "—«";
 			}
 
 			// Wörter ersetzen

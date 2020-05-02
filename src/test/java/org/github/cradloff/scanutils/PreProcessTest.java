@@ -160,6 +160,7 @@ public class PreProcessTest {
 		checkPreProcess("Al»le mal zu mir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 0);
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Und dann — »2 Sonnen»,\n", "Und dann — »2 Sonnen«,\n", dict, silben, spellcheck, 0);
+		checkPreProcess("für alle Fälle —»", "für alle Fälle —«", dict, silben, spellcheck, 0);
 		// ein Bindestrich kann für ein beliebiges Zeichen stehen
 		checkPreProcess("Ai-e me-ne En-ch-en\n", "Alle me-ne Entchen\n", dict, silben, spellcheck, 2);
 		// keine Ersetzung von einzelnen Buchstaben
