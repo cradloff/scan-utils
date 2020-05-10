@@ -163,6 +163,8 @@ public class PreProcessTest {
 		checkPreProcess("für alle Fälle —»", "für alle Fälle —«", dict, silben, spellcheck, 0);
 		// ein Bindestrich kann für ein beliebiges Zeichen stehen
 		checkPreProcess("Ai-e me-ne En-ch-en\n", "Alle me-ne Entchen\n", dict, silben, spellcheck, 2);
+		// Sonderzeichen, die nicht im deutschen Alphabet und nicht in similar_chars.csv vorkommen ebenfalls
+		checkPreProcess("Allç h¡er ÿu mﬅr. þchiff v°raus.", "Alle hier zu mir. Schiff voraus.", dict, silben, spellcheck, 6);
 		// keine Ersetzung von einzelnen Buchstaben
 		checkPreProcess("G. m. b. H.\n", "G. m. b. H.\n", dict, silben, spellcheck, 0);
 		// am Zeilenanfang werden Wörter ergänzt, die vorne abgeschnitten sind

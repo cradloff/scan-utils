@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -308,9 +309,22 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 
 	// Map mit typischen Vertauschungen
 	private static final TreeMap<String, List<String>> SIMILAR_CHARS;
+	// allgemeine Ersetzungen für unbekannte Zeichen
+	private static final List<String> REPLACEMENTS;
+	// Map mit bekannten Zeichen
+	private static final Set<String> KNOWN_CHARS;
 	static {
-		TreeMap<String, List<String>> sc = new TreeMap<>();
 		try {
+			// allgemeine Ersetzungen für Bindestriche und unbekannte Zeichen
+			List<String> replacements = new ArrayList<>();
+			replacements.addAll(Arrays.asList("", "ö", "ä", "ü", "ß", "Oe", "Ae", "Ue", "ch", "ck", "ff", "ll", "ss", "tt", "tz"));
+			for (char ch = 'a'; ch <= 'z'; ch++) {
+				replacements.add(Character.toString(ch));
+				replacements.add(Character.toString(ch).toUpperCase());
+			}
+			REPLACEMENTS = replacements;
+
+			TreeMap<String, List<String>> sc = new TreeMap<>();
 			Map<String, List<String>> similar = FileAccess.readConfig("similar_chars.cfg");
 			for (String s : similar.get("all")) {
 				addAll(sc, s.split("\\s"));
@@ -319,16 +333,26 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				addFirst(sc, s.split("\\s"));
 			}
 			// ein Bindestrich kann jeder beliebige Buchstabe oder auch nichts sein
-			List<String> replacement = new ArrayList<>();
-			replacement.add("");
-			for (char ch = 'a'; ch <= 'z'; ch++) {
-				replacement.add(Character.toString(ch));
+			sc.put("-", replacements);
+			SIMILAR_CHARS = sc;
+
+			// Liste mit den bereits bekannten Zeichen aufbauen
+			Set<String> knownChars = new HashSet<>();
+			" .,;:…-—’()!?*_»«<>/=@öäüÖÄÜß0123456789".chars().forEach(i -> knownChars.add(String.valueOf((char) i)));
+			for (char c = 'a'; c <= 'z'; c++) {
+				knownChars.add(String.valueOf(c));
+				knownChars.add(String.valueOf(c).toUpperCase());
 			}
-			sc.put("-", replacement);
+			similar.values()
+				.stream()
+				.forEach(list -> list.stream()
+						.forEach(line -> Arrays.asList(line.split("\t")).stream()
+							.filter(s -> s.length() == 1)
+							.forEach(s -> knownChars.add(s))));
+			KNOWN_CHARS = knownChars;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		SIMILAR_CHARS = sc;
 	}
 	private static void addAll(Map<String, List<String>> sc, String... entries) {
 		for (int i = 0; i < entries.length; i++) {
@@ -369,31 +393,46 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 
 			// dann mit allen möglichen Ersetzungen
 			String tail = input.substring(start);
-			Map<String, List<String>> map = SIMILAR_CHARS.subMap(tail.substring(0, 1), true, tail, true);
-			for (Entry<String, List<String>> entry : map.entrySet()) {
-				String chars = entry.getKey();
-				if (tail.startsWith(chars)) {
-					String suffix = tail.substring(chars.length());
-					// durch alle anderen Zeichen ersetzen
-					for (String replacement : entry.getValue()) {
-						String candidate = head + replacement + suffix;
-						if (subSet.contains(candidate)) {
-							result.add(candidate);
-							// wenn wir einen Kandidaten gefunden haben, macht es keinen Sinn,
-							// weiter nach Wörtern mit mehr Unterschieden zu suchen
-							newThreshold = 1;
-						}
-
-						// weitere Kandidaten erzeugen
-						if (hasPrefix(subSet, head + replacement) && newThreshold > 1) {
-							int x = replaceCharacters(candidate, subSet, result, start + replacement.length(), newThreshold - 1);
-							newThreshold = Math.min(x + 1, newThreshold);
-						}
+			String currCh = tail.substring(0, 1);
+			// unbekanntes Zeichen?
+			if (! KNOWN_CHARS.contains(currCh)) {
+				// durch allgemeine Zeichen ersetzen
+				String suffix = tail.substring(1);
+				newThreshold = replaceCharacters(result, start, newThreshold, head, subSet, REPLACEMENTS, suffix);
+			} else {
+				Map<String, List<String>> map = SIMILAR_CHARS.subMap(currCh, true, tail, true);
+				for (Entry<String, List<String>> entry : map.entrySet()) {
+					String chars = entry.getKey();
+					if (tail.startsWith(chars)) {
+						String suffix = tail.substring(chars.length());
+						// durch alle anderen Zeichen ersetzen
+						newThreshold = replaceCharacters(result, start, newThreshold, head, subSet, entry.getValue(), suffix);
 					}
 				}
 			}
 		}
 
+		return newThreshold;
+	}
+
+	private static int replaceCharacters(Collection<String> result, int start, int threshold, String head,
+			SortedSet<String> subSet, List<String> replacements, String suffix) {
+		int newThreshold = threshold;
+		for (String replacement : replacements) {
+			String candidate = head + replacement + suffix;
+			if (subSet.contains(candidate)) {
+				result.add(candidate);
+				// wenn wir einen Kandidaten gefunden haben, macht es keinen Sinn,
+				// weiter nach Wörtern mit mehr Unterschieden zu suchen
+				newThreshold = 1;
+			}
+
+			// weitere Kandidaten erzeugen
+			if (hasPrefix(subSet, head + replacement) && newThreshold > 1) {
+				int x = replaceCharacters(candidate, subSet, result, start + replacement.length(), newThreshold - 1);
+				newThreshold = Math.min(x + 1, newThreshold);
+			}
+		}
 		return newThreshold;
 	}
 
