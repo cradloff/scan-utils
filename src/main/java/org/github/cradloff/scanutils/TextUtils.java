@@ -22,6 +22,9 @@ public class TextUtils {
 		// gerade Anführungszeichen durch typographische ersetzen
 		result = result.replace('\'', '’');
 
+		// Apostroph unten durch Komma ersetzen
+		result = result.replace('‚', ',');
+
 		// mittleren Punkt durch normalen Punkt ersetzen
 		result = result.replace('·', '.');
 

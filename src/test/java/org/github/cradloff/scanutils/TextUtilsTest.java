@@ -77,6 +77,7 @@ public class TextUtilsTest {
 		assertEquals("", TextUtils.satzzeichenErsetzen(""));
 		assertEquals("Hier. Da ist’s.", TextUtils.satzzeichenErsetzen("Hier· Da ist's."));
 		assertEquals("»Hier — dort — wo — anders —«", TextUtils.satzzeichenErsetzen(">>Hier -- dort -— wo == anders -=<<"));
+		assertEquals("Apostroph unten, Komma", TextUtils.satzzeichenErsetzen("Apostroph unten‚ Komma"));
 	}
 
 	@Test public void isWord() {
