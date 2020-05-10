@@ -22,6 +22,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
+import org.apache.commons.collections4.bag.SynchronizedBag;
 import org.github.cradloff.scanutils.LineProcessor.Result;
 
 /**
@@ -118,6 +121,7 @@ public class PreProcess {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
 		SortedSet<String> ciDict = new TreeSet<>(TextUtils.addUpperCase(dict));
 		SortedSet<String> invDict = TextUtils.inverse(dict);
+		Bag<String> occurences = SynchronizedBag.synchronizedBag(new HashBag<>());
 		LineReader reader = new LineReader(in, 1, 2);
 		int count = 0;
 		// Pro Prozessor ein Thread
@@ -159,7 +163,7 @@ public class PreProcess {
 				/*
 				 * dann mit mehreren Threads verarbeitet
 				 */
-				results.add(executor.submit(new LineProcessor(params, line, map, ciDict, invDict, silben)));
+				results.add(executor.submit(new LineProcessor(params, line, map, ciDict, invDict, silben, occurences)));
 			}
 		}
 

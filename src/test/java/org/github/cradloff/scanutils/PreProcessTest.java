@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
+import org.github.cradloff.scanutils.PreProcess.Parameter;
 import org.junit.Test;
 
 public class PreProcessTest {
@@ -110,29 +114,39 @@ public class PreProcessTest {
 	}
 
 	@Test public void testReplaceCharacters() {
+		List<String> line = new ArrayList<>();
+		Bag<String> occurences = new HashBag<>();
 		TreeSet<String> dict = new TreeSet<>(Arrays.asList("Schiff", "voraus", "Deck", "Verbrecher", "Zimmer", "sein", "fein", "Backenmuskulatur"));
-		checkReplaceCharacters("Schiff", "Schiff", dict);
-		checkReplaceCharacters("voraus", "voraus", dict);
+		LineProcessor lineProcessor = new LineProcessor(new Parameter(), line, new HashMap<>(), dict, TextUtils.inverse(dict), new HashSet<>(), occurences);
+		checkReplaceCharacters("Schiff", "Schiff", lineProcessor, dict);
+		checkReplaceCharacters("voraus", "voraus", lineProcessor, dict);
 
-		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", dict);
-		checkReplaceCharacters("5ehiss", "Schiff", dict);
-		checkReplaceCharacters("$ehiss", "Schiff", dict);
-		checkReplaceCharacters("rvoauf", "voraus", dict);
-		checkReplaceCharacters("Vech", "Deck", dict);
-		checkReplaceCharacters("Vceli", "Deck", dict);
-		checkReplaceCharacters("Derhrecler", "Verbrecher", dict);
-		checkReplaceCharacters("3innner", "Zimmer", dict);
-		checkReplaceCharacters("Ziniwer", "Zimmer", dict);
+		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", lineProcessor, dict);
+		checkReplaceCharacters("5ehiss", "Schiff", lineProcessor, dict);
+		checkReplaceCharacters("$ehiss", "Schiff", lineProcessor, dict);
+		checkReplaceCharacters("rvoauf", "voraus", lineProcessor, dict);
+		checkReplaceCharacters("Vech", "Deck", lineProcessor, dict);
+		checkReplaceCharacters("Vceli", "Deck", lineProcessor, dict);
+		checkReplaceCharacters("Derhrecler", "Verbrecher", lineProcessor, dict);
+		checkReplaceCharacters("3innner", "Zimmer", lineProcessor, dict);
+		checkReplaceCharacters("Ziniwer", "Zimmer", lineProcessor, dict);
 
-		// Übereinstimmung mit den wenigsten Abweichungen vom Original werden bevorzugt
-		checkReplaceCharacters("scin", "sein", dict);
-		checkReplaceCharacters("sctn", "sein", dict);
-		checkReplaceCharacters("fcin", "fein", dict);
-		checkReplaceCharacters("fctn", "fein", dict);
+		// Übereinstimmungen mit den wenigsten Abweichungen vom Original werden bevorzugt
+		checkReplaceCharacters("scin", "sein", lineProcessor, dict);
+		checkReplaceCharacters("sctn", "sein", lineProcessor, dict);
+		checkReplaceCharacters("fcin", "fein", lineProcessor, dict);
+		checkReplaceCharacters("fctn", "fein", lineProcessor, dict);
+
+		// bei Gleichstand entscheidet die Häufigkeit. Momentan sind "sein" und "fein" gleich auf
+		occurences.add("sein"); // jetzt führt "sein"
+		checkReplaceCharacters("jein", "sein", lineProcessor, dict); // 'j' kann 's' oder 'f' sein
+		occurences.clear();
+		occurences.add("fein"); // jetzt führt "fein"
+		checkReplaceCharacters("jein", "fein", lineProcessor, dict);
 	}
 
-	private void checkReplaceCharacters(String input, String expected, SortedSet<String> dict) {
-		String actual = LineProcessor.replaceCharacters(input, dict, 5);
+	private void checkReplaceCharacters(String input, String expected, LineProcessor lineProcessor, SortedSet<String> dict) {
+		String actual = lineProcessor.replaceCharacters(input, dict, 5);
 		assertEquals(expected, actual);
 	}
 

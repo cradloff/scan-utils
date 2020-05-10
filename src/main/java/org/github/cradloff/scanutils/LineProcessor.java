@@ -17,6 +17,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.collections4.Bag;
 import org.github.cradloff.scanutils.PreProcess.Parameter;
 
 public class LineProcessor implements Callable<LineProcessor.Result> {
@@ -87,13 +88,15 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	private SortedSet<String> ciDict;
 	private SortedSet<String> invDict;
 	private Set<String> silben;
-	public LineProcessor(Parameter params, List<String> line, Map<String, String> map, SortedSet<String> ciDict, SortedSet<String> invDict, Set<String> silben) {
+	private Bag<String> occurences;
+	public LineProcessor(Parameter params, List<String> line, Map<String, String> map, SortedSet<String> ciDict, SortedSet<String> invDict, Set<String> silben, Bag<String> occurences) {
 		this.params = params;
 		this.line = line;
 		this.map = map;
 		this.ciDict = ciDict;
 		this.invDict = invDict;
 		this.silben = silben;
+		this.occurences = occurences;
 	}
 
 	@Override
@@ -187,6 +190,8 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 					result.log(token, replacement);
 				}
 			}
+
+			occurences.add(replacement);
 		}
 
 		return result;
@@ -278,7 +283,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	}
 
 	/** Ersetzt vertauschte s/f, v/r/o, etc. */
-	public static String replaceCharacters(String input, SortedSet<String> dict, int threshold) {
+	public String replaceCharacters(String input, SortedSet<String> dict, int threshold) {
 		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
 		// der Anfangsbuchstabe wird sowohl in Groß- als auch in Kleinschreibweise gesucht
 		String[] variants = caseVariants(input);
@@ -442,7 +447,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		return ! subSet.isEmpty() && subSet.first().startsWith(prefix);
 	}
 
-	private static String bestMatch(String input, List<String> candidates) {
+	private String bestMatch(String input, List<String> candidates) {
 		if (candidates.isEmpty()) {
 			return input;
 		}
@@ -456,6 +461,13 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				if (distance2 < distance) {
 					result = candidate;
 					distance = distance2;
+				} else if (distance2 == distance) {
+					// häufigere Wörter bevorzugen
+					int frequency1 = occurences.getCount(result);
+					int frequency2 = occurences.getCount(candidate);
+					if (frequency2 > frequency1) {
+						result = candidate;
+					}
 				}
 			}
 		}
