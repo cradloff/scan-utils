@@ -79,17 +79,21 @@ public class CheckCase {
 		List<String> lastLine = Collections.emptyList();
 		int count = 0;
 		do {
+			String nextLine = reader.readLine();
 			// Zeile in Token zerlegen
 			List<String> s = TextUtils.split(line);
 			// Großschreibung durch Kleinschreibung ersetzen
 			count += fixCase(lastLine, s, dict);
-			for (int i = 0; i < s.size(); i++) {
-				writer.write(s.get(i));
+			// Kommas am Absatzende durch Punkte ersetzen
+			count += fixKomma(s, nextLine);
+
+			for (String token : s) {
+				writer.write(token);
 			}
 
 			writer.println();
 			lastLine = s;
-			line = reader.readLine();
+			line = nextLine;
 		}
 		while (line != null);
 
@@ -133,6 +137,21 @@ public class CheckCase {
 			}
 		}
 
+		return count;
+	}
+
+	public static int fixKomma(List<String> line, String nextLine) {
+		int count = 0;
+		if (nextLine == null || nextLine.isBlank()) {
+			int index = line.size() - 1;
+			if (line.get(index).equals(",")) {
+				line.set(index, ".");
+				count++;
+			} else if (line.get(index).equals(",«")) {
+				line.set(index, ".«");
+				count++;
+			}
+		}
 		return count;
 	}
 
