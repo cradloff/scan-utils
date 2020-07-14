@@ -8,12 +8,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /** Korrigiert die Groß-/Kleinschreibung */
 public class CheckCase {
@@ -34,6 +36,7 @@ public class CheckCase {
 		File basedir = FileAccess.basedir(inputs.get(0));
 		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
 		dict = removeAmbigous(dict);
+		Collection<String> abkürzungen = FileAccess.readDict(basedir, "abkuerzungen.dic");
 
 		for (File input : inputs) {
 			System.out.println("Verarbeite Datei " + input.getPath());
@@ -41,7 +44,7 @@ public class CheckCase {
 			File backup = FileAccess.roll(input);
 			try (Reader in = new FileReader(backup);
 					Writer out = new FileWriter(input);) {
-				int count = new CheckCase().checkCase(in, out, dict);
+				int count = new CheckCase().checkCase(in, out, dict, abkürzungen);
 
 				System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
 						count, (System.currentTimeMillis() - start));
@@ -72,7 +75,7 @@ public class CheckCase {
 		return result;
 	}
 
-	int checkCase(Reader in, Writer out, Set<String> dict) throws IOException {
+	int checkCase(Reader in, Writer out, Set<String> dict, Collection<String> abkürzungen) throws IOException {
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();
@@ -83,7 +86,7 @@ public class CheckCase {
 			// Zeile in Token zerlegen
 			List<String> s = TextUtils.split(line);
 			// Großschreibung durch Kleinschreibung ersetzen
-			count += fixCase(lastLine, s, dict);
+			count += fixCase(lastLine, s, dict, abkürzungen);
 			// Kommas am Absatzende durch Punkte ersetzen
 			count += fixKomma(s, nextLine);
 
@@ -101,7 +104,7 @@ public class CheckCase {
 	}
 
 	/** Ersetzt bestimmte Wörter durch ihre Groß-/Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
-	public static int fixCase(List<String> lastLine, List<String> line, Set<String> dict) {
+	public static int fixCase(List<String> lastLine, List<String> line, Set<String> dict, Collection<String> abkürzungen) {
 		// alle Wörter, die nicht am Zeilenanfang oder nach einem Punkt kommen, durch Kleinschreibweise ersetzen
 		int count = 0;
 		boolean tag = false;
@@ -121,7 +124,7 @@ public class CheckCase {
 				if (Character.isUpperCase(word.charAt(0))
 						&& ! dict.contains(ucWord)
 						&& dict.contains(lcWord)
-						&& satzanfang(lastLine, line, i) == Satzanfang.NEIN) {
+						&& satzanfang(lastLine, line, i, abkürzungen) == Satzanfang.NEIN) {
 					line.set(i, lcWord);
 					count++;
 				}
@@ -130,7 +133,7 @@ public class CheckCase {
 						&& (dict.contains(ucWord)
 								&& ! dict.contains(lcWord)
 								// oder wir befinden uns am Satzanfang
-								|| satzanfang(lastLine, line, i) == Satzanfang.JA)) {
+								|| satzanfang(lastLine, line, i, abkürzungen) == Satzanfang.JA)) {
 					line.set(i, ucWord);
 					count++;
 				}
@@ -142,7 +145,7 @@ public class CheckCase {
 
 	public static int fixKomma(List<String> line, String nextLine) {
 		int count = 0;
-		if (nextLine == null || nextLine.isBlank()) {
+		if (! line.isEmpty() && (nextLine == null || nextLine.isBlank())) {
 			int index = line.size() - 1;
 			if (line.get(index).equals(",")) {
 				line.set(index, ".");
@@ -180,22 +183,23 @@ public class CheckCase {
 		HINTS.put(":", Satzanfang.WEISS_NICHT);
 	}
 	/** Prüft, ob das übergebene Wort am Satzanfang steht */
-	static Satzanfang satzanfang(List<String> lastLine, List<String> line, int i) {
-		Satzanfang satzanfang = satzanfang(line, i);
+	static Satzanfang satzanfang(List<String> lastLine, List<String> line, int i, Collection<String> abkürzungen) {
+		Satzanfang satzanfang = satzanfang(line, i, abkürzungen);
 		// in der aktuellen Zeile nichts gefunden?
 		if (satzanfang == null) {
 			// ist die vorherige Zeile leer?
 			if (lastLine.isEmpty()) {
 				satzanfang = Satzanfang.JA;
 			} else {
-				satzanfang = satzanfang(lastLine, lastLine.size());
+				satzanfang = satzanfang(lastLine, lastLine.size(), abkürzungen);
 			}
 		}
 
 		return satzanfang;
 	}
 
-	private static Satzanfang satzanfang(List<String> line, int i) {
+	private static final Pattern NUMERIC = Pattern.compile("\\d+");
+	private static Satzanfang satzanfang(List<String> line, int i, Collection<String> abkürzungen) {
 		boolean tag = false;
 		Satzanfang satzanfang = null;
 		for (int j = i - 1; j >= 0 && satzanfang == null; j--) {
@@ -211,6 +215,13 @@ public class CheckCase {
 				satzanfang = Satzanfang.NEIN;
 			} else {
 				satzanfang = HINTS.get(token);
+				// Abkürzungen und Ziffern vor einem Punkt machen keinen Satzanfang
+				if (".".equals(token) && j > 0) {
+					String preToken = line.get(j - 1);
+					if (abkürzungen.contains(preToken) || NUMERIC.matcher(preToken).matches()) {
+						satzanfang = Satzanfang.NEIN;
+					}
+				}
 			}
 		}
 		return satzanfang;

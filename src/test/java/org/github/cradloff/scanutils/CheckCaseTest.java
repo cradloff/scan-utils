@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,10 +27,11 @@ public class CheckCaseTest {
 	}
 
 	private Set<String> dict = new HashSet<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
+	private static Collection<String> abkürzungen = Arrays.asList("Nr");
 	private void checkToLower(String lastLine, String line, String expected, int expectedCount) {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);
-		int count = CheckCase.fixCase(lastWords, words, CheckCase.removeAmbigous(dict));
+		int count = CheckCase.fixCase(lastWords, words, CheckCase.removeAmbigous(dict), abkürzungen);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
 		assertEquals("count", expectedCount, count);
@@ -60,6 +62,8 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.JA, "»Schluß«. Danach");
 		checkSatzanfang(Satzanfang.NEIN, "»Ich gehe,« sagte");
 		checkSatzanfang(Satzanfang.NEIN, "Nun — zunächst");
+		checkSatzanfang(Satzanfang.NEIN, "1. April");
+		checkSatzanfang(Satzanfang.NEIN, "Nr. Fünf");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "Nun —« zunächst");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage: vielleicht");
 		// Tags werden ignoriert
@@ -77,7 +81,7 @@ public class CheckCaseTest {
 	private void checkSatzanfang(Satzanfang expected, String lastLine, String line) {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);
-		assertEquals(expected, CheckCase.satzanfang(lastWords, words, words.size() - 1));
+		assertEquals(expected, CheckCase.satzanfang(lastWords, words, words.size() - 1, abkürzungen));
 	}
 
 	@Test public void testFixKomma() {
@@ -110,7 +114,7 @@ public class CheckCaseTest {
 		CheckCase cc = new CheckCase();
 		StringReader in = new StringReader(line);
 		StringWriter out = new StringWriter();
-		cc.checkCase(in, out, dict);
+		cc.checkCase(in, out, dict, abkürzungen);
 		String actual = out.toString();
 		Assert.assertLinesEqual(expected, actual);
 	}
