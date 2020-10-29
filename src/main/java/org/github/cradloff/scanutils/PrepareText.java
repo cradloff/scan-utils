@@ -6,7 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.github.cradloff.scanutils.PreProcess.Parameter;
 
@@ -27,13 +30,21 @@ public class PrepareText {
 			return;
 		}
 
+		Map<String, String> replacements;
+		File replacementsFile = FileAccess.find(params.getInputs().get(0), "replace_once.txt");
+		if (replacementsFile == null) {
+			replacements = new HashMap<>();
+		} else {
+			replacements = FileAccess.readCSV(replacementsFile);
+		}
+
 		// alle Dateien verarbeiten
 		for (File input : params.getInputs()) {
-			prepareText(input);
+			prepareText(input, replacements);
 		}
 	}
 
-	private static void prepareText(File input) throws IOException {
+	private static void prepareText(File input, Map<String, String> replacements) throws IOException {
 		long start = System.currentTimeMillis();
 		System.out.println("Verarbeite Datei " + input.getPath());
 
@@ -42,13 +53,13 @@ public class PrepareText {
 		try (Reader in = new FileReader(backup);
 				PrintWriter out = new PrintWriter(input);
 				) {
-			prepareText(in, out);
+			prepareText(in, out, replacements);
 
 			System.out.printf("Zeit: %,dms%n", (System.currentTimeMillis() - start));
 		}
 	}
 
-	static void prepareText(Reader in, PrintWriter out) throws IOException {
+	static void prepareText(Reader in, PrintWriter out, Map<String, String> replacements) throws IOException {
 		try (BufferedReader reader = new BufferedReader(in);) {
 			String line;
 			boolean hasEmptyLine = false;
@@ -61,6 +72,7 @@ public class PrepareText {
 				result = changeQuotes(result);
 				result = TextUtils.satzzeichenErsetzen(result);
 				result = changeSpecial(result);
+				result = replaceOnce(result, replacements);
 				boolean emptyLine = result.isBlank();
 
 				if (! emptyLine || ! hasEmptyLine) {
@@ -113,6 +125,16 @@ public class PrepareText {
 			} else if (QUOTE_CHARS.contains(token)) {
 				if (TextUtils.wordBefore(tokens, i)) {
 					tokens.set(i, "«");
+				}
+				// Sonderfall: Satzzeichen gefolgt von Leerzeichen und Quote (z.B.: hier! ”)
+				else if (i >= 2
+						&& TextUtils.isWhitespace(tokens.get(i - 1))
+						&& (TextUtils.wordBefore(tokens, i - 1)
+								|| TextUtils.isSatzzeichen(tokens.get(i - 2)))
+						&& (i == tokens.size() - 1
+								|| TextUtils.isWhitespace(tokens.get(i + 1)) )) {
+					tokens.set(i - 1, "");
+					tokens.set(i, "«");
 				} else {
 					tokens.set(i, "»");
 				}
@@ -155,6 +177,15 @@ public class PrepareText {
 		result = result.replace("d>", "ck");
 		result = result.replace(">k", "ck");
 		result = result.replace(">", "ck");
+
+		return result;
+	}
+
+	public static String replaceOnce(String input, Map<String, String> replacements) {
+		String result = input;
+		for (Entry<String, String> entry : replacements.entrySet()) {
+			result = result.replaceAll(entry.getKey(), entry.getValue());
+		}
 
 		return result;
 	}

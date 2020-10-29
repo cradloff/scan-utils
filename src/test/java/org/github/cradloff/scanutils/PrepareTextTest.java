@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -48,6 +50,7 @@ public class PrepareTextTest {
 		checkChangeQuotes("Er sprach: \"Hinweg!\"", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: “Hinweg!”", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: „Hinweg!”", "Er sprach: »Hinweg!«");
+		checkChangeQuotes("Er sprach: „Hinweg! ”", "Er sprach: »Hinweg!«");
 	}
 
 	private void checkChangeQuotes(String input, String expected) {
@@ -97,6 +100,23 @@ public class PrepareTextTest {
 		assertEquals(expected, actual);
 	}
 
+	private static final Map<String, String> REPLACEMENTS = new HashMap<>();
+	static {
+		REPLACEMENTS.put("Bieter", "Meter");
+		REPLACEMENTS.put("Fahren", "Jahren");
+		REPLACEMENTS.put("vor!", "dort");
+	}
+	@Test public void replaceOnce() {
+
+		checkReplaceOnce("Nach vor! in zehn Bieter.", "Nach dort in zehn Meter.");
+		checkReplaceOnce("Vor zwei Fahren", "Vor zwei Jahren");
+	}
+
+	private void checkReplaceOnce(String input, String expected) {
+		String actual = PrepareText.replaceOnce(input, REPLACEMENTS);
+		assertEquals(expected, actual);
+	}
+
 	@Test public void prepareText() throws IOException {
 		checkPrepareText("Normaler Text,\nmit mehreren\nZeilen\n", "Normaler Text,\nmit mehreren\nZeilen\n");
 
@@ -107,6 +127,7 @@ public class PrepareTextTest {
 		checkPrepareText("Text mit vielen\n\n\n\nLeerzeilen", "Text mit vielen\n\nLeerzeilen\n");
 		checkPrepareText("Text' mit >>Sonderzeichen<<", "Text’ mit »Sonderzeichen«\n");
 		checkPrepareText("werden. — Beeile Dich.“ — u", "werden. — Beeile Dich.« —\n");
+		checkPrepareText("Nach vor! in zehn Bieter.", "Nach dort in zehn Meter.");
 	}
 
 	private void checkPrepareText(String line, String expected) throws IOException {
@@ -114,7 +135,7 @@ public class PrepareTextTest {
 				StringReader in = new StringReader(line);
 				StringWriter out = new StringWriter();
 				) {
-			PrepareText.prepareText(in, new PrintWriter(out));
+			PrepareText.prepareText(in, new PrintWriter(out), REPLACEMENTS);
 			String actual = out.toString();
 			Assert.assertLinesEqual(expected, actual);
 		}
