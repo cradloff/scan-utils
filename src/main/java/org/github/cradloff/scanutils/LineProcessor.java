@@ -343,7 +343,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 
 			// Liste mit den bereits bekannten Zeichen aufbauen
 			Set<String> knownChars = new HashSet<>();
-			" .,;:…-—’()!?*_»«<>/=@öäüÖÄÜß0123456789".chars().forEach(i -> knownChars.add(String.valueOf((char) i)));
+			" .,;:…-—’()!?*_»«<>\\\\/=@öäüÖÄÜß0123456789".chars().forEach(i -> knownChars.add(String.valueOf((char) i)));
 			for (char c = 'a'; c <= 'z'; c++) {
 				knownChars.add(String.valueOf(c));
 				knownChars.add(String.valueOf(c).toUpperCase());

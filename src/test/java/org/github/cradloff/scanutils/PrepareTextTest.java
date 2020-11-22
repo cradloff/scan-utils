@@ -87,7 +87,7 @@ public class PrepareTextTest {
 		checkSpecial("dur<s<nittli<", "durchschnittlich");
 		checkSpecial("Er setzte si<,", "Er setzte sich,");
 
-		checkSpecial("Es i} gut.", "Es ist gut.");
+		checkSpecial("Es i} ſchon gut.", "Es ist schon gut.");
 
 		// "{" wird durch "sch" ersetzt, nach einen "s" nur durch "ch"
 		checkSpecial("zwi{en den Büs{en", "zwischen den Büschen");

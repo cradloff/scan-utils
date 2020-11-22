@@ -160,23 +160,24 @@ public class PrepareText {
 		}
 
 		String result = line;
-		result = result.replace("\\", "s");
+		result = result.replace("\\", "s")
 
-		result = result.replace("s{<", "sch");
-		result = result.replace("s{", "sch");
-		result = result.replace("{<", "sch");
-		result = result.replace("{", "sch");
+				.replace("s{<", "sch")
+				.replace("s{", "sch")
+				.replace("{<", "sch")
+				.replace("{", "sch")
 
-		result = result.replace("}", "st");
+				.replace("}", "st")
+				.replace('ſ', 's')
 
-		result = result.replace("c<", "ch");
-		result = result.replace("<h", "ch");
-		result = result.replace("<", "ch");
+				.replace("c<", "ch")
+				.replace("<h", "ch")
+				.replace("<", "ch")
 
-		result = result.replace("c>", "ck");
-		result = result.replace("d>", "ck");
-		result = result.replace(">k", "ck");
-		result = result.replace(">", "ck");
+				.replace("c>", "ck")
+				.replace("d>", "ck")
+				.replace(">k", "ck")
+				.replace(">", "ck");
 
 		return result;
 	}

@@ -161,7 +161,7 @@ public class PreProcessTest {
 
 		Set<String> silben = new HashSet<>(Arrays.asList("en", "ch"));
 		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "hier", "mal", "mir", "war", "wir", "oh",
-				"schwerfällig", "zu", "Piraten", "Uhr", "in"));
+				"schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
@@ -191,7 +191,7 @@ public class PreProcessTest {
 		// nicht nach einem Bindestrich
 		checkPreProcess("Modellauto und -schiff\n", "Modellauto und -schiff\n", dict, silben, spellcheck, 0);
 		// durch Leerzeichen getrennte Wörter zusammenfassen
-		checkPreProcess("Aiie mi ene Ent chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
+		checkPreProcess("Ai ie miene Ent chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
 		// zusammengeschriebene Wörter wieder trennen
 		checkPreProcess("Allemal zumir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 2);
 		// aber nur, wenn beide Wort-Bestandteile im Wörterbuch stehen
