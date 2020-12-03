@@ -88,7 +88,7 @@ public class CheckCase {
 			// Großschreibung durch Kleinschreibung ersetzen
 			count += fixCase(lastLine, s, dict, abkürzungen);
 			// Kommas am Absatzende durch Punkte ersetzen
-			count += fixKomma(s, nextLine);
+			count += fixPunkt(s, nextLine);
 
 			for (String token : s) {
 				writer.write(token);
@@ -143,15 +143,19 @@ public class CheckCase {
 		return count;
 	}
 
-	public static int fixKomma(List<String> line, String nextLine) {
+	public static int fixPunkt(List<String> line, String nextLine) {
 		int count = 0;
 		if (! line.isEmpty() && (nextLine == null || nextLine.isBlank())) {
 			int index = line.size() - 1;
-			if (line.get(index).equals(",")) {
+			String lastToken = line.get(index);
+			if (lastToken.equals(",")) {
 				line.set(index, ".");
 				count++;
-			} else if (line.get(index).equals(",«")) {
+			} else if (lastToken.equals(",«") || lastToken.equals("«")) {
 				line.set(index, ".«");
+				count++;
+			} else if (TextUtils.isWord(lastToken)) {
+				line.add(".");
 				count++;
 			}
 		}

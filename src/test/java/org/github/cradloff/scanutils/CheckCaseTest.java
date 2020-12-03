@@ -84,16 +84,20 @@ public class CheckCaseTest {
 		assertEquals(expected, CheckCase.satzanfang(lastWords, words, words.size() - 1, abkürzungen));
 	}
 
-	@Test public void testFixKomma() {
-		checkFixKomma("Das Satzende,", "der Anfang", "Das Satzende,", 0);
-		checkFixKomma("Das Satzende,", "", "Das Satzende.", 1);
-		checkFixKomma("Das Satzende,«", "der Anfang", "Das Satzende,«", 0);
-		checkFixKomma("Das Satzende,«", "", "Das Satzende.«", 1);
+	@Test public void testFixPunkt() {
+		checkFixPunkt("Das Satzende,", "der Anfang", "Das Satzende,", 0);
+		checkFixPunkt("Das Satzende,", "", "Das Satzende.", 1);
+		checkFixPunkt("Das Satzende,«", "der Anfang", "Das Satzende,«", 0);
+		checkFixPunkt("Das Satzende,«", "", "Das Satzende.«", 1);
+		checkFixPunkt("Das Satzende", "und der Anfang", "Das Satzende", 0);
+		checkFixPunkt("Das Satzende", "", "Das Satzende.", 1);
+		checkFixPunkt("Das Satzende«", "und der Anfang", "Das Satzende«", 0);
+		checkFixPunkt("Das Satzende«", "", "Das Satzende.«", 1);
 	}
 
-	private void checkFixKomma(String line, String nextLine, String expected, int expectedCount) {
+	private void checkFixPunkt(String line, String nextLine, String expected, int expectedCount) {
 		List<String> words = TextUtils.split(line);
-		int count = CheckCase.fixKomma(words, nextLine);
+		int count = CheckCase.fixPunkt(words, nextLine);
 		StringBuilder actual = new StringBuilder();
 		for (String word : words) {
 			actual.append(word);
@@ -103,8 +107,9 @@ public class CheckCaseTest {
 	}
 
 	@Test public void testCheckCase() throws IOException {
-		checkCheckCase("Zu Lande Und Zu wasser\n", "Zu Lande und zu Wasser\n");
+		checkCheckCase("Zu Lande Und Zu wasser\n", "Zu Lande und zu Wasser.\n");
 		checkCheckCase("am anfang. und Am ende,\n", "Am Anfang. Und am Ende.\n");
+		checkCheckCase("Ein langer\nAbsatz mit\nvielen Zeilenumbrüchen\n", "Ein langer\nAbsatz mit\nvielen Zeilenumbrüchen.\n");
 		// Tags werden ignoriert, dazwischen wird ersetzt
 		checkCheckCase("<h1 am='anfang'>am anfang</h1>", "<h1 am='anfang'>Am Anfang</h1>");
 		checkCheckCase("<@ende am='anfang'>am anfang</@ende>", "<@ende am='anfang'>Am Anfang</@ende>");
