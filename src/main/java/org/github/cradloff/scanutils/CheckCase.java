@@ -154,6 +154,12 @@ public class CheckCase {
 			} else if (lastToken.equals(",«") || lastToken.equals("«")) {
 				line.set(index, ".«");
 				count++;
+			} else if (TextUtils.endsWith(line, ",«", " ", "—")) {
+				line.set(index - 2, ".«");
+				count++;
+			} else if (TextUtils.endsWith(line, ",", " ", "—")) {
+				line.set(index - 2, ".");
+				count++;
 			} else if (TextUtils.isWord(lastToken)) {
 				line.add(".");
 				count++;

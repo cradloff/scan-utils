@@ -49,6 +49,15 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.isDash('+'));
 	}
 
+	@Test public void endsWithDash() {
+		assertFalse(TextUtils.endsWithDash(""));
+		assertFalse(TextUtils.endsWithDash("Text ohne Dash"));
+		assertTrue(TextUtils.endsWithDash("Text mit Dash -"));
+		assertTrue(TextUtils.endsWithDash("Text mit Dash —"));
+		assertFalse(TextUtils.endsWithDash("Text mit escaped Dash \\-"));
+		assertFalse(TextUtils.endsWithDash("Text mit escaped Dash \\—"));
+	}
+
 	@Test public void removeDashes() {
 		assertEquals("Wort", TextUtils.removeDashes("Wort"));
 		assertEquals("Wort", TextUtils.removeDashes("Wo-rt"));
@@ -94,6 +103,17 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.isWhitespace("."));
 		assertFalse(TextUtils.isWhitespace("a"));
 		assertFalse(TextUtils.isWhitespace("5"));
+	}
+
+	@Test public void endsWith() {
+		List<String> line = Arrays.asList("a", " ", "c");
+		assertTrue(TextUtils.endsWith(line, "c"));
+		assertTrue(TextUtils.endsWith(line, " ", "c"));
+		assertTrue(TextUtils.endsWith(line, "a", " ", "c"));
+		assertFalse(TextUtils.endsWith(line, "a"));
+		assertFalse(TextUtils.endsWith(line, " "));
+		assertFalse(TextUtils.endsWith(line, "a", "c"));
+		assertFalse(TextUtils.endsWith(line, "x", "a", " ", "c"));
 	}
 
 	@Test public void startOfTag() {

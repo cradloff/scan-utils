@@ -91,8 +91,12 @@ public class CheckCaseTest {
 		checkFixPunkt("Das Satzende,«", "", "Das Satzende.«", 1);
 		checkFixPunkt("Das Satzende", "und der Anfang", "Das Satzende", 0);
 		checkFixPunkt("Das Satzende", "", "Das Satzende.", 1);
+		checkFixPunkt("Das Satzende, —", "und der Anfang", "Das Satzende, —", 0);
+		checkFixPunkt("Das Satzende, —", "", "Das Satzende. —", 1);
 		checkFixPunkt("Das Satzende«", "und der Anfang", "Das Satzende«", 0);
 		checkFixPunkt("Das Satzende«", "", "Das Satzende.«", 1);
+		checkFixPunkt("Das Satzende,« —", "und der Anfang", "Das Satzende,« —", 0);
+		checkFixPunkt("Das Satzende,« —", "", "Das Satzende.« —", 1);
 	}
 
 	private void checkFixPunkt(String line, String nextLine, String expected, int expectedCount) {

@@ -162,6 +162,21 @@ public class TextUtils {
 		return sb.toString();
 	}
 
+	public static boolean endsWith(List<String> line, String... tokens) {
+		int offset = line.size() - tokens.length;
+		boolean equal = true;
+		if (offset >= 0) {
+			for (int i = 0; i < tokens.length; i++) {
+				if (! line.get(i + offset).equals(tokens[i])) {
+					equal = false;
+				}
+			}
+		} else {
+			equal = false;
+		}
+		return equal;
+	}
+
 	private static final Pattern END_OF_TAG = Pattern.compile("['\"/;]*>.*");
 	public static boolean endOfTag(String token) {
 		return END_OF_TAG.matcher(token).matches() && ! token.startsWith(">>");
