@@ -26,6 +26,7 @@ public class TextUtilsTest {
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
 		checkSplit("wóllen wir?", "wóllen", " ", "wir", "?");
 		checkSplit("wøllen wir?!", "wøllen", " ", "wir", "?!");
+		checkSplit("wollen wir…", "wollen", " ", "wir", "…");
 		checkSplit("er war bleiern\\-schwerfällig ...", "er", " ", "war", " ", "bleiern\\-schwerfällig", " ", "...");
 		checkSplit("Und -—- Dann", "Und", " ", "-—-", " ", "Dann");
 		checkSplit("Und dann -—-", "Und", " ", "dann", " ", "-—-");
@@ -69,13 +70,14 @@ public class TextUtilsTest {
 
 	@Test public void isSatzzeichen() {
 		assertTrue(TextUtils.isSatzzeichen("."));
+		assertTrue(TextUtils.isSatzzeichen("…"));
 		assertTrue(TextUtils.isSatzzeichen(","));
 		assertTrue(TextUtils.isSatzzeichen(";"));
 		assertTrue(TextUtils.isSatzzeichen(":"));
 		assertTrue(TextUtils.isSatzzeichen("-"));
 		assertTrue(TextUtils.isSatzzeichen("»"));
 		assertTrue(TextUtils.isSatzzeichen("«"));
-		assertTrue(TextUtils.isSatzzeichen(".,;:-»«"));
+		assertTrue(TextUtils.isSatzzeichen(".…,;:-»«"));
 		assertFalse(TextUtils.isSatzzeichen("a"));
 		assertFalse(TextUtils.isSatzzeichen("»a«"));
 		// Leerzeichen gelten nicht als Satzzeichen

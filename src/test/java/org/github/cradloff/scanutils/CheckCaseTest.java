@@ -45,6 +45,7 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.NEIN, "Am - \"Anfang\"");
 		checkSatzanfang(Satzanfang.JA, "Ende. Anfang");
 		checkSatzanfang(Satzanfang.JA, "Ende! Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende!! Anfang");
 		checkSatzanfang(Satzanfang.JA, "Ende? Anfang");
 		checkSatzanfang(Satzanfang.JA, "Ende?! Anfang");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "Ende: Anfang");
@@ -66,6 +67,7 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.NEIN, "Nr. Fünf");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "Nun —« zunächst");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage: vielleicht");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage... vielleicht");
 		// Tags werden ignoriert
 		checkSatzanfang(Satzanfang.JA, "Ende. <em>Anfang");
 		checkSatzanfang(Satzanfang.NEIN, "Am <em>Anfang");

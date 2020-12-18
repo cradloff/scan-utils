@@ -32,7 +32,7 @@ public class TextUtils {
 	}
 
 	enum State { WHITESPACE, WORD, TAG, PUNCTUATION }
-	private static final String PUNCTUATION_CHARS = ".,;:-—!?()[]{}»«„“”\"*_";
+	private static final String PUNCTUATION_CHARS = ".…,;:-—!?()[]{}»«„“”\"*_";
 	public static List<String> split(CharSequence line) {
 		StringBuilder sb = new StringBuilder();
 		List<String> result = new ArrayList<>();
