@@ -105,11 +105,12 @@ public class PrepareTextTest {
 		REPLACEMENTS.put("Bieter", "Meter");
 		REPLACEMENTS.put("Fahren", "Jahren");
 		REPLACEMENTS.put("vor!", "dort");
+		REPLACEMENTS.put("\\b([\\d]+)len\\b", "$1ten");
 	}
 	@Test public void replaceOnce() {
-
 		checkReplaceOnce("Nach vor! in zehn Bieter.", "Nach dort in zehn Meter.");
 		checkReplaceOnce("Vor zwei Fahren", "Vor zwei Jahren");
+		checkReplaceOnce("Am 2ten, 3len und 15len", "Am 2ten, 3ten und 15ten");
 	}
 
 	private void checkReplaceOnce(String input, String expected) {
