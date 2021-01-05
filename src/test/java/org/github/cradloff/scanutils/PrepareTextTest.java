@@ -14,6 +14,7 @@ import org.junit.Test;
 public class PrepareTextTest {
 	@Test public void removeLitter() {
 		checkRemoveLitter("iText ohne Schmierzeichen", "iText ohne Schmierzeichen");
+		checkRemoveLitter("\"...Text ohne Schmierzeichen...", "\"...Text ohne Schmierzeichen...");
 
 		checkRemoveLitter("Schmierzeichen_ mitten% im #Text", "Schmierzeichen mitten im Text");
 
@@ -100,6 +101,19 @@ public class PrepareTextTest {
 		assertEquals(expected, actual);
 	}
 
+	@Test public void changeSatzzeichen() {
+		// drei Punkte/Kommas werden durch ... ersetzt
+		checkSatzzeichen(",,,schon gut.,.", "...schon gut...");
+		checkSatzzeichen(", , ,schon gut. , .", "...schon gut...");
+		// zwei Kommas durch ein Quote
+		checkSatzzeichen(",,schon gut.,.", "\"schon gut...");
+	}
+
+	private void checkSatzzeichen(String input, String expected) {
+		String actual = PrepareText.changeSatzzeichen(input);
+		assertEquals(expected, actual);
+	}
+
 	private static final Map<String, String> REPLACEMENTS = new HashMap<>();
 	static {
 		REPLACEMENTS.put("Bieter", "Meter");
@@ -129,6 +143,7 @@ public class PrepareTextTest {
 		checkPrepareText("Text' mit >>Sonderzeichen<<", "Text’ mit »Sonderzeichen«\n");
 		checkPrepareText("werden. — Beeile Dich.“ — u", "werden. — Beeile Dich.« —\n");
 		checkPrepareText("Nach vor! in zehn Bieter.", "Nach dort in zehn Meter.");
+		checkPrepareText("\", ,,schon gut. , .", "»...schon gut...");
 	}
 
 	private void checkPrepareText(String line, String expected) throws IOException {

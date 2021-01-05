@@ -65,8 +65,7 @@ public class PrepareText {
 			boolean hasEmptyLine = false;
 			while ((line = reader.readLine()) != null) {
 				String result = line;
-				// doppelte Kommas durch Quote ersetzen
-				result = result.replace(",,", "\"");
+				result = changeSatzzeichen(result);
 				result = removeLitter(result);
 				result = changeDash(result);
 				result = changeQuotes(result);
@@ -82,6 +81,15 @@ public class PrepareText {
 				hasEmptyLine = emptyLine;
 			}
 		}
+	}
+
+	static String changeSatzzeichen(String line) {
+		// drei Punkte/Kommas werden durch ... ersetzt
+		String result = line.replaceAll("[.,]\\s?[.,]\\s?[.,]", "...");
+		// doppelte Kommas durch Quote ersetzen
+		result = result.replace(",,", "\"");
+
+		return result;
 	}
 
 	static String removeLitter(String line) {
