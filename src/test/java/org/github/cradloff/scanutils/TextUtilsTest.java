@@ -98,6 +98,14 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.isWord(" "));
 	}
 
+	@Test public void isAlphaNumeric() {
+		assertTrue(TextUtils.isAlphaNumeric("123"));
+		assertTrue(TextUtils.isAlphaNumeric("Wort"));
+		assertTrue(TextUtils.isAlphaNumeric("ist’s"));
+		assertFalse(TextUtils.isAlphaNumeric("«"));
+		assertFalse(TextUtils.isAlphaNumeric(" "));
+	}
+
 	@Test public void isWhitespace() {
 		assertTrue(TextUtils.isWhitespace(""));
 		assertTrue(TextUtils.isWhitespace(" "));

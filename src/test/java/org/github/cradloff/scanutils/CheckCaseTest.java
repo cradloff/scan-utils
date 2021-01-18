@@ -17,18 +17,19 @@ import org.junit.Test;
 public class CheckCaseTest {
 
 	@Test public void testFixCase() {
-		checkToLower("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.", 0);
-		checkToLower("", "Zu anfang Und Zu klein.", "Zu Anfang und zu klein.", 3);
-		checkToLower("", "ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 3);
-		checkToLower("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
-		checkToLower("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
-		checkToLower("", "über und über.", "Ueber und über.", 1);
-		checkToLower("", "Komm’ zu mir.", "Komm’ zu mir.", 0);
+		checkFixCase("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.", 0);
+		checkFixCase("", "zu anfang Und Zu klein.", "Zu Anfang und zu klein.", 4);
+		checkFixCase("", "ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 3);
+		checkFixCase("", "»am Anfang.«", "»Am Anfang.«", 1);
+		checkFixCase("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
+		checkFixCase("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
+		checkFixCase("", "über und über.", "Ueber und über.", 1);
+		checkFixCase("", "Komm’ zu mir.", "Komm’ zu mir.", 0);
 	}
 
 	private Set<String> dict = new HashSet<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
 	private static Collection<String> abkürzungen = Arrays.asList("Nr");
-	private void checkToLower(String lastLine, String line, String expected, int expectedCount) {
+	private void checkFixCase(String lastLine, String line, String expected, int expectedCount) {
 		List<String> lastWords = TextUtils.split(lastLine);
 		List<String> words = TextUtils.split(line);
 		int count = CheckCase.fixCase(lastWords, words, CheckCase.removeAmbigous(dict), abkürzungen);
@@ -101,6 +102,9 @@ public class CheckCaseTest {
 		checkFixPunkt("Das Satzende«", "", "Das Satzende.«", 1);
 		checkFixPunkt("Das Satzende,« —", "und der Anfang", "Das Satzende,« —", 0);
 		checkFixPunkt("Das Satzende,« —", "", "Das Satzende.« —", 1);
+		checkFixPunkt("<h1>Kapitel 1</h1>", "", "<h1>Kapitel 1.</h1>", 1);
+		checkFixPunkt("<h2>Kapitel 2</h2>", "", "<h2>Kapitel 2.</h2>", 1);
+		checkFixPunkt("<h3>Kapitel 3,</h3>", "", "<h3>Kapitel 3.</h3>", 1);
 	}
 
 	private void checkFixPunkt(String line, String nextLine, String expected, int expectedCount) {
@@ -119,7 +123,7 @@ public class CheckCaseTest {
 		checkCheckCase("am anfang. und Am ende,\n", "Am Anfang. Und am Ende.\n");
 		checkCheckCase("Ein langer\nAbsatz mit\nvielen Zeilenumbrüchen\n", "Ein langer\nAbsatz mit\nvielen Zeilenumbrüchen.\n");
 		// Tags werden ignoriert, dazwischen wird ersetzt
-		checkCheckCase("<h1 am='anfang'>am anfang</h1>", "<h1 am='anfang'>Am Anfang</h1>");
+		checkCheckCase("<h1 am='anfang'>am anfang</h1>", "<h1 am='anfang'>Am Anfang.</h1>");
 		checkCheckCase("<@ende am='anfang'>am anfang</@ende>", "<@ende am='anfang'>Am Anfang</@ende>");
 	}
 

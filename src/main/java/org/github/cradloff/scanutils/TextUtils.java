@@ -106,6 +106,16 @@ public class TextUtils {
 		return true;
 	}
 
+	public static boolean isAlphaNumeric(String s) {
+		for (int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
+			if (! Character.isAlphabetic(ch) && ! Character.isDigit(ch) && ch != '’') {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/** Prüft, ob vor der angegebenen Position ein Wort kommt */
 	public static boolean wordBefore(List<String> line, int i) {
 		return i > 0 && (isWord(line.get(i - 1)));

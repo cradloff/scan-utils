@@ -160,6 +160,18 @@ public class CheckCase {
 			} else if (TextUtils.endsWith(line, ",", " ", "—")) {
 				line.set(index - 2, ".");
 				count++;
+			} else if (TextUtils.endsWith(line, "</", "h1", ">")
+					|| TextUtils.endsWith(line, "</", "h2", ">")
+					|| TextUtils.endsWith(line, "</", "h3", ">")) {
+				index = line.size() - 4;
+				if (index > 0 && TextUtils.isAlphaNumeric(line.get(index))) {
+					line.add(index + 1, ".");
+					count++;
+				} else if (index > 0 && ",".equals(line.get(index))) {
+					line.set(index, ".");
+					count++;
+				}
+
 			} else if (TextUtils.isWord(lastToken)) {
 				line.add(".");
 				count++;
