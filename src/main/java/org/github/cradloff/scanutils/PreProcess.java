@@ -152,7 +152,7 @@ public class PreProcess {
 				// Leerzeichen entfernen/einfügen
 				count += checkWhitespace(line);
 				// Worttrennung am Zeilenende zusammenfassen
-				if (mergeLinebreak(reader)) {
+				if (mergeLinebreak(reader, ciDict)) {
 					// ist die Folge-Zeile jetzt leer?
 					if (reader.next().isEmpty()) {
 						// Zeile überspringen
@@ -370,33 +370,86 @@ public class PreProcess {
 
 	/** Schmierzeichen am Zeilenanfang */
 	private static final Set<String> SCHMIERZEICHEN_ZEILENBEGINN = new HashSet<>(Arrays.asList(",", "»", "«"));
-	private boolean mergeLinebreak(LineReader reader) {
+	private boolean mergeLinebreak(LineReader reader, SortedSet<String> dict) {
 		List<String> line = reader.current();
 		if (line.isEmpty() || ! reader.hasNext()) {
 			return false;
 		}
 
-		boolean merged = false;
-		// Worttrennung am Zeilenende?
 		List<String> nextLine = reader.next();
+		// die Folgezeile ist ein Pagebreak?
+		if (nextLine.equals(PAGEBREAK) && reader.hasNext(2)) {
+			nextLine = reader.next(2);
+		}
+
+		if (nextLine.isEmpty()) {
+			return false;
+		}
+
+		// Worttrennung am Zeilenende?
+		boolean merged = false;
 		String token = line.get(line.size() - 1);
-		if (TextUtils.endsWithDash(token) && Character.isAlphabetic(token.codePointAt(0))) {
+		if (TextUtils.endsWithDash(token) && startsWithLetter(token)) {
 			// die Folge-Zeile beginnt mit einem Buchstaben oder einem Schmierzeichen?
 			if (! nextLine.isEmpty()
-					&& (Character.isAlphabetic(nextLine.get(0).charAt(0))
+					&& (startsWithLetter(nextLine.get(0))
 							|| SCHMIERZEICHEN_ZEILENBEGINN.contains(nextLine.get(0)))) {
 				merge(line, nextLine);
 				merged = true;
 			}
-			// die Folgezeile ist ein Pagebreak und die übernächste Zeile beginnt mit einem Buchstaben?
-			else if (nextLine.equals(PAGEBREAK) && reader.hasNext(2)
-					&& ! reader.next(2).isEmpty() && Character.isAlphabetic(reader.next(2).get(0).charAt(0))) {
-				merge(line, reader.next(2));
+		}
+		// ggf. steht ein Buchstabe am Zeilenende für einen Bindestrich
+		else if (endsWithDashLike(token) && startsWithLetter(token)
+				&& ! nextLine.isEmpty()
+				&& (startsWithLetter(nextLine.get(0)))) {
+			// hier sind die Hürden höher: nur wenn beide Wörter zusammengeschrieben im
+			// Wörterbuch vorkommen, werden sie vereinigt
+			String token1 = token.substring(0, token.length() - 1);
+			String token2 = nextLine.get(0);
+			if (dict.contains(token1 + token2)) {
+				line.set(line.size() - 1, token1);
+				merge(line, nextLine);
+				merged = true;
+			}
+		}
+		// manchmal kommt ein Quote statt einem Bindestrich
+		else if ((TextUtils.endsWith(line, "«") || TextUtils.endsWith(line, "»")) && line.size() > 1) {
+			String token1 = line.get(line.size() - 2);
+			String token2 = nextLine.get(0);
+			if (dict.contains(token1 + token2)) {
+				line.remove(line.size() - 1);
+				merge(line, nextLine);
+				merged = true;
+			}
+		}
+		// stehen beide Wörter *nicht* im Wörterbuch aber zusammen schon, wird auch zusammengefasst
+		if (! merged
+				&& startsWithLetter(token)
+				&& ! nextLine.isEmpty()
+				&& (startsWithLetter(nextLine.get(0)))) {
+			String nextToken = nextLine.get(0);
+			if (! dict.contains(token) && ! dict.contains(nextToken)
+					&& dict.contains(token + nextToken)) {
+				merge(line, nextLine);
 				merged = true;
 			}
 		}
 
 		return merged;
+	}
+
+	private boolean startsWithLetter(String token) {
+		return Character.isAlphabetic(token.codePointAt(0));
+	}
+
+	private boolean endsWithDashLike(String s) {
+		return s.length() > 1
+				&& isDashLike(s.charAt(s.length() - 1))
+				&& s.charAt(s.length() - 2) != '\\';
+	}
+
+	private boolean isDashLike(char ch) {
+		return ch == 's' || ch == 'e' || ch == 'v' || ch == 'r';
 	}
 
 	private void merge(List<String> line1, List<String> line2) {
