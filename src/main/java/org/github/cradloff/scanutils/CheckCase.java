@@ -199,6 +199,7 @@ public class CheckCase {
 		HINTS.put(",«", Satzanfang.NEIN);
 		HINTS.put(";", Satzanfang.NEIN);
 		// nach einer wörtlichen Rede geht manchmal ein Satz weiter
+		HINTS.put("!!«", Satzanfang.WEISS_NICHT);
 		HINTS.put("!«", Satzanfang.WEISS_NICHT);
 		HINTS.put("?«", Satzanfang.WEISS_NICHT);
 		HINTS.put("?!«", Satzanfang.WEISS_NICHT);

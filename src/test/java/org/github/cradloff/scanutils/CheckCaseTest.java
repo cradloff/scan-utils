@@ -59,7 +59,9 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.NEIN, "Am", "Anfang");
 		checkSatzanfang(Satzanfang.NEIN, "Komm’ her");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Vorsicht!« rief");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Vorsicht!!« rief");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Wirklich?« fragte");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Wirklich?!« fragte");
 		checkSatzanfang(Satzanfang.JA, "»Schluß.« Danach");
 		checkSatzanfang(Satzanfang.JA, "»Schluß«. Danach");
 		checkSatzanfang(Satzanfang.NEIN, "»Ich gehe,« sagte");
