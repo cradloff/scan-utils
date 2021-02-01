@@ -3,6 +3,7 @@ package org.github.cradloff.scanutils;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -150,6 +151,45 @@ public class PreProcessTest {
 		assertEquals(expected, actual);
 	}
 
+	@Test public void testMergeLinebreak() throws IOException {
+		Set<String> dict = Set.of("Alle", "meine", "Entchen");
+		// am Zeilenende getrennte Wörter werden wieder zusammengefügt
+		checkMergeLinebreak("Al-\nle mei-\nne Ent-\nchen", "Al-le\nmei-ne\nEnt-chen\n", dict);
+		// nachfolgende Satzzeichen werden mitgenommen
+		checkMergeLinebreak("Al-\nle, mei-\nne. Ent-\nchen", "Al-le,\nmei-ne.\nEnt-chen\n", dict);
+		// einige Buchstaben (sevr) stehen manchmal statt einem Bindestrich am Zeilenende
+		checkMergeLinebreak("Als\nle meie\nne Entv\nchen", "Alle\nmeine\nEntchen\n", dict);
+		// manchmal kommt ein Quote statt einem Bindestrich
+		checkMergeLinebreak("mei«\nne Ent»\nchen", "meine\nEntchen\n", dict);
+		// teilweise fehlt der Bindestrich komplett
+		checkMergeLinebreak("Al\nle mei\nne Ent\nchen", "Alle\nmeine\nEntchen\n", dict);
+		// keine Ersetzung von bekannten Wörtern
+		checkMergeLinebreak("erklärte\ner", "erklärte\ner", Set.of("er", "erklärte", "erklärter"));
+		// Bindestrich und Schmierzeichen am Zeilenanfang
+		checkMergeLinebreak("Alle mei-\n»ne Entchen", "Alle mei-ne\nEntchen", dict);
+		checkMergeLinebreak("Alle mei-\n«ne Entchen", "Alle mei-ne\nEntchen", dict);
+		checkMergeLinebreak("Alle mei-\n,ne Entchen", "Alle mei-ne\nEntchen", dict);
+		// Bindestriche und Pagebreaks
+		checkMergeLinebreak("Alle mei-\n<@pagebreak/>\nne Entchen", "Alle mei-ne\n<@pagebreak/>\nEntchen", dict);
+	}
+
+	private void checkMergeLinebreak(String line, String expected, Set<String> dict) throws IOException {
+		try (StringReader in = new StringReader(line)) {
+			LineReader reader = new LineReader(in, 1, 2);
+			StringBuilder actual = new StringBuilder();
+			while (reader.readLine()) {
+				PreProcess.mergeLinebreak(reader, dict);
+				for (String token : reader.current()) {
+					actual.append(token);
+				}
+				if (reader.hasNext()) {
+					actual.append("\n");
+				}
+			}
+			assertEquals(expected, actual.toString());
+		}
+	}
+
 	@Test public void testPreProcess() throws Exception {
 		Map<String, String> spellcheck = new HashMap<>();
 		spellcheck.put("Aiie", "Alle");
@@ -208,16 +248,6 @@ public class PreProcessTest {
 		checkPreProcess("er war hier -—-\nund dort\n", "er war hier —\nund dort\n", dict, silben, spellcheck, 0);
 		// Bindestriche und Korrekturen bei Worttrennung am Zeilenende
 		checkPreProcess("Ai-\nie mie-\nne Ent-\nchen\n", "Alle\nmeine\nEntchen\n", dict, silben, spellcheck, 3);
-		// einige Buchstaben (sevr) stehen manchmal statt einem Bindestrich am Zeilenende
-		checkPreProcess("Schis\nff schwere\nfällig Entv\nchen Pirar\nten", "Schiff\nschwerfällig\nEntchen\nPiraten\n", dict, silben, spellcheck, 0);
-		// manchmal kommt ein Quote statt einem Bindestrich
-		checkPreProcess("Schi«\nff Pira»\nten", "Schiff\nPiraten\n", dict, silben, spellcheck, 0);
-		// teilweise fehlt der Bindestrich komplett
-		checkPreProcess("Schi\nff schwer\nfällig Ent\nchen\n", "Schiff\nschwerfällig\nEntchen\n", dict, silben, spellcheck, 0);
-		// Bindestrich und Schmierzeichen am Zeilenanfang
-		checkPreProcess("Alle mie-\n»ne Entchen\n", "Alle meine\nEntchen\n", dict, silben, spellcheck, 1);
-		checkPreProcess("Alle mie-\n«ne Entchen\n", "Alle meine\nEntchen\n", dict, silben, spellcheck, 1);
-		checkPreProcess("Alle mie-\n,ne Entchen\n", "Alle meine\nEntchen\n", dict, silben, spellcheck, 1);
 		// Bindestriche und Pagebreaks
 		checkPreProcess("Alle mie-\n<@pagebreak/>\nne Entchen\n", "Alle meine\n<@pagebreak/>\nEntchen\n", dict, silben, spellcheck, 1);
 		// keine Ersetzung von Silben bei Worttrennung am Zeilenende

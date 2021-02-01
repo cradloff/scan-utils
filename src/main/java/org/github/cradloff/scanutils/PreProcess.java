@@ -370,7 +370,7 @@ public class PreProcess {
 
 	/** Schmierzeichen am Zeilenanfang */
 	private static final Set<String> SCHMIERZEICHEN_ZEILENBEGINN = new HashSet<>(Arrays.asList(",", "»", "«"));
-	private boolean mergeLinebreak(LineReader reader, SortedSet<String> dict) {
+	static boolean mergeLinebreak(LineReader reader, Set<String> dict) {
 		List<String> line = reader.current();
 		if (line.isEmpty() || ! reader.hasNext()) {
 			return false;
@@ -406,7 +406,8 @@ public class PreProcess {
 			// Wörterbuch vorkommen, werden sie vereinigt
 			String token1 = token.substring(0, token.length() - 1);
 			String token2 = nextLine.get(0);
-			if (dict.contains(token1 + token2)) {
+			if (! dict.contains(token1) && ! dict.contains(token2)
+					&& dict.contains(token1 + token2)) {
 				line.set(line.size() - 1, token1);
 				merge(line, nextLine);
 				merged = true;
@@ -438,21 +439,21 @@ public class PreProcess {
 		return merged;
 	}
 
-	private boolean startsWithLetter(String token) {
+	private static boolean startsWithLetter(String token) {
 		return Character.isAlphabetic(token.codePointAt(0));
 	}
 
-	private boolean endsWithDashLike(String s) {
+	private static boolean endsWithDashLike(String s) {
 		return s.length() > 1
 				&& isDashLike(s.charAt(s.length() - 1))
 				&& s.charAt(s.length() - 2) != '\\';
 	}
 
-	private boolean isDashLike(char ch) {
+	private static boolean isDashLike(char ch) {
 		return ch == 's' || ch == 'e' || ch == 'v' || ch == 'r';
 	}
 
-	private void merge(List<String> line1, List<String> line2) {
+	private static void merge(List<String> line1, List<String> line2) {
 		// Wörter zusammenfügen
 		String token = line1.get(line1.size() - 1);
 		String nextToken = line2.remove(0);
