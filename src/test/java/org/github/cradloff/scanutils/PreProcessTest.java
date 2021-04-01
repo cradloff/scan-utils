@@ -86,6 +86,7 @@ public class PreProcessTest {
 
 	@Test public void testFraction() {
 		checkFraction("Um 1/2 12 Uhr", "Um ½ 12 Uhr", 1);
+		checkFraction("Um 1/212 Uhr", "Um ½12 Uhr", 1);
 		checkFraction("1/2 1/3 2/3 1/4 3/4 1/5 2/5 3/5 4/5 1/6 5/6 1/7 1/8 3/8 5/8 7/8 1/9 1/10", "½ ⅓ ⅔ ¼ ¾ ⅕ ⅖ ⅗ ⅘ ⅙ ⅚ ⅐ ⅛ ⅜ ⅝ ⅞ ⅑ ⅒", 18);
 		checkFraction("1/1 2/2 2/4 1/11 1/12", "1/1 2/2 2/4 1/11 1/12", 0);
 		checkFraction("/1 1/2 1/", "/1 ½ 1/", 1);

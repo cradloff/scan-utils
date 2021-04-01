@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -320,12 +321,13 @@ public class PreProcess {
 				Map<String, String> map = FRACTIONS.get(zähler);
 				if (map != null) {
 					String nenner = words.get(i + 1);
-					String bruch = map.get(nenner);
-					if (bruch != null) {
-						// Zeichenketten durch Bruch ersetzen
-						words.set(i - 1, bruch);
-						remove(words, i, 2);
-						count++;
+					for (Entry<String, String> entry : map.entrySet()) {
+						if (nenner.startsWith(entry.getKey())) {
+							words.set(i - 1, entry.getValue());
+							words.set(i + 1, nenner.substring(entry.getKey().length()));
+							remove(words, i, 1);
+							count++;
+						}
 					}
 				}
 			}

@@ -94,6 +94,8 @@ public class PrepareTextTest {
 		checkSpecial("zwi{en den Büs{en", "zwischen den Büschen");
 		// "{<" wird durch "sch" ersetzt
 		checkSpecial("zwis{<en den Bü{<en", "zwischen den Büschen");
+		// vor einem 'h' wird '{' zu "sc"
+		checkSpecial("wird {hon werden", "wird schon werden");
 	}
 
 	private void checkSpecial(String input, String expected) {
@@ -102,9 +104,17 @@ public class PrepareTextTest {
 	}
 
 	@Test public void changeSatzzeichen() {
-		// drei Punkte/Kommas werden durch ... ersetzt
+		// drei oder mehr Punkte/Kommas werden durch ... ersetzt
 		checkSatzzeichen(",,,schon gut.,.", "...schon gut...");
+		checkSatzzeichen(",,,,schon gut .,..", "...schon gut...");
 		checkSatzzeichen(", , ,schon gut. , .", "...schon gut...");
+		checkSatzzeichen(", ,, , schon gut. , . ,", "... schon gut...");
+		// zwei Punkte werden ebenfalls durch ... ersetzt
+		checkSatzzeichen(".. schon gut ..", "... schon gut...");
+		checkSatzzeichen(". . schon gut . .", "... schon gut...");
+		// Mischungen aus … und Punkten werden durch ... ersetzt
+		checkSatzzeichen(".… schon gut ….", "... schon gut...");
+		checkSatzzeichen(". … schon gut … .", "... schon gut...");
 		// zwei Kommas durch ein Quote
 		checkSatzzeichen(",,schon gut.,.", "\"schon gut...");
 	}

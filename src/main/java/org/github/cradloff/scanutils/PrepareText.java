@@ -84,8 +84,14 @@ public class PrepareText {
 	}
 
 	static String changeSatzzeichen(String line) {
-		// drei Punkte/Kommas werden durch ... ersetzt
-		String result = line.replaceAll("[.,]\\s?[.,]\\s?[.,]", "...");
+		String result = line;
+		// doppelte Punkte durch ... ersetzen
+		result = result.replaceAll("\\.\\s?\\.", "...");
+		// Punkte und … durch ... ersetzen
+		result = result.replaceAll("…\\s?\\.", "...");
+		result = result.replaceAll("\\.\\s?…", "...");
+		// drei oder mehr Punkte/Kommas werden durch ... ersetzt
+		result = result.replaceAll("\\s?[.,]\\s?[.,](\\s?[.,])+", "...");
 		// doppelte Kommas durch Quote ersetzen
 		result = result.replace(",,", "\"");
 
@@ -173,6 +179,7 @@ public class PrepareText {
 				.replace("s{<", "sch")
 				.replace("s{", "sch")
 				.replace("{<", "sch")
+				.replace("{h", "sch")
 				.replace("{", "sch")
 
 				.replace("}", "st")
