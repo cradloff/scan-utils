@@ -140,8 +140,8 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				token = token.replace("»", "«");
 			} else if ("«".equals(token) && TextUtils.wordAfter(line, i) && ! TextUtils.wordBefore(line, i)) {
 				token = "»";
-			} else if ("—»".equals(token)) {
-				token = "—«";
+			} else if (token.contains("»") && i == line.size() - 1) {
+				token = token.replace("»", "«");
 			}
 
 			// Wörter ersetzen

@@ -216,6 +216,7 @@ public class PreProcessTest {
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Und dann — »2 Sonnen»,\n", "Und dann — »2 Sonnen«,\n", dict, silben, spellcheck, 0);
 		checkPreProcess("für alle Fälle —»", "für alle Fälle —«", dict, silben, spellcheck, 0);
+		checkPreProcess("hinüberbalanzieren. –»", "hinüberbalanzieren. –«", dict, silben, spellcheck, 0);
 		// ein Bindestrich kann für ein beliebiges Zeichen stehen
 		checkPreProcess("Ai-e me-ne En-ch-en\n", "Alle me-ne Entchen\n", dict, silben, spellcheck, 2);
 		// Sonderzeichen, die nicht im deutschen Alphabet und nicht in similar_chars.csv vorkommen ebenfalls
