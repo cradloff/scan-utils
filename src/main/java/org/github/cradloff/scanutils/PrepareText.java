@@ -91,7 +91,10 @@ public class PrepareText {
 		result = result.replaceAll("…\\s?\\.", "...");
 		result = result.replaceAll("\\.\\s?…", "...");
 		// drei oder mehr Punkte/Kommas werden durch ... ersetzt
-		result = result.replaceAll("\\s?[.,]\\s?[.,](\\s?[.,])+", "...");
+		result = result.replaceAll("[.,]\\s?[.,](\\s?[.,])+", "...");
+		// zwischen Punkte und Wörtern Leerzeichen einfügen
+		result = result.replaceAll("(\\w)\\.\\.\\.", "$1 ...");
+		result = result.replaceAll("\\.\\.\\.(\\w)", "... $1");
 		// doppelte Kommas durch Quote ersetzen
 		result = result.replace(",,", "\"");
 
