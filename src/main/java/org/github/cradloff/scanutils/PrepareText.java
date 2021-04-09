@@ -72,6 +72,7 @@ public class PrepareText {
 				result = TextUtils.satzzeichenErsetzen(result);
 				result = changeSpecial(result);
 				result = replaceOnce(result, replacements);
+				result = escapeDigits(result);
 				boolean emptyLine = result.isBlank();
 
 				if (! emptyLine || ! hasEmptyLine) {
@@ -207,6 +208,11 @@ public class PrepareText {
 		}
 
 		return result;
+	}
+
+	private static String escapeDigits(String line) {
+		// ersetze "1. April" durch "1\. April"
+		return line.replaceFirst("^([0-9]+)\\.", "$1\\\\.");
 	}
 
 }

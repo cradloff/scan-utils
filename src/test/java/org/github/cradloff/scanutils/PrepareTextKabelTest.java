@@ -32,6 +32,12 @@ public class PrepareTextKabelTest {
 				+ "\n"
 				+ "Absatz.\n");
 
+		// Ziffern mit Punkt escapen
+		checkPrepareText("1. April bis 1. Mai",
+				"1\\. April bis 1. Mai");
+		checkPrepareText("31. Dezember",
+				"31\\. Dezember");
+
 		// Ersetzen von Referenzen
 		checkPrepareText("Text mit Referenzen[1]", "Text mit Referenzen<@refnote 1/>");
 

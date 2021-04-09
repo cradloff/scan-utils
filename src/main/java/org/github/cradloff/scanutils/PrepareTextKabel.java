@@ -61,6 +61,7 @@ public class PrepareTextKabel {
 				result = changeQuotes(result);
 				result = changeChapter(result);
 				result = replaceReferences(result);
+				result = escapeDigits(result);
 				boolean emptyLine = result.isBlank();
 
 				if (! emptyLine || ! hasEmptyLine) {
@@ -106,6 +107,11 @@ public class PrepareTextKabel {
 		}
 
 		return result;
+	}
+
+	private String escapeDigits(String line) {
+		// ersetze "1. April" durch "1\. April"
+		return line.replaceFirst("^([0-9]+)\\.", "$1\\\\.");
 	}
 
 }

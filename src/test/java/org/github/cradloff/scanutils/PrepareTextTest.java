@@ -154,6 +154,11 @@ public class PrepareTextTest {
 		checkPrepareText("werden. — Beeile Dich.“ — u", "werden. — Beeile Dich.« —\n");
 		checkPrepareText("Nach vor! in zehn Bieter.", "Nach dort in zehn Meter.");
 		checkPrepareText("\", ,,schon gut. , .", "»... schon gut ...");
+		// Ziffern mit Punkt escapen
+		checkPrepareText("1. April bis 1. Mai",
+				"1\\. April bis 1. Mai");
+		checkPrepareText("31. Dezember",
+				"31\\. Dezember");
 	}
 
 	private void checkPrepareText(String line, String expected) throws IOException {
