@@ -65,7 +65,7 @@
 									</includes>
 								</resource>
 								<resource>
-									<directory>/${basedir}</directory>
+									<directory>/${basedir}/src/main/shell</directory>
 									<includes>
 										<include>*.sh</include>
 									</includes>
