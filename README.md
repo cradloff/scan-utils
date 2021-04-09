@@ -8,6 +8,7 @@ Tools
 __PrepareText__
 * Entfernt Schmierzeichen
 * ersetzt einige Sonderzeichen im Text
+* ersetzt einmalig bestimmte Wörter
 
 Aufruf: `prepareText.sh <Dateiname(n)>`
 
@@ -15,6 +16,22 @@ Das Tool sollte einmalig vor der eigentlichen Bearbeitung gestartet werden.
 Es werden Schmierzeichen wie Slashes und Pipe-Zeichen am Anfang und Ende der
 Zeile entfernt, und einige Sonderzeichen in Anführungszeichen bzw. Bindestriche
 umgewandelt.
+
+Wort-Ersetzungen, die in `replace_once.txt` aufgeführt sind, werden durchgeführt.
+Dies sind Ersetzungen, die auch richtig geschriebene Wörter durch eine Korrektur
+austauschen. Beispielsweise macht die OCR oft aus "Jahren" "Fahren". Mit diesem
+Mechanismus werden diese Fehler einmalig korrigiert. Wenn zuviel korrigiert wurde,
+muß dies anschließend von Hand rückgängig gemacht werden.
+
+__PrepareTextKabel__
+Das Tool wird auf Texte angewandt, die von der <a href="https://www.walther-kabel.de/">Kabel-Seite</a>
+übernommen wurden.
+
+* ersetzt gerade Apostrophen durch typographische
+* fügt Referenzen auf Fußnoten ein
+* packt Kapitel-Überschriften in h2/h3-Tags
+
+Aufruf: `prepareTextKabel.sh <Dateiname(n)>`
 
 __PreProcess__
 * Ersetzt Satzzeichen: doppelte Bindestriche durch m-breiten Bindestrich,
@@ -72,6 +89,8 @@ klein geschrieben sind. Die Wörter, die korrigiert werden sollen, werden aus
 der Datei `german.dic` ausgelesen. Wörter, die sowohl groß als auch klein
 geschrieben vorhanden sind, werden ignoriert.
 
+Fehlende Punkte am Absatzende werden eingefügt.
+
 __CheckQuotes__
 * Prüft die öffnenden und schließenden Anführungszeichen in einer Datei.
 
@@ -100,4 +119,7 @@ ein falsch geschriebenes Wort und die korrigierte Fassung.
 
 Silben, die bei der Wort-Korrektur nicht verändert werden sollen, werden in
 `silben.dic` gespeichert.
+
+Einmalige Ersetzungen werden in der Datei `replace_once.txt` aufgelistet.
+Die Datei besteht aus einem regulären Ausdruck, einem Tab und der Ersetzung.
 
