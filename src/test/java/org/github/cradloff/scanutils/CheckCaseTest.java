@@ -23,7 +23,7 @@ public class CheckCaseTest {
 		checkFixCase("", "»am Anfang.«", "»Am Anfang.«", 1);
 		checkFixCase("den dunklen Strich", "Und den singenden Vogel", "und den singenden Vogel", 1);
 		checkFixCase("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
-		checkFixCase("", "über und über.", "Ueber und über.", 1);
+		checkFixCase("", "über und über.", "Über und über.", 1);
 		checkFixCase("", "Komm’ zu mir.", "Komm’ zu mir.", 0);
 	}
 

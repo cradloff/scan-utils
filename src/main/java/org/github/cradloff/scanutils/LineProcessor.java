@@ -322,7 +322,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		try {
 			// allgemeine Ersetzungen für Bindestriche und unbekannte Zeichen
 			List<String> replacements = new ArrayList<>();
-			replacements.addAll(Arrays.asList("", "ö", "ä", "ü", "ß", "Oe", "Ae", "Ue", "ch", "ck", "ff", "ll", "ss", "tt", "tz"));
+			replacements.addAll(Arrays.asList("", "ö", "ä", "ü", "ß", "Ö", "Ä", "Ü", "ch", "ck", "ff", "ll", "ss", "tt", "tz"));
 			for (char ch = 'a'; ch <= 'z'; ch++) {
 				replacements.add(Character.toString(ch));
 				replacements.add(Character.toString(ch).toUpperCase());

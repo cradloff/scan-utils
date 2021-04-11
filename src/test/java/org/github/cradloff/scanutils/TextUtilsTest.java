@@ -158,7 +158,7 @@ public class TextUtilsTest {
 	@Test public void toUpperCase() {
 		assertEquals("Groß", TextUtils.toUpperCase("Groß"));
 		assertEquals("Groß", TextUtils.toUpperCase("groß"));
-		assertEquals("Ueber", TextUtils.toUpperCase("über"));
+		assertEquals("Über", TextUtils.toUpperCase("über"));
 	}
 
 	@Test public void testAddUpperCase() {
@@ -176,7 +176,7 @@ public class TextUtilsTest {
 			.contains("klein", "Groß", "beides", "Beides", "über");
 		Assertions.assertThat(dict2)
 			.hasSize(7)
-			.contains("klein", "Klein", "Groß", "beides", "Beides", "über", "Ueber");
+			.contains("klein", "Klein", "Groß", "beides", "Beides", "über", "Über");
 
 	}
 }

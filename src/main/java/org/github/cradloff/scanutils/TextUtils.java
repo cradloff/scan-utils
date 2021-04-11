@@ -84,15 +84,7 @@ public class TextUtils {
 
 	public static String toUpperCase(String word) {
 		char firstChar = word.charAt(0);
-		// Sonderbehandlung für Umlaute
 		String remainder = word.substring(1);
-		if (firstChar == 'ö') {
-			return "Oe" + remainder;
-		} else if (firstChar == 'ä') {
-			return "Ae" + remainder;
-		} else if (firstChar == 'ü') {
-			return "Ue" + remainder;
-		}
 		return Character.toUpperCase(firstChar) + remainder;
 	}
 
