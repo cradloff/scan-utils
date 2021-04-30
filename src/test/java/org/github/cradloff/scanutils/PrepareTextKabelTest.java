@@ -45,7 +45,7 @@ public class PrepareTextKabelTest {
 				"Eine Summe zwischen 10&nbsp;000 und 20&nbsp;000");
 
 		// Ersetzen von Referenzen
-		checkPrepareText("Text mit Referenzen[1]", "Text mit Referenzen<@refnote 1/>");
+		checkPrepareText("Text[1] mit[10] Referenzen[15]", "Text<@refnote 1/> mit<@refnote 10/> Referenzen<@refnote 15/>");
 
 		// und von Fußnoten
 		checkPrepareText("   ↑ Fußnote „eins“.\n" +

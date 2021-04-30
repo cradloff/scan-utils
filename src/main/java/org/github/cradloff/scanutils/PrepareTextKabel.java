@@ -100,7 +100,7 @@ public class PrepareTextKabel {
 	private String replaceReferences(String input) {
 		String result = input;
 		// Referenzen auf Anmerkungen haben die Form: Text[1]
-		result = result.replaceAll("\\[(\\d)\\]", "<@refnote $1/>");
+		result = result.replaceAll("\\[(\\d+)\\]", "<@refnote $1/>");
 		Matcher matcher = PATTERN_FOOTNOTE.matcher(result);
 		if (matcher.matches()) {
 			footnotes++;
