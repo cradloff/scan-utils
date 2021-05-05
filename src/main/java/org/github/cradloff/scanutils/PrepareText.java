@@ -73,6 +73,7 @@ public class PrepareText {
 				result = changeSpecial(result);
 				result = replaceOnce(result, replacements);
 				result = escapeDigits(result);
+				result = nonBreakingSpaces(result);
 				boolean emptyLine = result.isBlank();
 
 				if (! emptyLine || ! hasEmptyLine) {
@@ -213,6 +214,14 @@ public class PrepareText {
 	private static String escapeDigits(String line) {
 		// ersetze "1. April" durch "1\. April"
 		return line.replaceFirst("^([0-9]+)\\.", "$1\\\\.");
+	}
+
+	private static String nonBreakingSpaces(String line) {
+		String result = line;
+		result = result.replace("G. m. b. H.", "G.&nbsp;m.&nbsp;b.&nbsp;H.");
+		result = result.replaceAll("(\\d) (\\d{3})", "$1&nbsp;$2");
+
+		return result;
 	}
 
 }

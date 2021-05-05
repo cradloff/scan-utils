@@ -159,6 +159,12 @@ public class PrepareTextTest {
 				"1\\. April bis 1. Mai");
 		checkPrepareText("31. Dezember",
 				"31\\. Dezember");
+
+		// G. m. b. H. und große Zahlen mit non breaking spaces zusammenhalten
+		checkPrepareText("Verlag moderner Lektüre G. m. b. H.",
+				"Verlag moderner Lektüre G.&nbsp;m.&nbsp;b.&nbsp;H.");
+		checkPrepareText("Eine Summe zwischen 10 000 und 20 000",
+				"Eine Summe zwischen 10&nbsp;000 und 20&nbsp;000");
 	}
 
 	private void checkPrepareText(String line, String expected) throws IOException {
