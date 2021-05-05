@@ -86,16 +86,16 @@ public class PrepareText {
 
 	static String changeSatzzeichen(String line) {
 		String result = line;
-		// doppelte Punkte durch ... ersetzen
-		result = result.replaceAll("\\.\\s?\\.", "...");
-		// Punkte und … durch ... ersetzen
-		result = result.replaceAll("…\\s?\\.", "...");
-		result = result.replaceAll("\\.\\s?…", "...");
-		// drei oder mehr Punkte/Kommas werden durch ... ersetzt
-		result = result.replaceAll("[.,]\\s?[.,](\\s?[.,])+", "...");
-		// zwischen Punkte und Wörtern Leerzeichen einfügen
-		result = result.replaceAll("(\\w)\\.\\.\\.", "$1 ...");
-		result = result.replaceAll("\\.\\.\\.(\\w)", "... $1");
+		// doppelte Punkte durch … ersetzen
+		result = result.replaceAll("\\.\\s?\\.", "…");
+		// Punkte und … durch … ersetzen
+		result = result.replaceAll("…\\s?\\.", "…");
+		result = result.replaceAll("\\.\\s?…", "…");
+		// drei oder mehr Punkte/Kommas werden durch … ersetzt
+		result = result.replaceAll("[.,…]\\s?[.,…](\\s?[.,…])+", "…");
+		// zwischen Punkten und Wörtern Leerzeichen einfügen
+		result = result.replaceAll("(\\w)…", "$1 …");
+		result = result.replaceAll("…(\\w)", "… $1");
 		// doppelte Kommas durch Quote ersetzen
 		result = result.replace(",,", "\"");
 

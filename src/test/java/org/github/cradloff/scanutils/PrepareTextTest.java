@@ -104,19 +104,19 @@ public class PrepareTextTest {
 	}
 
 	@Test public void changeSatzzeichen() {
-		// drei oder mehr Punkte/Kommas werden durch ... ersetzt
-		checkSatzzeichen(",,,schon gut.,.", "... schon gut ...");
-		checkSatzzeichen(",,,,schon gut .,..", "... schon gut ...");
-		checkSatzzeichen(", , ,schon gut. , .", "... schon gut ...");
-		checkSatzzeichen(", ,, , schon gut. , . ,", "... schon gut ...");
-		// zwei Punkte werden ebenfalls durch ... ersetzt
-		checkSatzzeichen(".. schon gut ..", "... schon gut ...");
-		checkSatzzeichen(". . schon gut . .", "... schon gut ...");
-		// Mischungen aus … und Punkten werden durch ... ersetzt
-		checkSatzzeichen(".… schon gut ….", "... schon gut ...");
-		checkSatzzeichen(". … schon gut … .", "... schon gut ...");
+		// drei oder mehr Punkte/Kommas werden durch … ersetzt
+		checkSatzzeichen(",,,schon gut.,.", "… schon gut …");
+		checkSatzzeichen(",,,,schon gut .,..", "… schon gut …");
+		checkSatzzeichen(", , ,schon gut. , .", "… schon gut …");
+		checkSatzzeichen(", ,, , schon gut. , . ,", "… schon gut …");
+		// zwei Punkte werden ebenfalls durch … ersetzt
+		checkSatzzeichen(".. schon gut ..", "… schon gut …");
+		checkSatzzeichen(". . schon gut . .", "… schon gut …");
+		// Mischungen aus … und Punkten werden durch … ersetzt
+		checkSatzzeichen(".… schon gut ….", "… schon gut …");
+		checkSatzzeichen(". … schon gut … .", "… schon gut …");
 		// zwei Kommas durch ein Quote
-		checkSatzzeichen(",,schon gut.,.", "\"schon gut ...");
+		checkSatzzeichen(",,schon gut.,.", "\"schon gut …");
 	}
 
 	private void checkSatzzeichen(String input, String expected) {
@@ -153,7 +153,7 @@ public class PrepareTextTest {
 		checkPrepareText("Text' mit >>Sonderzeichen<<", "Text’ mit »Sonderzeichen«\n");
 		checkPrepareText("werden. — Beeile Dich.“ — u", "werden. — Beeile Dich.« —\n");
 		checkPrepareText("Nach vor! in zehn Bieter.", "Nach dort in zehn Meter.");
-		checkPrepareText("\", ,,schon gut. , .", "»... schon gut ...");
+		checkPrepareText("\", ,,schon gut. , .", "»… schon gut …");
 		// Ziffern mit Punkt escapen
 		checkPrepareText("1. April bis 1. Mai",
 				"1\\. April bis 1. Mai");
