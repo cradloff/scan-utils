@@ -207,7 +207,14 @@ public class CheckCase {
 		HINTS.put(":", Satzanfang.WEISS_NICHT);
 		HINTS.put("...", Satzanfang.WEISS_NICHT);
 		HINTS.put("...!", Satzanfang.JA);
+		HINTS.put("...!!", Satzanfang.JA);
 		HINTS.put("...?", Satzanfang.JA);
+		HINTS.put("...?!", Satzanfang.JA);
+		HINTS.put("…", Satzanfang.WEISS_NICHT);
+		HINTS.put("…!", Satzanfang.JA);
+		HINTS.put("…!!", Satzanfang.JA);
+		HINTS.put("…?", Satzanfang.JA);
+		HINTS.put("…?!", Satzanfang.JA);
 	}
 	/** Prüft, ob das übergebene Wort am Satzanfang steht */
 	static Satzanfang satzanfang(List<String> lastLine, List<String> line, int i, Collection<String> abkürzungen) {

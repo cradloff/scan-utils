@@ -71,8 +71,15 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "Nun —« zunächst");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage: vielleicht");
 		checkSatzanfang(Satzanfang.JA, "Schluß...! Danach");
+		checkSatzanfang(Satzanfang.JA, "Schluß...!! Danach");
 		checkSatzanfang(Satzanfang.JA, "Schluß...? Danach");
+		checkSatzanfang(Satzanfang.JA, "Schluß...?! Danach");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage... vielleicht");
+		checkSatzanfang(Satzanfang.JA, "Schluß…! Danach");
+		checkSatzanfang(Satzanfang.JA, "Schluß…!! Danach");
+		checkSatzanfang(Satzanfang.JA, "Schluß…? Danach");
+		checkSatzanfang(Satzanfang.JA, "Schluß…?! Danach");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage… vielleicht");
 		// Tags werden ignoriert
 		checkSatzanfang(Satzanfang.JA, "Ende. <em>Anfang");
 		checkSatzanfang(Satzanfang.NEIN, "Am <em>Anfang");
