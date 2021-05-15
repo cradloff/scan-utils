@@ -207,7 +207,7 @@ public class PreProcessTest {
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
 		checkPreProcess("Al-le mei-ne Ent-chen\n", "Alle mei-ne Entchen\n", dict, silben, spellcheck, 2);
-		checkPreProcess("Aiie ,,miene<< Ent.chen\n", "Alle »meine« Entchen\n", dict, silben, spellcheck, 2);
+		checkPreProcess("Aiie ,,miene<< Ent.chen ...\n", "Alle »meine« Entchen …\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Alle „meine“ „Entchen”\n", "Alle »meine« »Entchen«\n", dict, silben, spellcheck, 4);
 		checkPreProcess("Ai-ie mi-ene ent=chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, silben, spellcheck, 4);
@@ -244,7 +244,7 @@ public class PreProcessTest {
 		// Ersetzung von Zeichen durch Ausrufezeichen
 		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, silben, spellcheck, 3);
 		// keine Entfernung von Bindestrichen nach Backslash
-		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« ...\n", dict, silben, spellcheck, 0);
+		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« …\n", dict, silben, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, silben, spellcheck, 0);
 		// einzelner Bindestrich am Zeilenende
 		checkPreProcess("er war hier -—-\nund dort\n", "er war hier —\nund dort\n", dict, silben, spellcheck, 0);
@@ -263,7 +263,7 @@ public class PreProcessTest {
 		// Wörter mit zusätzlichem Großbuchstaben am Anfang
 		checkPreProcess("PViraten VPiraten VPixaten", "Piraten Piraten Piraten", dict, silben, spellcheck, 3);
 		// Brüche
-		checkPreProcess("Um 1/2 12 Uhr", "Um ½ 12 Uhr\n", dict, silben, spellcheck, 1);
+		checkPreProcess("Um 1/212 Uhr", "Um ½12 Uhr\n", dict, silben, spellcheck, 1);
 		// <preprocess> soll immer am Anfang eines Absatzes stehen
 		checkPreProcess("Zeile 1\n<@pagebreak/>\n\nZeile 2\n", "Zeile 1\n\n<@pagebreak/>\nZeile 2\n", dict, silben, spellcheck, 0);
 		// keine Ersetzung von Silben (wenn z.B. Bindestrich fehlt)

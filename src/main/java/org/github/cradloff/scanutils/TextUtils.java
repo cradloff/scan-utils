@@ -28,6 +28,9 @@ public class TextUtils {
 		// mittleren Punkt durch normalen Punkt ersetzen
 		result = result.replace('·', '.');
 
+		// drei (oder mehr) Punkte durch … ersetzen
+		result = result.replaceAll("[.]{3,}", "…");
+
 		return result;
 	}
 
