@@ -257,6 +257,21 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				}
 			}
 			result = TextUtils.reverse(shortest);
+		}
+		// Zwei Großbuchstaben am Wortbeginn?
+		else if (word.length() > 2
+				&& Character.isUpperCase(word.charAt(0))
+				&& Character.isUpperCase(word.charAt(1))) {
+			// jeweils eines der Zeichen löschen und damit versuchen
+			List<String> candidates = new ArrayList<>();
+			addIfModified(index, word.charAt(0) + word.substring(2).toLowerCase(), candidates);
+			addIfModified(index, word.charAt(1) + word.substring(2).toLowerCase(), candidates);
+			// zusätzlich mit dem zweiten Buchstaben in klein
+			addIfModified(index, word.charAt(0) + word.substring(1).toLowerCase(), candidates);
+			String candidate = bestMatch(token, candidates);
+			if (! candidate.equals(word)) {
+				result = candidate;
+			}
 		} else if (word.length() > 1) {
 			// gängige Vertauschungen durchführen
 			int level = Math.min(params.getLevel(), word.length() - 1);
@@ -264,22 +279,16 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			if (! candidate.equals(word)) {
 				result = candidate;
 			}
-			// Zwei Großbuchstaben am Wortbeginn?
-			else if (word.length() > 2
-					&& Character.isUpperCase(word.charAt(0))
-					&& Character.isUpperCase(word.charAt(1))) {
-				// jeweils eines der Zeichen löschen und damit versuchen
-				List<String> candidates = new ArrayList<>();
-				candidates.add(process(index, word.substring(1)));
-				candidates.add(process(index, word.charAt(0) + word.substring(2)));
-				candidate = bestMatch(token, candidates);
-				if (! candidate.equals(word)) {
-					result = candidate;
-				}
-			}
 		}
 
 		return result;
+	}
+
+	private void addIfModified(int index, String word, List<String> candidates) {
+		String candidate = process(index, word);
+		if (! word.equals(candidate)) {
+			candidates.add(candidate);
+		}
 	}
 
 	/** Ersetzt vertauschte s/f, v/r/o, etc. */
