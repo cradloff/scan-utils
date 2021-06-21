@@ -90,6 +90,9 @@ public class PrepareTextTest {
 
 		checkSpecial("Es i} ſchon gut.", "Es ist schon gut.");
 
+		// | wird durch ! ersetzt
+		checkSpecial("Los||", "Los!!");
+
 		// "{" wird durch "sch" ersetzt, nach einen "s" nur durch "ch"
 		checkSpecial("zwi{en den Büs{en", "zwischen den Büschen");
 		// "{<" wird durch "sch" ersetzt
@@ -106,7 +109,10 @@ public class PrepareTextTest {
 	@Test public void changeSatzzeichen() {
 		// drei oder mehr Punkte/Kommas werden durch … ersetzt
 		checkSatzzeichen(",,,schon gut.,.", "… schon gut …");
+		checkSatzzeichen(". . .schon gut,..", "… schon gut …");
+		checkSatzzeichen("...schon gut..,", "… schon gut …");
 		checkSatzzeichen(",,,,schon gut .,..", "… schon gut …");
+		checkSatzzeichen(",.,schon gut .,.,", "… schon gut …");
 		checkSatzzeichen(", , ,schon gut. , .", "… schon gut …");
 		checkSatzzeichen(", ,, , schon gut. , . ,", "… schon gut …");
 		// zwei Punkte werden ebenfalls durch … ersetzt
@@ -115,6 +121,7 @@ public class PrepareTextTest {
 		// Mischungen aus … und Punkten werden durch … ersetzt
 		checkSatzzeichen(".… schon gut ….", "… schon gut …");
 		checkSatzzeichen(". … schon gut … .", "… schon gut …");
+		checkSatzzeichen("…… schon gut ...…", "… schon gut …");
 		// zwei Kommas durch ein Quote
 		checkSatzzeichen(",,schon gut.,.", "\"schon gut …");
 	}
