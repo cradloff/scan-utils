@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.github.cradloff.scanutils.PreProcess.Parameter;
 
@@ -174,9 +175,11 @@ public class PrepareText {
 		return result;
 	}
 
+	private static Pattern HEADING_PATTERN = Pattern.compile("<h\\d>.*</h\\d>");
 	public static String changeSpecial(String line) {
-		// Pagebreaks ignorieren
-		if ("<@pagebreak/>".equals(line)) {
+		// Pagebreaks und Überschriften ignorieren
+		if (line.startsWith("<@pagebreak")
+				|| HEADING_PATTERN.matcher(line).matches()) {
 			return line;
 		}
 

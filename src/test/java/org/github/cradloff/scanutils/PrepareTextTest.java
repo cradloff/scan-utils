@@ -75,6 +75,10 @@ public class PrepareTextTest {
 	@Test public void changeSpecial() {
 		checkSpecial("Wort ohne Sonderzeichen", "Wort ohne Sonderzeichen");
 		checkSpecial("<@pagebreak/>", "<@pagebreak/>");
+		checkSpecial("<@pagebreak 2/>", "<@pagebreak 2/>");
+		checkSpecial("<h1>Titel</h1>", "<h1>Titel</h1>");
+		checkSpecial("<h2>Überschrift</h2>", "<h2>Überschrift</h2>");
+		checkSpecial("<h3>Überschrift</h3>", "<h3>Überschrift</h3>");
 
 		// "\" wird durch "s" ersetzt
 		checkSpecial("\\o war\\!", "so wars!");
