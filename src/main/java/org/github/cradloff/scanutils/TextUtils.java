@@ -13,7 +13,7 @@ public class TextUtils {
 	public static String satzzeichenErsetzen(String line) {
 		String result = line;
 		// mehrfache Gedankenstriche zusammenfassen
-		result = result.replaceAll("[-—=]{2,}", "—");
+		result = result.replaceAll("[-—=+]{2,}", "—");
 
 		// << und >> in « und » umwandeln
 		result = result.replaceAll("<<", "«");
@@ -30,6 +30,7 @@ public class TextUtils {
 
 		// drei (oder mehr) Punkte durch … ersetzen
 		result = result.replaceAll("[.]{3,}", "…");
+		result = result.replaceAll("\\.*[…]\\.*", "…");
 
 		return result;
 	}
@@ -204,6 +205,21 @@ public class TextUtils {
 
 	public static String reverse(String word) {
 		return new StringBuilder(word).reverse().toString();
+	}
+
+	/** Prüft, ob in der Zeile ab dem angegebenen Index die Pattern zutreffen */
+	public static boolean matches(List<String> line, int i, Pattern ... patterns) {
+		if (line.size() - i < patterns.length) {
+			return false;
+		}
+
+		for (int j = 0; j < patterns.length; j++) {
+			if (! patterns[j].matcher(line.get(i + j)).matches()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 }

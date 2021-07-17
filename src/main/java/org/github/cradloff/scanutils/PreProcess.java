@@ -188,6 +188,8 @@ public class PreProcess {
 
 	private static final Pattern SEVEN = Pattern.compile(".*\\D[72]$");
 	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D[72][ilt1]$");
+	private static final Pattern SPACE = Pattern.compile(" ");
+	private static final Pattern ILT1 = Pattern.compile("^[ilt1]$");
 	static int replaceSeven(List<String> line) {
 		int count = 0;
 		String nextWord = "";
@@ -209,7 +211,13 @@ public class PreProcess {
 				count++;
 			} else if (SEVEN.matcher(word).matches()) {
 				line.set(i, word.substring(0, word.length() - 1));
-				line.add(i + 1, "?");
+				// "7 1", "2 i", ...
+				if (TextUtils.matches(line, i + 1, SPACE, ILT1)) {
+					line.set(i + 1, "?!");
+					line.remove(i + 2);
+				} else {
+					line.add(i + 1, "?");
+				}
 				count++;
 			}
 			// ? gefolgt von i oder l

@@ -30,7 +30,9 @@ public class PreProcessTest {
 		checkSeven("<h2>Titel</h2>", "<h2>Titel</h2>", 0);
 
 		checkSeven("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!", 3);
+		checkSeven("Wort7 mit7 l sieben7 i", "Wort? mit?! sieben?!", 3);
 		checkSeven("Wort2 mit2l zwei21", "Wort? mit?! zwei?!", 3);
+		checkSeven("Wort2 mit2 l zwei2 1", "Wort? mit?! zwei?!", 3);
 		checkSeven("Wort7 mit7t sieben71", "Wort? mit?! sieben?!", 3);
 		checkSeven("Wort? mit?l sieben?i", "Wort? mit?! sieben?!", 2);
 		checkSeven("Wort? mit?t sieben?1", "Wort? mit?! sieben?!", 2);

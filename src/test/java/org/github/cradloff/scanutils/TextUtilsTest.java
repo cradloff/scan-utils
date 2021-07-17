@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -87,9 +88,9 @@ public class TextUtilsTest {
 	@Test public void testSatzzeichenErsetzen() {
 		assertEquals("", TextUtils.satzzeichenErsetzen(""));
 		assertEquals("Hier. Da ist’s.", TextUtils.satzzeichenErsetzen("Hier· Da ist's."));
-		assertEquals("»Hier — dort — wo — anders —«", TextUtils.satzzeichenErsetzen(">>Hier -- dort -— wo == anders -=<<"));
+		assertEquals("»Hier — dort — und — wo — anders —«", TextUtils.satzzeichenErsetzen(">>Hier -- dort -+ und -— wo == anders -=<<"));
 		assertEquals("Apostroph unten, Komma", TextUtils.satzzeichenErsetzen("Apostroph unten‚ Komma"));
-		assertEquals("… und so weiter …", TextUtils.satzzeichenErsetzen("... und so weiter ..."));
+		assertEquals("… und … so … weiter …", TextUtils.satzzeichenErsetzen("... und .…. so …. weiter ......"));
 	}
 
 	@Test public void isWord() {
@@ -178,6 +179,25 @@ public class TextUtilsTest {
 		Assertions.assertThat(dict2)
 			.hasSize(7)
 			.contains("klein", "Klein", "Groß", "beides", "Beides", "über", "Über");
+	}
 
+	@Test public void testMatches() {
+		List<String> line = List.of("Ein", " ", "kurzer", " ", "Satz");
+		Pattern pattern1 = Pattern.compile("E[i].*");
+		Pattern pattern2 = Pattern.compile("^k[u]rzer$");
+		Pattern pattern3 = Pattern.compile(".*tz");
+		Pattern patternSpace = Pattern.compile(" ");
+		assertTrue(TextUtils.matches(line, 0, pattern1));
+		assertTrue(TextUtils.matches(line, 0, pattern1, patternSpace, pattern2, patternSpace, pattern3));
+		assertTrue(TextUtils.matches(line, 2, pattern2, patternSpace, pattern3));
+		assertTrue(TextUtils.matches(line, 4, pattern3));
+		// Pattern passt nicht
+		assertFalse(TextUtils.matches(line, 1, pattern1));
+		assertFalse(TextUtils.matches(line, 0, pattern1, pattern2));
+		assertFalse(TextUtils.matches(line, 2, pattern1));
+		assertFalse(TextUtils.matches(line, 4, pattern1));
+		// Anzahl der Tokens passt nicht
+		assertFalse(TextUtils.matches(line, 0, pattern1, patternSpace, pattern2, patternSpace, pattern3, patternSpace));
+		assertFalse(TextUtils.matches(line, 5, patternSpace));
 	}
 }
