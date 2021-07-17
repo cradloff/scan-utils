@@ -170,6 +170,10 @@ public class PrepareTextTest {
 				"1\\. April bis 1. Mai");
 		checkPrepareText("31. Dezember",
 				"31\\. Dezember");
+		// nicht bei Kapiteln, hier wird eine Überschrift eingefügt
+		checkPrepareText("1. Kapitel", "<h2>1. Kapitel.</h2>");
+		// auch kleinere Rechtschreibfehler werden erkannt
+		checkPrepareText("2. Ravtiet,", "<h2>2. Kapitel.</h2>");
 
 		// G. m. b. H. und große Zahlen mit non breaking spaces zusammenhalten
 		checkPrepareText("Verlag moderner Lektüre G. m. b. H.",

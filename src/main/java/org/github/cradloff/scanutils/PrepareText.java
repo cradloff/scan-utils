@@ -73,6 +73,7 @@ public class PrepareText {
 				result = TextUtils.satzzeichenErsetzen(result);
 				result = changeSpecial(result);
 				result = replaceOnce(result, replacements);
+				result = handleChapter(result);
 				result = escapeDigits(result);
 				result = nonBreakingSpaces(result);
 				boolean emptyLine = result.isBlank();
@@ -216,6 +217,10 @@ public class PrepareText {
 		}
 
 		return result;
+	}
+
+	private static String handleChapter(String line) {
+		return line.replaceAll("^(\\d)[.,]? [KR]a[pv][it][ti]e[lt][.,]?$", "<h2>$1. Kapitel.</h2>");
 	}
 
 	private static String escapeDigits(String line) {
