@@ -249,16 +249,17 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		}
 		// am Zeilenanfang prüfen ob es Wort gibt, das mit dem Token endet
 		else if (index == 0 && word.length() > 2 && hasPrefix(invDict, TextUtils.reverse(word))) {
-			// einfach das kürzeste passende Wort nehmen
+			// einfach das häufigste passende Wort nehmen
 			String inv = TextUtils.reverse(word);
 			SortedSet<String> subSet = invDict.subSet(inv, inv + "\uffff");
-			String shortest = subSet.first();
+			int count = 0;
 			for (String curr : subSet) {
-				if (curr.length() < shortest.length()) {
-					shortest = curr;
+				String s = TextUtils.reverse(curr);
+				if (count < ciDict.getCount(s)) {
+					result = s;
+					count = ciDict.getCount(s);
 				}
 			}
-			result = TextUtils.reverse(shortest);
 		}
 		// Zwei Großbuchstaben am Wortbeginn?
 		else if (word.length() > 2
