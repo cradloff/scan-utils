@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,8 +23,8 @@ import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.Bag;
-import org.apache.commons.collections4.bag.HashBag;
-import org.apache.commons.collections4.bag.SynchronizedBag;
+import org.apache.commons.collections4.SortedBag;
+import org.apache.commons.collections4.bag.TreeBag;
 import org.github.cradloff.scanutils.LineProcessor.Result;
 
 /**
@@ -89,8 +88,8 @@ public class PreProcess {
 		File basedir = FileAccess.basedir(params.getInputs().get(0));
 		Map<String, String> map = FileAccess.readRechtschreibungCSV(basedir);
 		// Wörterbuch einlesen
-		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
-		Set<String> silben = FileAccess.readDict(basedir, "silben.dic");
+		Bag<String> dict = FileAccess.readDict(basedir, "german.dic");
+		Bag<String> silben = FileAccess.readDict(basedir, "silben.dic");
 
 		// alle Dateien verarbeiten
 		File logfile = new File(basedir, "changes.log");
@@ -101,7 +100,7 @@ public class PreProcess {
 		}
 	}
 
-	private static void preProcess(File input, Parameter params, PrintWriter log, Map<String, String> map, Set<String> dict, Set<String> silben)
+	private static void preProcess(File input, Parameter params, PrintWriter log, Map<String, String> map, Bag<String> dict, Bag<String> silben)
 			throws IOException, InterruptedException, ExecutionException {
 		long start = System.currentTimeMillis();
 		System.out.println("Verarbeite Datei " + input.getPath());
@@ -118,11 +117,10 @@ public class PreProcess {
 		}
 	}
 
-	public int preProcess(Reader in, Writer out, PrintWriter log, Map<String, String> map, Set<String> dict, Set<String> silben) throws IOException, InterruptedException, ExecutionException {
+	public int preProcess(Reader in, Writer out, PrintWriter log, Map<String, String> map, Bag<String> dict, Bag<String> silben) throws IOException, InterruptedException, ExecutionException {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
-		SortedSet<String> ciDict = new TreeSet<>(TextUtils.addUpperCase(dict));
+		SortedBag<String> ciDict = new TreeBag<>(TextUtils.addUpperCase(dict));
 		SortedSet<String> invDict = TextUtils.inverse(dict);
-		Bag<String> occurences = SynchronizedBag.synchronizedBag(new HashBag<>());
 		LineReader reader = new LineReader(in, 1, 2);
 		int count = 0;
 		// Pro Prozessor ein Thread
@@ -164,7 +162,7 @@ public class PreProcess {
 				/*
 				 * dann mit mehreren Threads verarbeitet
 				 */
-				results.add(executor.submit(new LineProcessor(params, line, map, ciDict, invDict, silben, occurences)));
+				results.add(executor.submit(new LineProcessor(params, line, map, ciDict, invDict, silben)));
 			}
 		}
 
@@ -380,7 +378,7 @@ public class PreProcess {
 
 	/** Schmierzeichen am Zeilenanfang */
 	private static final Set<String> SCHMIERZEICHEN_ZEILENBEGINN = new HashSet<>(Arrays.asList(",", "»", "«"));
-	static boolean mergeLinebreak(LineReader reader, Set<String> dict) {
+	static boolean mergeLinebreak(LineReader reader, Bag<String> ciDict) {
 		List<String> line = reader.current();
 		if (line.isEmpty() || ! reader.hasNext()) {
 			return false;
@@ -416,8 +414,8 @@ public class PreProcess {
 			// Wörterbuch vorkommen, werden sie vereinigt
 			String token1 = token.substring(0, token.length() - 1);
 			String token2 = nextLine.get(0);
-			if (! dict.contains(token1) && ! dict.contains(token2)
-					&& dict.contains(token1 + token2)) {
+			if (! ciDict.contains(token1) && ! ciDict.contains(token2)
+					&& ciDict.contains(token1 + token2)) {
 				line.set(line.size() - 1, token1);
 				merge(line, nextLine);
 				merged = true;
@@ -427,7 +425,7 @@ public class PreProcess {
 		else if ((TextUtils.endsWith(line, "«") || TextUtils.endsWith(line, "»")) && line.size() > 1) {
 			String token1 = line.get(line.size() - 2);
 			String token2 = nextLine.get(0);
-			if (dict.contains(token1 + token2)) {
+			if (ciDict.contains(token1 + token2)) {
 				line.remove(line.size() - 1);
 				merge(line, nextLine);
 				merged = true;
@@ -439,8 +437,8 @@ public class PreProcess {
 				&& ! nextLine.isEmpty()
 				&& (startsWithLetter(nextLine.get(0)))) {
 			String nextToken = nextLine.get(0);
-			if (! dict.contains(token) && ! dict.contains(nextToken)
-					&& dict.contains(token + nextToken)) {
+			if (! ciDict.contains(token) && ! ciDict.contains(nextToken)
+					&& ciDict.contains(token + nextToken)) {
 				merge(line, nextLine);
 				merged = true;
 			}

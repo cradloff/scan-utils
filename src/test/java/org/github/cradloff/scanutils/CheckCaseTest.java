@@ -7,10 +7,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
 import org.github.cradloff.scanutils.CheckCase.Satzanfang;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class CheckCaseTest {
 		checkFixCase("", "Komm’ zu mir.", "Komm’ zu mir.", 0);
 	}
 
-	private Set<String> dict = new HashSet<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
+	private Bag<String> dict = new HashBag<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
 	private static Collection<String> abkürzungen = Arrays.asList("Nr");
 	private void checkFixCase(String lastLine, String line, String expected, int expectedCount) {
 		List<String> lastWords = TextUtils.split(lastLine);

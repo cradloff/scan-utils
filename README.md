@@ -77,7 +77,19 @@ verwendet.
 
 Im Verzeichnis werden rekursiv alle Markdown-Dateien (Endung `.md`) gesucht. Es
 wird eine Datei `german.dic` erstellt, die alle Wörten aus den Markdown-Dateien
-enthält.
+mit ihrer Häufigkeit enthält.
+
+__UpdateDictionary__
+* Aktualisiert die Häufigkeiten für ein Wörterbuch aus den Texten
+
+Aufruf: `updatedictionary.sh [Verzeichnis]`
+
+`Verzeichnis` ist optional, als default wird das aktuelle Verzeichniss
+verwendet.
+
+Im Verzeichnis werden rekursiv alle Markdown-Dateien (Endung `.md`) gesucht. Es
+wird die Datei `german.dic` eingelesen und die Häufigkeiten der Wörter aktualisiert.
+Es werden keine neuen Wörter zum Wörterbuch hinzugefügt.
 
 __CheckCase__
 * korrigiert die Groß-/Kleinschreibung
@@ -108,8 +120,9 @@ Aufruf: `koboAnnotationExtractor.sh <Dateiname(n)>`
 Dateien
 -------
 
-Als Wörterbuch dient eine Datei, die pro Zeile ein Wort enthält. Die Datei muss
-`german.dic` heißen und wird im Verzeichnis gesucht, in dem der Text steht. Ist
+Als Wörterbuch dient eine Datei, die pro Zeile ein Wort und dessen Häufigkeit enthält.
+Das Wort ist durch ein Tab von der Häufigkeit getrennt, fehlt die Häufigkeit, wird 1 angenommen.
+Die Datei muss `german.dic` heißen und wird im Verzeichnis gesucht, in dem der Text steht. Ist
 die Datei dort nicht vorhanden, wird sie in den Parent-Verzeichnissen gesucht.
 Sind mehrere Dateien in mehreren Verzeichnissen vorhanden, werden sie alle eingelesen.
 

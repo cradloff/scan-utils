@@ -10,15 +10,13 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.bag.HashBag;
+import org.apache.commons.collections4.bag.TreeBag;
 import org.github.cradloff.scanutils.PreProcess.Parameter;
 import org.junit.Test;
 
@@ -119,11 +117,11 @@ public class PreProcessTest {
 
 	@Test public void testReplaceCharacters() {
 		List<String> line = new ArrayList<>();
-		Bag<String> occurences = new HashBag<>();
-		TreeSet<String> dict = new TreeSet<>(Arrays.asList("Schiff", "voraus", "Deck", "Verbrecher", "Zimmer", "sein", "fein", "Backenmuskulatur"));
-		LineProcessor lineProcessor = new LineProcessor(new Parameter(), line, new HashMap<>(), dict, TextUtils.inverse(dict), new HashSet<>(), occurences);
-		checkReplaceCharacters("Schiff", "Schiff", lineProcessor, dict);
-		checkReplaceCharacters("voraus", "voraus", lineProcessor, dict);
+		TreeBag<String> dict = new TreeBag<>(Arrays.asList("Schiff", "worauf", "Deck", "Verbrecher", "Zimmer", "sein", "sein", "fein", "Backenmuskulatur"));
+		dict.add("voraus", 10);
+		LineProcessor lineProcessor = new LineProcessor(new Parameter(), line, new HashMap<>(), dict, TextUtils.inverse(dict), new HashBag<>());
+		// gibt es keine passende Ersetzung, wird das Wort wieder zurückgeliefert
+		checkReplaceCharacters("Erbsensuppe", "Erbsensuppe", lineProcessor, dict);
 
 		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", lineProcessor, dict);
 		checkReplaceCharacters("5ehiss", "Schiff", lineProcessor, dict);
@@ -140,22 +138,21 @@ public class PreProcessTest {
 		checkReplaceCharacters("sctn", "sein", lineProcessor, dict);
 		checkReplaceCharacters("fcin", "fein", lineProcessor, dict);
 		checkReplaceCharacters("fctn", "fein", lineProcessor, dict);
-
-		// bei Gleichstand entscheidet die Häufigkeit. Momentan sind "sein" und "fein" gleich auf
-		occurences.add("sein"); // jetzt führt "sein"
-		checkReplaceCharacters("jein", "sein", lineProcessor, dict); // 'j' kann 's' oder 'f' sein
-		occurences.clear();
-		occurences.add("fein"); // jetzt führt "fein"
-		checkReplaceCharacters("jein", "fein", lineProcessor, dict);
+		// "sein" ist häufiger als "fein"
+		checkReplaceCharacters("jein", "sein", lineProcessor, dict);
+		// "voraus" ist 10x häufiger als "worauf", deshalb kann es ein zusätzliches Zeichen Unterschied haben
+		checkReplaceCharacters("uoxauf", "voraus", lineProcessor, dict);
+		// bei zwei Unterschieden gewinnt aber "worauf"
+		checkReplaceCharacters("woxauf", "worauf", lineProcessor, dict);
 	}
 
-	private void checkReplaceCharacters(String input, String expected, LineProcessor lineProcessor, SortedSet<String> dict) {
-		String actual = lineProcessor.replaceCharacters(input, dict, 5);
+	private void checkReplaceCharacters(String input, String expected, LineProcessor lineProcessor, Bag<String> dict) {
+		String actual = lineProcessor.replaceCharacters(input, 5);
 		assertEquals(expected, actual);
 	}
 
 	@Test public void testMergeLinebreak() throws IOException {
-		Set<String> dict = Set.of("Alle", "meine", "Entchen");
+		Bag<String> dict = new HashBag<>(Set.of("Alle", "meine", "Entchen"));
 		// am Zeilenende getrennte Wörter werden wieder zusammengefügt
 		checkMergeLinebreak("Al-\nle mei-\nne Ent-\nchen", "Al-le\nmei-ne\nEnt-chen\n", dict);
 		// nachfolgende Satzzeichen werden mitgenommen
@@ -167,7 +164,7 @@ public class PreProcessTest {
 		// teilweise fehlt der Bindestrich komplett
 		checkMergeLinebreak("Al\nle mei\nne Ent\nchen", "Alle\nmeine\nEntchen\n", dict);
 		// keine Ersetzung von bekannten Wörtern
-		checkMergeLinebreak("erklärte\ner", "erklärte\ner", Set.of("er", "erklärte", "erklärter"));
+		checkMergeLinebreak("erklärte\ner", "erklärte\ner", new HashBag<>(Set.of("er", "erklärte", "erklärter")));
 		// Bindestrich und Schmierzeichen am Zeilenanfang
 		checkMergeLinebreak("Alle mei-\n»ne Entchen", "Alle mei-ne\nEntchen", dict);
 		checkMergeLinebreak("Alle mei-\n«ne Entchen", "Alle mei-ne\nEntchen", dict);
@@ -176,7 +173,7 @@ public class PreProcessTest {
 		checkMergeLinebreak("Alle mei-\n<@pagebreak/>\nne Entchen", "Alle mei-ne\n<@pagebreak/>\nEntchen", dict);
 	}
 
-	private void checkMergeLinebreak(String line, String expected, Set<String> dict) throws IOException {
+	private void checkMergeLinebreak(String line, String expected, Bag<String> dict) throws IOException {
 		try (StringReader in = new StringReader(line)) {
 			LineReader reader = new LineReader(in, 1, 2);
 			StringBuilder actual = new StringBuilder();
@@ -202,8 +199,8 @@ public class PreProcessTest {
 		spellcheck.put("”", "«");
 		spellcheck.put("„", "»");
 
-		Set<String> silben = new HashSet<>(Arrays.asList("en", "ch"));
-		Set<String> dict = new HashSet<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "hier", "mal", "mir", "war", "wir", "oh",
+		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
+		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "er", "es", "hier", "mal", "mir", "war", "wir", "oh",
 				"schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
@@ -287,7 +284,7 @@ public class PreProcessTest {
 				+ "Alle mal zu mir\n", dict, silben, spellcheck, 9);
 	}
 
-	private void checkPreProcess(String line, String expected, Set<String> dict, Set<String> silben, Map<String, String> spellcheck, int expectedCount)
+	private void checkPreProcess(String line, String expected, Bag<String> dict, Bag<String> silben, Map<String, String> spellcheck, int expectedCount)
 			throws Exception {
 		PreProcess pp = new PreProcess(new PreProcess.Parameter());
 		try (

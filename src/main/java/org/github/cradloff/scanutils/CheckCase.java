@@ -11,11 +11,12 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
 
 /** Korrigiert die Groß-/Kleinschreibung */
 public class CheckCase {
@@ -34,7 +35,7 @@ public class CheckCase {
 
 		// Wörterbuch einlesen
 		File basedir = FileAccess.basedir(inputs.get(0));
-		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
+		Bag<String> dict = FileAccess.readDict(basedir, "german.dic");
 		dict = removeAmbigous(dict);
 		Collection<String> abkürzungen = FileAccess.readDict(basedir, "abkuerzungen.dic");
 
@@ -53,9 +54,9 @@ public class CheckCase {
 	}
 
 	/** Entfernt Wörter, die sowohl in Groß- als auch in Kleinschreibung vorhanden sind */
-	static Set<String> removeAmbigous(Set<String> dict) {
+	static Bag<String> removeAmbigous(Bag<String> dict) {
 		// Wörter mit uneindeutiger Groß-/Kleinschreibung aus dem Ergebnis entfernen
-		Set<String> result = new HashSet<>(dict);
+		Bag<String> result = new HashBag<>(dict);
 		for (String word : dict) {
 			if (Character.isLowerCase(word.charAt(0))) {
 				String ucWord = TextUtils.toUpperCase(word);
@@ -75,7 +76,7 @@ public class CheckCase {
 		return result;
 	}
 
-	int checkCase(Reader in, Writer out, Set<String> dict, Collection<String> abkürzungen) throws IOException {
+	int checkCase(Reader in, Writer out, Bag<String> dict, Collection<String> abkürzungen) throws IOException {
 		BufferedReader reader = new BufferedReader(in);
 		PrintWriter writer = new PrintWriter(out);
 		String line = reader.readLine();
@@ -104,7 +105,7 @@ public class CheckCase {
 	}
 
 	/** Ersetzt bestimmte Wörter durch ihre Groß-/Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
-	public static int fixCase(List<String> lastLine, List<String> line, Set<String> dict, Collection<String> abkürzungen) {
+	public static int fixCase(List<String> lastLine, List<String> line, Bag<String> dict, Collection<String> abkürzungen) {
 		// alle Wörter, die nicht am Zeilenanfang oder nach einem Punkt kommen, durch Kleinschreibweise ersetzen
 		int count = 0;
 		boolean tag = false;

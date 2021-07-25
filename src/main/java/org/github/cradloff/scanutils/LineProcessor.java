@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -85,18 +88,19 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	private Parameter params;
 	private List<String> line;
 	private Map<String, String> map;
-	private SortedSet<String> ciDict;
+	private Bag<String> ciDict;
+	/** Baum-Ansicht des Dictionary */
+	private SortedSet<String> treeView;
 	private SortedSet<String> invDict;
-	private Set<String> silben;
-	private Bag<String> occurences;
-	public LineProcessor(Parameter params, List<String> line, Map<String, String> map, SortedSet<String> ciDict, SortedSet<String> invDict, Set<String> silben, Bag<String> occurences) {
+	private Bag<String> silben;
+	public LineProcessor(Parameter params, List<String> line, Map<String, String> map, Bag<String> ciDict, SortedSet<String> invDict, Bag<String> silben) {
 		this.params = params;
 		this.line = line;
 		this.map = map;
 		this.ciDict = ciDict;
 		this.invDict = invDict;
 		this.silben = silben;
-		this.occurences = occurences;
+		this.treeView = new TreeSet<>(ciDict.uniqueSet());
 	}
 
 	@Override
@@ -190,8 +194,6 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 					result.log(token, replacement);
 				}
 			}
-
-			occurences.add(replacement);
 		}
 
 		return result;
@@ -263,7 +265,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				&& Character.isUpperCase(word.charAt(0))
 				&& Character.isUpperCase(word.charAt(1))) {
 			// jeweils eines der Zeichen löschen und damit versuchen
-			List<String> candidates = new ArrayList<>();
+			Set<String> candidates = new HashSet<>();
 			addIfModified(index, word.charAt(0) + word.substring(2).toLowerCase(), candidates);
 			addIfModified(index, word.charAt(1) + word.substring(2).toLowerCase(), candidates);
 			// zusätzlich mit dem zweiten Buchstaben in klein
@@ -275,7 +277,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		} else if (word.length() > 1) {
 			// gängige Vertauschungen durchführen
 			int level = Math.min(params.getLevel(), word.length() - 1);
-			String candidate = replaceCharacters(token, ciDict, level);
+			String candidate = replaceCharacters(token, level);
 			if (! candidate.equals(word)) {
 				result = candidate;
 			}
@@ -284,7 +286,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		return result;
 	}
 
-	private void addIfModified(int index, String word, List<String> candidates) {
+	private void addIfModified(int index, String word, Set<String> candidates) {
 		String candidate = process(index, word);
 		if (! word.equals(candidate)) {
 			candidates.add(candidate);
@@ -292,13 +294,13 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	}
 
 	/** Ersetzt vertauschte s/f, v/r/o, etc. */
-	public String replaceCharacters(String input, SortedSet<String> dict, int threshold) {
+	public String replaceCharacters(String input, int threshold) {
 		// an allen Positionen die Zeichen vertauschen und prüfen, ob sie im Wörterbuch enthalten sind
 		// der Anfangsbuchstabe wird sowohl in Groß- als auch in Kleinschreibweise gesucht
 		String[] variants = caseVariants(input);
-		List<String> candidates = new ArrayList<>();
-		int newThreshold = replaceCharacters(variants[0], dict, candidates, 0, threshold) - 1;
-		replaceCharacters(variants[1], dict, candidates, 0, newThreshold);
+		Set<String> candidates = new LinkedHashSet<>();
+		int newThreshold = replaceCharacters(variants[0], treeView, candidates, 0, threshold) - 1;
+		replaceCharacters(variants[1], treeView, candidates, 0, newThreshold);
 		// den Kandidaten mit den wenigsten Unterschieden zum Original heraussuchen
 		String result = bestMatch(input, candidates);
 
@@ -436,9 +438,6 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			String candidate = head + replacement + suffix;
 			if (subSet.contains(candidate)) {
 				result.add(candidate);
-				// wenn wir einen Kandidaten gefunden haben, macht es keinen Sinn,
-				// weiter nach Wörtern mit mehr Unterschieden zu suchen
-				newThreshold = 1;
 			}
 
 			// weitere Kandidaten erzeugen
@@ -456,24 +455,32 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		return ! subSet.isEmpty() && subSet.first().startsWith(prefix);
 	}
 
-	private String bestMatch(String input, List<String> candidates) {
+	private String bestMatch(String input, Set<String> candidates) {
 		if (candidates.isEmpty()) {
 			return input;
 		}
 
-		String result = candidates.get(0);
+		// es gewinnt der Kandidat, der ein besseres Verhältnis von der Häufigkeit zur
+		// Anzahl der Abweichungen hat. Dabei geht die 10er Potenz der Häufigkeit mit in die
+		// Berechnung ein, sodass ein Wort mit 100 Vorkommen zwei zusätzliche Abweichungen
+		// im Vergleich zu einem Wort mit nur einem Vorkommen haben darf
+		// Damit sehr kurze und häufige Wörter (der, die, und, ...) nicht längere Wörter
+		// überlagern, wird das Ganze auf einen Unterschied je zwei Buchstaben der Wortlänge
+		// begrenzt (bei "der", "die" etc. beispielsweise auf eins)
+		Iterator<String> it = candidates.iterator();
+		String result = it.next();
 		if (candidates.size() > 1) {
-			int distance = LevenshteinDistance.compare(input, result);
-			for (int i = 1; i < candidates.size(); i++) {
-				String candidate = candidates.get(i);
-				int distance2 = LevenshteinDistance.compare(input, candidate);
+			int distance = calculateDistance(input, result);
+			while (it.hasNext()) {
+				String candidate = it.next();
+				int distance2 = calculateDistance(input, candidate);
 				if (distance2 < distance) {
 					result = candidate;
 					distance = distance2;
 				} else if (distance2 == distance) {
 					// häufigere Wörter bevorzugen
-					int frequency1 = occurences.getCount(result);
-					int frequency2 = occurences.getCount(candidate);
+					int frequency1 = ciDict.getCount(result);
+					int frequency2 = ciDict.getCount(candidate);
 					if (frequency2 > frequency1) {
 						result = candidate;
 					}
@@ -482,6 +489,14 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		}
 
 		return result;
+	}
+
+	private int calculateDistance(String original, String candidate) {
+		int distance = LevenshteinDistance.compare(original, candidate);
+		int bonus = (int) Math.log10(ciDict.getCount(candidate));
+		bonus = Math.min(candidate.length() / 2, bonus);
+
+		return distance - bonus;
 	}
 
 	private static boolean whitespaceAfter(List<String> line, int i) {

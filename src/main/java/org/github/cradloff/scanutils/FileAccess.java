@@ -4,18 +4,21 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
 
 /** Hilfsklasse für Dateizugriffe */
 public class FileAccess {
@@ -38,18 +41,12 @@ public class FileAccess {
 	/**
 	 * Liest das Wörterbuch relativ zur angegebenen Datei ein.
 	 */
-	static Set<String> readDict(File basefile, String filename) throws IOException {
-		Set<String> dict = new HashSet<>();
+	static Bag<String> readDict(File basefile, String filename) throws IOException {
+		Bag<String> dict = new HashBag<>();
 		File file = find(basefile, filename);
 		while (file != null) {
-			Set<String> dict2 = new HashSet<>();
-			try (FileReader fr = new FileReader(file);
-					BufferedReader br = new BufferedReader(fr);) {
-				for (String line = br.readLine(); line != null; line = br.readLine()) {
-					dict2.add(line.trim());
-				}
-			}
-			System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict2.size());
+			Bag<String> dict2 = readDict(file);
+			System.out.printf("verwende Wörterbuch %s (%,d Einträge)%n", file.getPath(), dict2.uniqueSet().size());
 			dict.addAll(dict2);
 			file = find(file.getParentFile().getParentFile(), filename);
 		}
@@ -59,6 +56,27 @@ public class FileAccess {
 		}
 
 		return dict;
+	}
+
+	static Bag<String> readDict(File file) throws IOException {
+		Bag<String> dict2 = new HashBag<>();
+		try (FileReader fr = new FileReader(file);
+				BufferedReader br = new BufferedReader(fr);) {
+			for (String line = br.readLine(); line != null; line = br.readLine()) {
+				String word;
+				int count;
+				if (line.contains("\t")) {
+					String t[] = line.split("\t");
+					word = t[0];
+					count = Integer.parseInt(t[1]);
+				} else {
+					word = line.trim();
+					count = 1;
+				}
+				dict2.add(word, count);
+			}
+		}
+		return dict2;
 	}
 
 	/**
@@ -122,7 +140,7 @@ public class FileAccess {
 				Pattern pattern = Pattern.compile("\\[(.*)\\]");
 				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 					if (line.trim().isEmpty() || line.startsWith("#")) {
-						;
+
 					} else {
 						Matcher matcher = pattern.matcher(line);
 						if (matcher.matches()) {
@@ -198,5 +216,16 @@ public class FileAccess {
 		}
 
 		return result;
+	}
+
+	static void writeDictionary(File file, Bag<String> dictionary) throws IOException {
+		try (FileWriter writer = new FileWriter(file);
+				PrintWriter out = new PrintWriter(writer)) {
+			for (String entry : dictionary.uniqueSet()) {
+				out.print(entry);
+				out.print("\t");
+				out.println(dictionary.getCount(entry));
+			}
+		}
 	}
 }

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.bag.TreeBag;
@@ -41,7 +40,7 @@ public class SpellCheck {
 
 		// Wörterbuch einlesen
 		File basedir = FileAccess.basedir(inputs.get(0));
-		Set<String> dict = FileAccess.readDict(basedir, "german.dic");
+		Bag<String> dict = FileAccess.readDict(basedir, "german.dic");
 		dict = TextUtils.addUpperCase(dict);
 		// Wörter aus Rechtschreibhilfe hinzufügen
 		Map<String, String> rechtschreibung = FileAccess.readRechtschreibungCSV(basedir);
@@ -52,7 +51,7 @@ public class SpellCheck {
 		System.out.printf("schreibe nicht gefundene Wörter nach %s%n", spellcheck);
 		try (Writer fw = new FileWriter(spellcheck);
 				PrintWriter out = new PrintWriter(fw)) {
-			Bag<String> words = new TreeBag<>();
+			Bag<String> words = new TreeBag<>(new CaseInsensitiveComparator());
 			for (File input : inputs) {
 				System.out.printf("überprüfe Datei %s%n", input);
 				// alle Wörter einlesen

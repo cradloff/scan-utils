@@ -1,16 +1,16 @@
 package org.github.cradloff.scanutils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.assertj.core.api.Assertions;
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
 import org.junit.Test;
 
 public class TextUtilsTest {
@@ -164,21 +164,26 @@ public class TextUtilsTest {
 	}
 
 	@Test public void testAddUpperCase() {
-		Set<String> dict = new HashSet<>();
-		dict.add("klein");
-		dict.add("Groß");
-		dict.add("beides");
-		dict.add("Beides");
-		// Umlaute werden aufgelöst
-		dict.add("über");
+		Bag<String> dict = new HashBag<>();
+		dict.add("klein", 10);
+		dict.add("Groß", 5);
+		dict.add("beides", 3);
+		dict.add("Beides", 4);
+		dict.add("über", 2);
 
-		Set<String> dict2 = TextUtils.addUpperCase(dict);
-		Assertions.assertThat(dict)
-			.hasSize(5)
-			.contains("klein", "Groß", "beides", "Beides", "über");
-		Assertions.assertThat(dict2)
-			.hasSize(7)
-			.contains("klein", "Klein", "Groß", "beides", "Beides", "über", "Über");
+		Bag<String> dict2 = TextUtils.addUpperCase(dict);
+		assertThat(dict)
+			.hasSize(24)
+			.contains("klein", "Groß", "beides", "Beides", "über")
+			.doesNotContain("Klein", "groß", "Über");
+		assertThat(dict2)
+			.hasSize(26)
+			.contains("klein", "Klein", "Groß", "beides", "Beides", "über", "Über")
+			.doesNotContain("groß");
+		assertThat(dict2.getCount("klein")).isEqualTo(10);
+		assertThat(dict2.getCount("Klein")).isEqualTo(1);
+		assertThat(dict2.getCount("über")).isEqualTo(2);
+		assertThat(dict2.getCount("Über")).isEqualTo(1);
 	}
 
 	@Test public void testMatches() {

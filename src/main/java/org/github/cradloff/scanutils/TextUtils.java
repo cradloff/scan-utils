@@ -1,12 +1,13 @@
 package org.github.cradloff.scanutils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.bag.HashBag;
 
 public class TextUtils {
 
@@ -75,12 +76,14 @@ public class TextUtils {
 	}
 
 	/** Fügt dem Wörterbuch alle klein geschriebenen Wörter auch in Groß-Schreibweise hinzu */
-	public static Set<String> addUpperCase(Set<String> dict) {
-		Set<String> ciDict = new HashSet<>(dict);
+	public static Bag<String> addUpperCase(Bag<String> dict) {
+		Bag<String> ciDict = new HashBag<>(dict);
 		for (String s : dict) {
 			if (! s.isEmpty() && Character.isLowerCase(s.charAt(0))) {
 				String t = toUpperCase(s);
-				ciDict.add(t);
+				if (! ciDict.contains(t)) {
+					ciDict.add(t);
+				}
 			}
 		}
 		return ciDict;
@@ -194,7 +197,7 @@ public class TextUtils {
 	}
 
 	/** Erzeugt ein Wörterbuch, in dem alle Einträge rückwärts enthalten sind (also z.B. "riw" statt "wir") */
-	public static SortedSet<String> inverse(Set<String> ciDict) {
+	public static SortedSet<String> inverse(Bag<String> ciDict) {
 		SortedSet<String> result = new TreeSet<>();
 		for (String entry : ciDict) {
 			result.add(reverse(entry));
