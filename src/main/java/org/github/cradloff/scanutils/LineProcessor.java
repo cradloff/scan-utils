@@ -475,7 +475,13 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			while (it.hasNext()) {
 				String candidate = it.next();
 				int distance2 = calculateDistance(input, candidate);
-				if (distance2 < distance) {
+				// bei Wörtern, die sich nur in der Groß-/Kleinschreibung unterscheiden,
+				// wird das Wort mit der Original-Schreibweise bevorzugt, unabhängig von der Häufigkeit
+				if (result.equalsIgnoreCase(candidate)) {
+					if (candidate.regionMatches(0, input, 0, 1)) {
+						result = candidate;
+					}
+				} else if (distance2 < distance) {
 					result = candidate;
 					distance = distance2;
 				} else if (distance2 == distance) {

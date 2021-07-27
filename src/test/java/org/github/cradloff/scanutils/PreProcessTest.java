@@ -200,7 +200,7 @@ public class PreProcessTest {
 		spellcheck.put("„", "»");
 
 		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
-		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal",
+		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal",
 				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
@@ -225,6 +225,8 @@ public class PreProcessTest {
 		// am Zeilenanfang werden Wörter ergänzt, die vorne abgeschnitten sind
 		// im Zweifelsfall kommen häufigere Wörter zuerst ("Entchen" vs. "Nachen")
 		checkPreProcess("iff oraus\nlle ine\nchen\n", "Schiff oraus\nalle ine\nEntchen\n", dict, silben, spellcheck, 3);
+		// unterscheiden sich die Wörter nur in der Groß-/Kleinschreibung, wird die Original-Schreibweise bevorzugt
+		checkPreProcess("Aiie, aiie\n", "Alle, alle\n", dict, silben, spellcheck, 2);
 		// aber nur, wenn sie mehr als zwei Zeichen haben
 		checkPreProcess("ff oraus\nle ine\nen\n", "ff oraus\nle ine\nen\n", dict, silben, spellcheck, 0);
 		// Groß-/Kleinschreibung korrigieren
