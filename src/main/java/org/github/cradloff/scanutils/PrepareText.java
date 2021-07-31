@@ -63,6 +63,7 @@ public class PrepareText {
 	static void prepareText(Reader in, PrintWriter out, Map<String, String> replacements) throws IOException {
 		try (BufferedReader reader = new BufferedReader(in);) {
 			String line;
+			String previousLine = "";
 			boolean hasEmptyLine = false;
 			while ((line = reader.readLine()) != null) {
 				String result = line;
@@ -74,6 +75,7 @@ public class PrepareText {
 				result = changeSpecial(result);
 				result = replaceOnce(result, replacements);
 				result = handleChapter(result);
+				result = handleSubChapter(previousLine, result);
 				result = escapeDigits(result);
 				result = nonBreakingSpaces(result);
 				boolean emptyLine = result.isBlank();
@@ -83,6 +85,7 @@ public class PrepareText {
 				}
 
 				hasEmptyLine = emptyLine;
+				previousLine = result;
 			}
 		}
 	}
@@ -221,6 +224,13 @@ public class PrepareText {
 
 	private static String handleChapter(String line) {
 		return line.replaceAll("^(\\d)[.,]? [KR]a[pv][it][ti]e[lt][.,]?$", "<h2>$1. Kapitel.</h2>");
+	}
+
+	private static String handleSubChapter(String previousLine, String line) {
+		if (previousLine.startsWith("<h2>") && ! line.isBlank()) {
+			return line.replaceAll("^(.*)[.,]?$", "<h3>$1.</h3>");
+		}
+		return line;
 	}
 
 	private static String escapeDigits(String line) {

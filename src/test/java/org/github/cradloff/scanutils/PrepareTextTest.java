@@ -174,6 +174,10 @@ public class PrepareTextTest {
 		checkPrepareText("1. Kapitel", "<h2>1. Kapitel.</h2>");
 		// auch kleinere Rechtschreibfehler werden erkannt
 		checkPrepareText("2. Ravtiet,", "<h2>2. Kapitel.</h2>");
+		// nach der Überschrift 2. Ordnung kommt die 3.
+		checkPrepareText("1. Kapitel\nÜberschrift", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");
+		// aber nur, falls keine Leerzeile dazwischen kommt
+		checkPrepareText("1. Kapitel\n\nkeine Überschrift", "<h2>1. Kapitel.</h2>\n\nkeine Überschrift");
 
 		// G. m. b. H. und große Zahlen mit non breaking spaces zusammenhalten
 		checkPrepareText("Verlag moderner Lektüre G. m. b. H.",
