@@ -121,32 +121,32 @@ public class PreProcessTest {
 		dict.add("voraus", 10);
 		LineProcessor lineProcessor = new LineProcessor(new Parameter(), line, new HashMap<>(), dict, TextUtils.inverse(dict), new HashBag<>());
 		// gibt es keine passende Ersetzung, wird das Wort wieder zurückgeliefert
-		checkReplaceCharacters("Erbsensuppe", "Erbsensuppe", lineProcessor, dict);
+		checkReplaceCharacters("Erbsensuppe", "Erbsensuppe", lineProcessor);
 
-		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", lineProcessor, dict);
-		checkReplaceCharacters("5ehiss", "Schiff", lineProcessor, dict);
-		checkReplaceCharacters("$ehiss", "Schiff", lineProcessor, dict);
-		checkReplaceCharacters("rvoauf", "voraus", lineProcessor, dict);
-		checkReplaceCharacters("Vech", "Deck", lineProcessor, dict);
-		checkReplaceCharacters("Vceli", "Deck", lineProcessor, dict);
-		checkReplaceCharacters("Derhrecler", "Verbrecher", lineProcessor, dict);
-		checkReplaceCharacters("3innner", "Zimmer", lineProcessor, dict);
-		checkReplaceCharacters("Ziniwer", "Zimmer", lineProcessor, dict);
+		checkReplaceCharacters("Baelienmusknlaiuo", "Backenmuskulatur", lineProcessor);
+		checkReplaceCharacters("5ehiss", "Schiff", lineProcessor);
+		checkReplaceCharacters("$ehiss", "Schiff", lineProcessor);
+		checkReplaceCharacters("rvoauf", "voraus", lineProcessor);
+		checkReplaceCharacters("Vech", "Deck", lineProcessor);
+		checkReplaceCharacters("Vceli", "Deck", lineProcessor);
+		checkReplaceCharacters("Derhrecler", "Verbrecher", lineProcessor);
+		checkReplaceCharacters("3innner", "Zimmer", lineProcessor);
+		checkReplaceCharacters("Ziniwer", "Zimmer", lineProcessor);
 
 		// Übereinstimmungen mit den wenigsten Abweichungen vom Original werden bevorzugt
-		checkReplaceCharacters("scin", "sein", lineProcessor, dict);
-		checkReplaceCharacters("sctn", "sein", lineProcessor, dict);
-		checkReplaceCharacters("fcin", "fein", lineProcessor, dict);
-		checkReplaceCharacters("fctn", "fein", lineProcessor, dict);
+		checkReplaceCharacters("scin", "sein", lineProcessor);
+		checkReplaceCharacters("sctn", "sein", lineProcessor);
+		checkReplaceCharacters("fcin", "fein", lineProcessor);
+		checkReplaceCharacters("fctn", "fein", lineProcessor);
 		// "sein" ist häufiger als "fein"
-		checkReplaceCharacters("jein", "sein", lineProcessor, dict);
+		checkReplaceCharacters("jein", "sein", lineProcessor);
 		// "voraus" ist 10x häufiger als "worauf", deshalb kann es ein zusätzliches Zeichen Unterschied haben
-		checkReplaceCharacters("uoxauf", "voraus", lineProcessor, dict);
+		checkReplaceCharacters("uoxauf", "voraus", lineProcessor);
 		// bei zwei Unterschieden gewinnt aber "worauf"
-		checkReplaceCharacters("woxauf", "worauf", lineProcessor, dict);
+		checkReplaceCharacters("woxauf", "worauf", lineProcessor);
 	}
 
-	private void checkReplaceCharacters(String input, String expected, LineProcessor lineProcessor, Bag<String> dict) {
+	private void checkReplaceCharacters(String input, String expected, LineProcessor lineProcessor) {
 		String actual = lineProcessor.replaceCharacters(input, 5);
 		assertEquals(expected, actual);
 	}
@@ -246,6 +246,7 @@ public class PreProcessTest {
 		checkPreProcess("Þiræten-$ch|ﬀ vørauſ", "Piraten-Schiff voraus", dict, silben, spellcheck, 3);
 		// Ersetzung von Zeichen durch Ausrufezeichen
 		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, silben, spellcheck, 3);
+		checkPreProcess("Wer war das? 1«", "Wer war das?!«", dict, silben, spellcheck, 0);
 		// keine Entfernung von Bindestrichen nach Backslash
 		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« …\n", dict, silben, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, silben, spellcheck, 0);

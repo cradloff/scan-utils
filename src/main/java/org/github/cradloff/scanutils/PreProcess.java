@@ -159,6 +159,12 @@ public class PreProcess {
 					}
 				}
 
+				// ? 1« durch ?!« ersetzen
+				if (TextUtils.endsWith(line, "?", " ", "1", "«")) {
+					line.set(line.size() - 4, "?!«");
+					line = line.subList(0, line.size() - 3);
+				}
+
 				/*
 				 * dann mit mehreren Threads verarbeitet
 				 */
