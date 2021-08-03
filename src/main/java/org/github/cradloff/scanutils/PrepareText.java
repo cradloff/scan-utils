@@ -228,7 +228,7 @@ public class PrepareText {
 
 	private static String handleSubChapter(String previousLine, String line) {
 		if (previousLine.startsWith("<h2>") && ! line.isBlank()) {
-			return line.replaceAll("^(.*)[.,]?$", "<h3>$1.</h3>");
+			return line.replaceAll("^(.*?)[.,]?$", "<h3>$1.</h3>");
 		}
 		return line;
 	}
