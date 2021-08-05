@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,6 +67,12 @@ public class PreProcess {
 
 	/** Zeile mit einem Pagebreak */
 	private static final List<String> PAGEBREAK = TextUtils.split("<@pagebreak/>");
+	private static final Pattern[] PATTERN_AUSRUFEZEICHEN_1 = {
+			Pattern.compile("[?!]"),
+			Pattern.compile(" "),
+			Pattern.compile("[1!]"),
+			Pattern.compile("[»«]"),
+	};
 	private Parameter params;
 
 	public PreProcess(Parameter params) {
@@ -121,6 +128,7 @@ public class PreProcess {
 		// klein geschriebene Wörter auch in Groß-Schreibweise hinzufügen
 		SortedBag<String> ciDict = new TreeBag<>(TextUtils.addUpperCase(dict));
 		SortedSet<String> invDict = TextUtils.inverse(dict);
+		SortedSet<String> treeView = new TreeSet<>(ciDict.uniqueSet());
 		LineReader reader = new LineReader(in, 1, 2);
 		int count = 0;
 		// Pro Prozessor ein Thread
@@ -160,15 +168,12 @@ public class PreProcess {
 				}
 
 				// ? 1« durch ?!« ersetzen
-				if (TextUtils.endsWith(line, "?", " ", "1", "«")) {
-					line.set(line.size() - 4, "?!«");
-					line = line.subList(0, line.size() - 3);
-				}
+				ausrufezeichenErsetzen(line, PATTERN_AUSRUFEZEICHEN_1);
 
 				/*
 				 * dann mit mehreren Threads verarbeitet
 				 */
-				results.add(executor.submit(new LineProcessor(params, line, map, ciDict, invDict, silben)));
+				results.add(executor.submit(new LineProcessor(params, line, map, ciDict, invDict, treeView, silben)));
 			}
 		}
 
@@ -188,6 +193,17 @@ public class PreProcess {
 		executor.shutdown();
 
 		return count;
+	}
+
+	private void ausrufezeichenErsetzen(List<String> line, Pattern[] patterns) {
+		for (int i = 0; i <= line.size() - patterns.length; i++) {
+			if (TextUtils.matches(line, i, patterns)) {
+				line.set(i + 1, "!«");
+				for (int j = 0; j < patterns.length - 2; j++) {
+					line.remove(i + 2);
+				}
+			}
+		}
 	}
 
 	private static final Pattern SEVEN = Pattern.compile(".*\\D[72]$");

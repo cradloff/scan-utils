@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -93,14 +92,14 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	private SortedSet<String> treeView;
 	private SortedSet<String> invDict;
 	private Bag<String> silben;
-	public LineProcessor(Parameter params, List<String> line, Map<String, String> map, Bag<String> ciDict, SortedSet<String> invDict, Bag<String> silben) {
+	public LineProcessor(Parameter params, List<String> line, Map<String, String> map, Bag<String> ciDict, SortedSet<String> invDict, SortedSet<String> treeView, Bag<String> silben) {
 		this.params = params;
 		this.line = line;
 		this.map = map;
 		this.ciDict = ciDict;
 		this.invDict = invDict;
+		this.treeView = treeView;
 		this.silben = silben;
-		this.treeView = new TreeSet<>(ciDict.uniqueSet());
 	}
 
 	@Override
@@ -140,7 +139,9 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			}
 
 			// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
-			if (token.contains("»") && TextUtils.wordBefore(line, i) && ! TextUtils.wordAfter(line, i)) {
+			if (token.contains("»")
+					&& (TextUtils.wordBefore(line, i) || TextUtils.satzzeichenBefore(line, i))
+					&& ! TextUtils.wordAfter(line, i)) {
 				token = token.replace("»", "«");
 			} else if ("«".equals(token) && TextUtils.wordAfter(line, i) && ! TextUtils.wordBefore(line, i)) {
 				token = "»";

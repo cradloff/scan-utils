@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.bag.HashBag;
@@ -119,7 +120,7 @@ public class PreProcessTest {
 		List<String> line = new ArrayList<>();
 		TreeBag<String> dict = new TreeBag<>(Arrays.asList("Schiff", "worauf", "Deck", "Verbrecher", "Zimmer", "sein", "sein", "fein", "Backenmuskulatur"));
 		dict.add("voraus", 10);
-		LineProcessor lineProcessor = new LineProcessor(new Parameter(), line, new HashMap<>(), dict, TextUtils.inverse(dict), new HashBag<>());
+		LineProcessor lineProcessor = new LineProcessor(new Parameter(), line, new HashMap<>(), dict, TextUtils.inverse(dict), new TreeSet<>(dict.uniqueSet()), new HashBag<>());
 		// gibt es keine passende Ersetzung, wird das Wort wieder zurückgeliefert
 		checkReplaceCharacters("Erbsensuppe", "Erbsensuppe", lineProcessor);
 
@@ -246,7 +247,10 @@ public class PreProcessTest {
 		checkPreProcess("Þiræten-$ch|ﬀ vørauſ", "Piraten-Schiff voraus", dict, silben, spellcheck, 3);
 		// Ersetzung von Zeichen durch Ausrufezeichen
 		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, silben, spellcheck, 3);
-		checkPreProcess("Wer war das? 1«", "Wer war das?!«", dict, silben, spellcheck, 0);
+		checkPreProcess("»Wer war das? 1« fragte er.", "»Wer war das?!« fragte er.", dict, silben, spellcheck, 0);
+		checkPreProcess("»Wer war das?1» fragte er.", "»Wer war das?!« fragte er.", dict, silben, spellcheck, 1);
+		checkPreProcess("»Ich nicht! 1» sagte er.", "»Ich nicht!!« sagte er.", dict, silben, spellcheck, 0);
+		checkPreProcess("»Er war's! !« riefen sie.", "»Er war’s!!« riefen sie.", dict, silben, spellcheck, 1);
 		// keine Entfernung von Bindestrichen nach Backslash
 		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« …\n", dict, silben, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, silben, spellcheck, 0);

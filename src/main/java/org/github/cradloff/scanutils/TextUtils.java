@@ -135,6 +135,11 @@ public class TextUtils {
 		return true;
 	}
 
+	/** Prüft, ob vor der angegebenen Position ein Wort kommt */
+	public static boolean satzzeichenBefore(List<String> line, int i) {
+		return i > 0 && (isSatzzeichen(line.get(i - 1)));
+	}
+
 	public static boolean isDash(char ch) {
 		return ch == '-' || ch == '—' || ch == '=';
 	}
@@ -212,7 +217,7 @@ public class TextUtils {
 
 	/** Prüft, ob in der Zeile ab dem angegebenen Index die Pattern zutreffen */
 	public static boolean matches(List<String> line, int i, Pattern ... patterns) {
-		if (line.size() - i < patterns.length) {
+		if (line.size() - i < patterns.length || i < 0) {
 			return false;
 		}
 
