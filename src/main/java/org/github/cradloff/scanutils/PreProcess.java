@@ -73,6 +73,11 @@ public class PreProcess {
 			Pattern.compile("[1!]"),
 			Pattern.compile("[»«]"),
 	};
+	private static final Pattern[] PATTERN_AUSRUFEZEICHEN_2 = {
+			Pattern.compile("[?!]"),
+			Pattern.compile("[1!]"),
+			Pattern.compile("[»«]"),
+	};
 	private Parameter params;
 
 	public PreProcess(Parameter params) {
@@ -169,6 +174,7 @@ public class PreProcess {
 
 				// ? 1« durch ?!« ersetzen
 				ausrufezeichenErsetzen(line, PATTERN_AUSRUFEZEICHEN_1);
+				ausrufezeichenErsetzen(line, PATTERN_AUSRUFEZEICHEN_2);
 
 				/*
 				 * dann mit mehreren Threads verarbeitet

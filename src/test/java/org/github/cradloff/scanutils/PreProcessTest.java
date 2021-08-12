@@ -251,6 +251,7 @@ public class PreProcessTest {
 		checkPreProcess("»Wer war das?1» fragte er.", "»Wer war das?!« fragte er.", dict, silben, spellcheck, 1);
 		checkPreProcess("»Ich nicht! 1» sagte er.", "»Ich nicht!!« sagte er.", dict, silben, spellcheck, 0);
 		checkPreProcess("»Er war's! !« riefen sie.", "»Er war’s!!« riefen sie.", dict, silben, spellcheck, 1);
+		checkPreProcess("»Sie war's!1« rief er.", "»Sie war’s!!« rief er.", dict, silben, spellcheck, 0);
 		// keine Entfernung von Bindestrichen nach Backslash
 		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« …\n", dict, silben, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, silben, spellcheck, 0);
