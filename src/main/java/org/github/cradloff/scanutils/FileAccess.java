@@ -63,6 +63,10 @@ public class FileAccess {
 		try (FileReader fr = new FileReader(file);
 				BufferedReader br = new BufferedReader(fr);) {
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
+				if (line.isBlank()) {
+					// Zeile ignorieren
+					continue;
+				}
 				String word;
 				int count;
 				if (line.contains("\t")) {

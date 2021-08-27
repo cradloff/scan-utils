@@ -8,7 +8,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.bag.TreeBag;
@@ -42,9 +41,6 @@ public class SpellCheck {
 		File basedir = FileAccess.basedir(inputs.get(0));
 		Bag<String> dict = FileAccess.readDict(basedir, "german.dic");
 		dict = TextUtils.addUpperCase(dict);
-		// Wörter aus Rechtschreibhilfe hinzufügen
-		Map<String, String> rechtschreibung = FileAccess.readRechtschreibungCSV(basedir);
-		dict.addAll(rechtschreibung.values());
 
 		// Dateien prüfen
 		File spellcheck = new File(basedir, "spellcheck.log");
