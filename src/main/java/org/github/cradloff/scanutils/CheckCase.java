@@ -212,6 +212,7 @@ public class CheckCase {
 		HINTS.put("...?", Satzanfang.JA);
 		HINTS.put("...?!", Satzanfang.JA);
 		HINTS.put("…", Satzanfang.WEISS_NICHT);
+		HINTS.put("…«", Satzanfang.WEISS_NICHT);
 		HINTS.put("…!", Satzanfang.JA);
 		HINTS.put("…!!", Satzanfang.JA);
 		HINTS.put("…?", Satzanfang.JA);

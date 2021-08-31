@@ -25,6 +25,7 @@ public class CheckCaseTest {
 		checkFixCase("den dunklen Strich.", "Und den singenden Vogel", "Und den singenden Vogel", 0);
 		checkFixCase("", "über und über.", "Über und über.", 1);
 		checkFixCase("", "Komm’ zu mir.", "Komm’ zu mir.", 0);
+		checkFixCase("", "»Danke …« Und er setzte sich.", "»Danke …« Und er setzte sich.", 0);
 	}
 
 	private Bag<String> dict = new HashBag<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
@@ -80,6 +81,7 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.JA, "Schluß…? Danach");
 		checkSatzanfang(Satzanfang.JA, "Schluß…?! Danach");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage… vielleicht");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "ich sage…« vielleicht");
 		// Tags werden ignoriert
 		checkSatzanfang(Satzanfang.JA, "Ende. <em>Anfang");
 		checkSatzanfang(Satzanfang.NEIN, "Am <em>Anfang");
