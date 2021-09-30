@@ -274,8 +274,10 @@ public class PreProcessTest {
 		checkPreProcess("ZAiie AViie", "Alle Alle", dict, silben, spellcheck, 2);
 		// Brüche
 		checkPreProcess("Um 1/212 Uhr", "Um ½12 Uhr\n", dict, silben, spellcheck, 1);
-		// <preprocess> soll immer am Anfang eines Absatzes stehen
+		// <@pagebreak/> soll immer am Anfang eines Absatzes stehen
 		checkPreProcess("Zeile 1\n<@pagebreak/>\n\nZeile 2\n", "Zeile 1\n\n<@pagebreak/>\nZeile 2\n", dict, silben, spellcheck, 0);
+		// aber nicht vor einer Überschrift
+		checkPreProcess("Zeile 1\n<@pagebreak/>\n\n<h2>Zeile 2</h2>\n", "Zeile 1\n\n<@pagebreak/>\n\n<h2>Zeile 2</h2>\n", dict, silben, spellcheck, 0);
 		// keine Ersetzung von Silben (wenn z.B. Bindestrich fehlt)
 		checkPreProcess("Ent ch en\n", "Ent ch en\n", dict, silben, spellcheck, 0);
 		// keine Ersetzungen in HTML-Tags

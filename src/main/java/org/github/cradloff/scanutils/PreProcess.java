@@ -78,6 +78,11 @@ public class PreProcess {
 			Pattern.compile("[1!]"),
 			Pattern.compile("[»«]"),
 	};
+	private static final Pattern[] PATTERN_UEBERSCHRIFT = {
+			Pattern.compile("<"),
+			Pattern.compile("h\\d"),
+			Pattern.compile(">"),
+	};
 	private Parameter params;
 
 	public PreProcess(Parameter params) {
@@ -147,9 +152,15 @@ public class PreProcess {
 			List<String> line = reader.current();
 
 			// ggf. Pagebreak nach unten verschieben
-			if (line.equals(PAGEBREAK) && ! reader.prev().isEmpty() && reader.hasNext() && reader.next().isEmpty()) {
-				reader.swap(0, 1);
-				line = reader.current();
+			if (line.equals(PAGEBREAK)) {
+				if (! reader.prev().isEmpty() && reader.hasNext() && reader.next().isEmpty()) {
+					reader.swap(0, 1);
+					line = reader.current();
+				}
+				// kommt nach dem Pagebreak eine Überschrift, muss eine Leerzeile eingefügt werden
+				else if (reader.hasNext() && TextUtils.matches(reader.next(), 0, PATTERN_UEBERSCHRIFT)) {
+					reader.add(List.of());
+				}
 			}
 
 			// Leerzeilen überspringen

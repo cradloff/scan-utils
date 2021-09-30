@@ -87,6 +87,10 @@ public class LineReader {
 		return lines.size() > prevContext + count;
 	}
 
+	public void add(List<String> line) {
+		lines.add(1 + prevContext, line);
+	}
+
 	public void swap(int index1, int index2) {
 		int i1 = index1 + prevContext;
 		int i2 = index2 + prevContext;
