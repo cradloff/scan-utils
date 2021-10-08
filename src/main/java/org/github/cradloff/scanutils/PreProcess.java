@@ -224,7 +224,7 @@ public class PreProcess {
 	}
 
 	private static final Pattern SEVEN = Pattern.compile(".*\\D[72]$");
-	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D[72][ilt1]$");
+	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D[72k][ilt1]$");
 	private static final Pattern SPACE = Pattern.compile(" ");
 	private static final Pattern ILT1 = Pattern.compile("^[ilt1]$");
 	static int replaceSeven(List<String> line) {
