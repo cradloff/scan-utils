@@ -177,8 +177,7 @@ public class PrepareTextTest {
 		// nach der Überschrift 2. Ordnung kommt die 3.
 		checkPrepareText("1. Kapitel\nÜberschrift", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");
 		checkPrepareText("1. Kapitel.\nÜberschrift.", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");
-		// aber nur, falls keine Leerzeile dazwischen kommt
-		checkPrepareText("1. Kapitel\n\nkeine Überschrift", "<h2>1. Kapitel.</h2>\n\nkeine Überschrift");
+		checkPrepareText("1. Kapitel.\n\nÜberschrift.", "<h2>1. Kapitel.</h2>\n\n<h3>Überschrift.</h3>");
 
 		// G. m. b. H. und große Zahlen mit non breaking spaces zusammenhalten
 		checkPrepareText("Verlag moderner Lektüre G. m. b. H.",

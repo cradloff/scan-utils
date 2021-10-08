@@ -85,7 +85,9 @@ public class PrepareText {
 				}
 
 				hasEmptyLine = emptyLine;
-				previousLine = result;
+				if (! emptyLine) {
+					previousLine = result;
+				}
 			}
 		}
 	}
