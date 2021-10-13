@@ -16,7 +16,7 @@ import org.junit.Test;
 
 public class CheckCaseTest {
 
-	@Test public void testFixCase() {
+	@Test public void testFixCase() throws IOException {
 		checkFixCase("", "Zu Anfang und zu klein.", "Zu Anfang und zu klein.", 0);
 		checkFixCase("", "zu anfang Und Zu klein.", "Zu Anfang und zu klein.", 4);
 		checkFixCase("", "ende. Zu Anfang Und Zu klein.", "Ende. Zu Anfang und zu klein.", 3);
@@ -30,11 +30,12 @@ public class CheckCaseTest {
 
 	private Bag<String> dict = new HashBag<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
 	private static Collection<String> abkürzungen = Arrays.asList("Nr");
-	private void checkFixCase(String lastLine, String line, String expected, int expectedCount) {
-		List<String> lastWords = TextUtils.split(lastLine);
-		List<String> words = TextUtils.split(line);
-		int count = CheckCase.fixCase(lastWords, words, CheckCase.removeAmbigous(dict), abkürzungen);
-		String actual = String.join("", words);
+	private void checkFixCase(String lastLine, String line, String expected, int expectedCount) throws IOException {
+		LineReader reader = lineReader(lastLine, line);
+		reader.readLine();
+		reader.readLine();
+		int count = CheckCase.fixCase(reader, CheckCase.removeAmbigous(dict), abkürzungen);
+		String actual = String.join("", reader.current());
 		assertEquals(expected, actual);
 		assertEquals("count", expectedCount, count);
 	}
@@ -100,7 +101,7 @@ public class CheckCaseTest {
 		assertEquals(expected, CheckCase.satzanfang(lastWords, words, words.size() - 1, abkürzungen));
 	}
 
-	@Test public void testFixPunkt() {
+	@Test public void testFixPunkt() throws IOException {
 		checkFixPunkt("Das Satzende,", "der Anfang", "Das Satzende,", 0);
 		checkFixPunkt("Das Satzende,", "", "Das Satzende.", 1);
 		checkFixPunkt("Das Satzende,«", "der Anfang", "Das Satzende,«", 0);
@@ -118,14 +119,12 @@ public class CheckCaseTest {
 		checkFixPunkt("<h3>Kapitel 3,</h3>", "", "<h3>Kapitel 3.</h3>", 1);
 	}
 
-	private void checkFixPunkt(String line, String nextLine, String expected, int expectedCount) {
-		List<String> words = TextUtils.split(line);
-		int count = CheckCase.fixPunkt(words, nextLine);
-		StringBuilder actual = new StringBuilder();
-		for (String word : words) {
-			actual.append(word);
-		}
-		assertEquals(expected, actual.toString());
+	private void checkFixPunkt(String line, String nextLine, String expected, int expectedCount) throws IOException {
+		LineReader reader = lineReader(line, nextLine);
+		reader.readLine();
+		int count = CheckCase.fixPunkt(reader);
+		String actual = String.join("", reader.current());
+		assertEquals(expected, actual);
 		assertEquals(expectedCount, count);
 	}
 
@@ -136,14 +135,21 @@ public class CheckCaseTest {
 		// Tags werden ignoriert, dazwischen wird ersetzt
 		checkCheckCase("<h1 am='anfang'>am anfang</h1>", "<h1 am='anfang'>Am Anfang.</h1>");
 		checkCheckCase("<@ende am='anfang'>am anfang</@ende>", "<@ende am='anfang'>Am Anfang</@ende>");
+		// Seitenumbrüche werden ignoriert
+		checkCheckCase("Am anfang\n<@pagebreak/>\nund Am ende,\n", "Am Anfang\n<@pagebreak/>\nund am Ende.\n");
+		checkCheckCase("Am anfang.\n<@pagebreak/>\nund Am ende,\n", "Am Anfang.\n<@pagebreak/>\nUnd am Ende.\n");
 	}
 
 	private void checkCheckCase(String line, String expected) throws IOException {
 		CheckCase cc = new CheckCase();
-		StringReader in = new StringReader(line);
 		StringWriter out = new StringWriter();
-		cc.checkCase(in, out, dict, abkürzungen);
+		cc.checkCase(lineReader(line), out, dict, abkürzungen);
 		String actual = out.toString();
 		Assert.assertLinesEqual(expected, actual);
+	}
+
+	private static LineReader lineReader(String ... lines) throws IOException {
+		StringReader in = new StringReader(String.join("\n", lines));
+		return new LineReader(in, 2, 1);
 	}
 }

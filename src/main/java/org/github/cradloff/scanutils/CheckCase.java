@@ -1,6 +1,5 @@
 package org.github.cradloff.scanutils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -9,7 +8,6 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +18,7 @@ import org.apache.commons.collections4.bag.HashBag;
 
 /** Korrigiert die Groß-/Kleinschreibung */
 public class CheckCase {
+	private static final List<String> PAGEBREAK = TextUtils.split("<@pagebreak/>");
 	public static void main(String[] args) throws IOException {
 		long start = System.currentTimeMillis();
 		if (args.length < 1) {
@@ -45,7 +44,8 @@ public class CheckCase {
 			File backup = FileAccess.roll(input);
 			try (Reader in = new FileReader(backup);
 					Writer out = new FileWriter(input);) {
-				int count = new CheckCase().checkCase(in, out, dict, abkürzungen);
+				LineReader reader = new LineReader(in, 2, 1);
+				int count = new CheckCase().checkCase(reader, out, dict, abkürzungen);
 
 				System.out.printf("Anzahl ersetzter Wörter: %,d, Zeit: %,dms%n",
 						count, (System.currentTimeMillis() - start));
@@ -76,39 +76,37 @@ public class CheckCase {
 		return result;
 	}
 
-	int checkCase(Reader in, Writer out, Bag<String> dict, Collection<String> abkürzungen) throws IOException {
-		BufferedReader reader = new BufferedReader(in);
+	int checkCase(LineReader reader, Writer out, Bag<String> dict, Collection<String> abkürzungen) throws IOException {
 		PrintWriter writer = new PrintWriter(out);
-		String line = reader.readLine();
-		List<String> lastLine = Collections.emptyList();
 		int count = 0;
-		do {
-			String nextLine = reader.readLine();
-			// Zeile in Token zerlegen
-			List<String> s = TextUtils.split(line);
+		while (reader.readLine()) {
 			// Großschreibung durch Kleinschreibung ersetzen
-			count += fixCase(lastLine, s, dict, abkürzungen);
+			count += fixCase(reader, dict, abkürzungen);
 			// Kommas am Absatzende durch Punkte ersetzen
-			count += fixPunkt(s, nextLine);
+			count += fixPunkt(reader);
 
-			for (String token : s) {
+			List<String> line = reader.current();
+			for (String token : line) {
 				writer.write(token);
 			}
 
 			writer.println();
-			lastLine = s;
-			line = nextLine;
 		}
-		while (line != null);
 
 		return count;
 	}
 
 	/** Ersetzt bestimmte Wörter durch ihre Groß-/Kleinschreibweise, wenn sie nicht am Satzanfang stehen */
-	public static int fixCase(List<String> lastLine, List<String> line, Bag<String> dict, Collection<String> abkürzungen) {
+	public static int fixCase(LineReader reader, Bag<String> dict, Collection<String> abkürzungen) {
 		// alle Wörter, die nicht am Zeilenanfang oder nach einem Punkt kommen, durch Kleinschreibweise ersetzen
 		int count = 0;
 		boolean tag = false;
+		List<String> lastLine = reader.prev();
+		// Seitenumbrüche ignorieren
+		if (PAGEBREAK.equals(lastLine)) {
+			lastLine = reader.prev(2);
+		}
+		List<String> line = reader.current();
 		for (int i = 0; i < line.size(); i++) {
 			String word = line.get(i);
 			// Tags überspringen
@@ -144,9 +142,11 @@ public class CheckCase {
 		return count;
 	}
 
-	public static int fixPunkt(List<String> line, String nextLine) {
+	public static int fixPunkt(LineReader reader) {
 		int count = 0;
-		if (! line.isEmpty() && (nextLine == null || nextLine.isBlank())) {
+		List<String> line = reader.current();
+		List<String> nextLine = reader.next();
+		if (! line.isEmpty() && nextLine.isEmpty()) {
 			int index = line.size() - 1;
 			String lastToken = line.get(index);
 			if (lastToken.equals(",")) {
