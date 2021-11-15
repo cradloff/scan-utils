@@ -27,6 +27,7 @@ public class PreProcessTest {
 		checkSeven("Absatz 7l und 7i", "Absatz 7l und 7i", 0);
 		checkSeven("Absatz 2l und 21", "Absatz 2l und 21", 0);
 		checkSeven("<h2>Titel</h2>", "<h2>Titel</h2>", 0);
+		checkSeven("Wort versteckt", "Wort versteckt", 0);
 
 		checkSeven("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!", 3);
 		checkSeven("Wort7 mit7 l sieben7 i", "Wort? mit?! sieben?!", 3);
@@ -42,7 +43,9 @@ public class PreProcessTest {
 
 	private void checkSeven(String line, String expected, int expectedCount) {
 		List<String> words = TextUtils.split(line);
-		int count = PreProcess.replaceSeven(words);
+		TreeBag<String> dict = new TreeBag<>();
+		dict.add("versteckt");
+		int count = PreProcess.replaceSeven(words, dict);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
 		assertEquals("count", expectedCount, count);

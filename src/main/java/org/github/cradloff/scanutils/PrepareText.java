@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.github.cradloff.scanutils.PreProcess.Parameter;
 
@@ -218,14 +219,18 @@ public class PrepareText {
 	public static String replaceOnce(String input, Map<String, String> replacements) {
 		String result = input;
 		for (Entry<String, String> entry : replacements.entrySet()) {
-			result = result.replaceAll(entry.getKey(), entry.getValue());
+			try {
+				result = result.replaceAll(entry.getKey(), entry.getValue());
+			} catch (PatternSyntaxException e) {
+				throw new RuntimeException("Error replacing pattern " + entry.getKey() + " with " + entry.getValue(), e);
+			}
 		}
 
 		return result;
 	}
 
 	private static String handleChapter(String line) {
-		return line.replaceAll("^(\\d)[.,]? [KR]a[pv][it][ti]e[lt][.,]?$", "<h2>$1. Kapitel.</h2>");
+		return line.replaceAll("^(\\d)[.,]? [FKR]a[pv][it][ti]e[lt][.,]?$", "<h2>$1. Kapitel.</h2>");
 	}
 
 	private static String handleSubChapter(String previousLine, String line) {

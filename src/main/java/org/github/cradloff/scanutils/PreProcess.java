@@ -168,7 +168,7 @@ public class PreProcess {
 				results.add(LineProcessor.EMPTY_LINE);
 			} else {
 				// 7er etc. ersetzen
-				count += replaceSeven(line);
+				count += replaceSeven(line, ciDict);
 				count += replaceSpecial(line);
 				// Brüche ersetzen
 				count += replaceFraction(line);
@@ -227,7 +227,7 @@ public class PreProcess {
 	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D[72k][ilt1]$");
 	private static final Pattern SPACE = Pattern.compile(" ");
 	private static final Pattern ILT1 = Pattern.compile("^[ilt1]$");
-	static int replaceSeven(List<String> line) {
+	static int replaceSeven(List<String> line, SortedBag<String> ciDict) {
 		int count = 0;
 		String nextWord = "";
 		boolean tag = false;
@@ -239,6 +239,10 @@ public class PreProcess {
 			} else if (TextUtils.startOfTag(word)) {
 				tag = false;
 			} else if (tag) {
+				continue;
+			}
+			// bekannte Wörter in Ruhe lassen
+			else if (ciDict.contains(word)) {
 				continue;
 			}
 
