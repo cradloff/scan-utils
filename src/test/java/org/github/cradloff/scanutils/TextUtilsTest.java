@@ -128,6 +128,29 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.endsWith(line, "x", "a", " ", "c"));
 	}
 
+	@Test public void startsWith() {
+		List<String> line = Arrays.asList("a", " ", "c");
+		assertTrue(TextUtils.startsWith(line, "a"));
+		assertTrue(TextUtils.startsWith(line, "a", " "));
+		assertTrue(TextUtils.startsWith(line, "a", " ", "c"));
+
+		assertFalse(TextUtils.startsWith(line, " "));
+		assertFalse(TextUtils.startsWith(line, "c"));
+		assertFalse(TextUtils.startsWith(line, "a", " ", "c", "d"));
+	}
+
+	@Test public void regionMatches() {
+		List<String> line = Arrays.asList("a", " ", "c");
+		assertTrue(TextUtils.regionMatches(line, 0, "a"));
+		assertTrue(TextUtils.regionMatches(line, 0, "a", " ", "c"));
+		assertTrue(TextUtils.regionMatches(line, 1, " ", "c"));
+		assertTrue(TextUtils.regionMatches(line, 2, "c"));
+
+		assertFalse(TextUtils.regionMatches(line, 1, "a"));
+		assertFalse(TextUtils.regionMatches(line, -1, "a"));
+		assertFalse(TextUtils.regionMatches(line, 3, "a"));
+	}
+
 	@Test public void startOfTag() {
 		assertTrue(TextUtils.startOfTag("<"));
 		assertTrue(TextUtils.startOfTag("</"));

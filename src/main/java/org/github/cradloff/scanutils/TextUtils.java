@@ -177,17 +177,25 @@ public class TextUtils {
 	}
 
 	public static boolean endsWith(List<String> line, String... tokens) {
-		int offset = line.size() - tokens.length;
+		return regionMatches(line, line.size() - tokens.length, tokens);
+	}
+
+	public static boolean startsWith(List<String> line, String... tokens) {
+		return regionMatches(line, 0, tokens);
+	}
+
+	public static boolean regionMatches(List<String> line, int pos, String... tokens) {
 		boolean equal = true;
-		if (offset >= 0) {
+		if (pos < 0 || tokens.length + pos > line.size()) {
+			equal = false;
+		} else {
 			for (int i = 0; i < tokens.length; i++) {
-				if (! line.get(i + offset).equals(tokens[i])) {
+				if (! tokens[i].equals(line.get(i + pos))) {
 					equal = false;
 				}
 			}
-		} else {
-			equal = false;
 		}
+
 		return equal;
 	}
 

@@ -40,12 +40,14 @@ public class PreProcessTest {
 		checkSatzzeichen("Wort? mit?t sieben?1", "Wort? mit?! sieben?!", 2);
 		checkSatzzeichen("57 Wörter mit 7 Silben7", "57 Wörter mit 7 Silben?", 1);
 		checkSatzzeichen("<h2>Wort7 mit7t zwei21</h2>", "<h2>Wort? mit?! zwei?!</h2>", 3);
+
 		checkSatzzeichen("»Wer war’s? !« riefen sie.", "»Wer war’s?!« riefen sie.", 1);
 		checkSatzzeichen("»Wer war’s? 1« riefen sie.", "»Wer war’s?!« riefen sie.", 1);
 		checkSatzzeichen("»Wer war’s?1« riefen sie.", "»Wer war’s?!« riefen sie.", 1);
 		checkSatzzeichen("»Er war’s! !« riefen sie.", "»Er war’s!!« riefen sie.", 1);
 		checkSatzzeichen("»Er war’s! 1« riefen sie.", "»Er war’s!!« riefen sie.", 1);
 		checkSatzzeichen("»Er war’s!1« riefen sie.", "»Er war’s!!« riefen sie.", 1);
+
 		checkSatzzeichen("hierher … 1", "hierher …!", 1);
 		checkSatzzeichen("hierher …1", "hierher …!", 1);
 		checkSatzzeichen("hierher … 1", "hierher …!", 1);
@@ -54,6 +56,10 @@ public class PreProcessTest {
 		checkSatzzeichen("hierher …11", "hierher …!!", 1);
 		checkSatzzeichen("hierher … !1", "hierher …!!", 1);
 		checkSatzzeichen("hierher …!1", "hierher …!!", 1);
+
+		checkSatzzeichen("- und - dann -", "— und — dann —", 3);
+		checkSatzzeichen("Ober- und Unter-Seite", "Ober- und Unter-Seite", 0);
+		checkSatzzeichen("Brahma-Priester und -Tempel", "Brahma-Priester und -Tempel", 0);
 	}
 
 	private void checkSatzzeichen(String line, String expected, int expectedCount) {

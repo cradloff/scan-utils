@@ -224,6 +224,14 @@ public class PreProcess {
 	static int satzzeichenErsetzen(List<String> line, SortedBag<String> ciDict) {
 		int count = 0;
 		boolean tag = false;
+		if (TextUtils.endsWith(line, " ", "-")) {
+			line.set(line.size() - 1, "—");
+			count++;
+		}
+		if (TextUtils.startsWith(line, "-", " ")) {
+			line.set(0, "—");
+			count++;
+		}
 		for (int i = line.size() - 1; i >= 0; i--) {
 			// '7' am Wortende durch '?' ersetzen
 			String word = line.get(i);
@@ -272,6 +280,10 @@ public class PreProcess {
 			// ... 11 durch ...!! ersetzen
 			for (Pattern[] pattern : PATTERN_HELLIP_AUSRUFEZEICHEN_AUSRUFEZEICHEN) {
 				count += TextUtils.replace(line, i, pattern, "…!!");
+			}
+			if (TextUtils.regionMatches(line, i - 1, " ", "-", " ")) {
+				line.set(i, "—");
+				count++;
 			}
 		}
 
