@@ -230,4 +230,19 @@ public class TextUtils {
 		return true;
 	}
 
+	/** Stimmt die Zeile an der aktuellen Position mit dem Pattern überein, wird es durch die Zeichenkette ersetzt
+	 * @return */
+	public static int replace(List<String> line, int pos, Pattern[] pattern, String replacement) {
+		int count = 0;
+		if (matches(line, pos, pattern)) {
+			for (int i = 1; i < pattern.length; i++) {
+				line.remove(pos);
+			}
+			line.set(pos, replacement);
+			count++;
+		}
+
+		return count;
+	}
+
 }

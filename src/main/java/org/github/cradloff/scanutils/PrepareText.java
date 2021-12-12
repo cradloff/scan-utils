@@ -103,6 +103,14 @@ public class PrepareText {
 		// doppelte Punkte durch … ersetzen
 		result = result.replaceAll("\\.\\s?\\.", "…");
 		result = result.replace("……", "…");
+		// einzelne Punkte nach Leerzeichen ersetzen
+		result = result.replace(" . ", " … ");
+		if (result.startsWith(". ")) {
+			result = result.replaceAll("^\\. ", "… ");
+		}
+		if (result.endsWith(" .")) {
+			result = result.replaceAll(" \\.$", " …");
+		}
 
 		// zwischen Punkten und Wörtern Leerzeichen einfügen
 		result = result.replaceAll("(\\w)…", "$1 …");
@@ -230,7 +238,7 @@ public class PrepareText {
 	}
 
 	private static String handleChapter(String line) {
-		return line.replaceAll("^(\\d)[.,]? [FKR]a[pv][it][ti]e[lt][.,]?$", "<h2>$1. Kapitel.</h2>");
+		return line.replaceAll("^(\\d)[.,:]? [AFKR]a[pv][it][ti]e[lt][.,]?$", "<h2>$1. Kapitel.</h2>");
 	}
 
 	private static String handleSubChapter(String previousLine, String line) {

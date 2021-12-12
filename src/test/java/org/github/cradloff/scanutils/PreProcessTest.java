@@ -22,30 +22,45 @@ import org.github.cradloff.scanutils.PreProcess.Parameter;
 import org.junit.Test;
 
 public class PreProcessTest {
-	@Test public void testSeven() {
-		checkSeven("Wort ohne 7.", "Wort ohne 7.", 0);
-		checkSeven("Absatz 7l und 7i", "Absatz 7l und 7i", 0);
-		checkSeven("Absatz 2l und 21", "Absatz 2l und 21", 0);
-		checkSeven("<h2>Titel</h2>", "<h2>Titel</h2>", 0);
-		checkSeven("Wort versteckt", "Wort versteckt", 0);
+	@Test public void testSatzzeichenErsetzen() {
+		// an bestimmten Stellen darf nicht ersetzt werden
+		checkSatzzeichen("Wort ohne 7.", "Wort ohne 7.", 0);
+		checkSatzzeichen("Absatz 7l und 7i", "Absatz 7l und 7i", 0);
+		checkSatzzeichen("Absatz 2l und 21", "Absatz 2l und 21", 0);
+		checkSatzzeichen("<h2>Titel</h2>", "<h2>Titel</h2>", 0);
+		checkSatzzeichen("Wort versteckt", "Wort versteckt", 0);
 
-		checkSeven("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!", 3);
-		checkSeven("Wort7 mit7 l sieben7 i", "Wort? mit?! sieben?!", 3);
-		checkSeven("Wort2 mit2l zwei21", "Wort? mit?! zwei?!", 3);
-		checkSeven("Wort2 mitkl zwei21", "Wort? mit?! zwei?!", 3);
-		checkSeven("Wort2 mit2 l zwei2 1", "Wort? mit?! zwei?!", 3);
-		checkSeven("Wort7 mit7t sieben71", "Wort? mit?! sieben?!", 3);
-		checkSeven("Wort? mit?l sieben?i", "Wort? mit?! sieben?!", 2);
-		checkSeven("Wort? mit?t sieben?1", "Wort? mit?! sieben?!", 2);
-		checkSeven("57 Wörter mit 7 Silben7", "57 Wörter mit 7 Silben?", 1);
-		checkSeven("<h2>Wort7 mit7t zwei21</h2>", "<h2>Wort? mit?! zwei?!</h2>", 3);
+		checkSatzzeichen("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!", 3);
+		checkSatzzeichen("Wort7 mit7 l sieben7 i", "Wort? mit?! sieben?!", 3);
+		checkSatzzeichen("Wort2 mit2l zwei21", "Wort? mit?! zwei?!", 3);
+		checkSatzzeichen("Wort2 mitkl zwei21", "Wort? mit?! zwei?!", 3);
+		checkSatzzeichen("Wort2 mit2 l zwei2 1", "Wort? mit?! zwei?!", 3);
+		checkSatzzeichen("Wort7 mit7t sieben71", "Wort? mit?! sieben?!", 3);
+		checkSatzzeichen("Wort? mit?l sieben?i", "Wort? mit?! sieben?!", 2);
+		checkSatzzeichen("Wort? mit?t sieben?1", "Wort? mit?! sieben?!", 2);
+		checkSatzzeichen("57 Wörter mit 7 Silben7", "57 Wörter mit 7 Silben?", 1);
+		checkSatzzeichen("<h2>Wort7 mit7t zwei21</h2>", "<h2>Wort? mit?! zwei?!</h2>", 3);
+		checkSatzzeichen("»Wer war’s? !« riefen sie.", "»Wer war’s?!« riefen sie.", 1);
+		checkSatzzeichen("»Wer war’s? 1« riefen sie.", "»Wer war’s?!« riefen sie.", 1);
+		checkSatzzeichen("»Wer war’s?1« riefen sie.", "»Wer war’s?!« riefen sie.", 1);
+		checkSatzzeichen("»Er war’s! !« riefen sie.", "»Er war’s!!« riefen sie.", 1);
+		checkSatzzeichen("»Er war’s! 1« riefen sie.", "»Er war’s!!« riefen sie.", 1);
+		checkSatzzeichen("»Er war’s!1« riefen sie.", "»Er war’s!!« riefen sie.", 1);
+		checkSatzzeichen("hierher … 1", "hierher …!", 1);
+		checkSatzzeichen("hierher …1", "hierher …!", 1);
+		checkSatzzeichen("hierher … 1", "hierher …!", 1);
+		checkSatzzeichen("hierher …1", "hierher …!", 1);
+		checkSatzzeichen("hierher … 11", "hierher …!!", 1);
+		checkSatzzeichen("hierher …11", "hierher …!!", 1);
+		checkSatzzeichen("hierher … !1", "hierher …!!", 1);
+		checkSatzzeichen("hierher …!1", "hierher …!!", 1);
 	}
 
-	private void checkSeven(String line, String expected, int expectedCount) {
+	private void checkSatzzeichen(String line, String expected, int expectedCount) {
 		List<String> words = TextUtils.split(line);
 		TreeBag<String> dict = new TreeBag<>();
 		dict.add("versteckt");
-		int count = PreProcess.replaceSeven(words, dict);
+		int count = PreProcess.satzzeichenErsetzen(words, dict);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
 		assertEquals("count", expectedCount, count);
@@ -251,11 +266,11 @@ public class PreProcessTest {
 		checkPreProcess("Þiræten-$ch|ﬀ vørauſ", "Piraten-Schiff voraus", dict, silben, spellcheck, 3);
 		// Ersetzung von Zeichen durch Ausrufezeichen
 		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, silben, spellcheck, 3);
-		checkPreProcess("»Wer war das? 1« fragte er.", "»Wer war das?!« fragte er.", dict, silben, spellcheck, 0);
+		checkPreProcess("»Wer war das? 1« fragte er.", "»Wer war das?!« fragte er.", dict, silben, spellcheck, 1);
 		checkPreProcess("»Wer war das?1» fragte er.", "»Wer war das?!« fragte er.", dict, silben, spellcheck, 1);
-		checkPreProcess("»Ich nicht! 1» sagte er.", "»Ich nicht!!« sagte er.", dict, silben, spellcheck, 0);
+		checkPreProcess("»Ich nicht! 1» sagte er.", "»Ich nicht!!« sagte er.", dict, silben, spellcheck, 1);
 		checkPreProcess("»Er war's! !« riefen sie.", "»Er war’s!!« riefen sie.", dict, silben, spellcheck, 1);
-		checkPreProcess("»Sie war's!1« rief er.", "»Sie war’s!!« rief er.", dict, silben, spellcheck, 0);
+		checkPreProcess("»Sie war's!1« rief er.", "»Sie war’s!!« rief er.", dict, silben, spellcheck, 1);
 		// keine Entfernung von Bindestrichen nach Backslash
 		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« …\n", dict, silben, spellcheck, 0);
 		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, silben, spellcheck, 0);

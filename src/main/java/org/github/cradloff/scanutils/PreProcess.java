@@ -67,17 +67,6 @@ public class PreProcess {
 
 	/** Zeile mit einem Pagebreak */
 	private static final List<String> PAGEBREAK = TextUtils.split("<@pagebreak/>");
-	private static final Pattern[] PATTERN_AUSRUFEZEICHEN_1 = {
-			Pattern.compile("[?!]"),
-			Pattern.compile(" "),
-			Pattern.compile("[1!]"),
-			Pattern.compile("[»«]"),
-	};
-	private static final Pattern[] PATTERN_AUSRUFEZEICHEN_2 = {
-			Pattern.compile("[?!]"),
-			Pattern.compile("[1!]"),
-			Pattern.compile("[»«]"),
-	};
 	private static final Pattern[] PATTERN_UEBERSCHRIFT = {
 			Pattern.compile("<"),
 			Pattern.compile("h\\d"),
@@ -167,8 +156,7 @@ public class PreProcess {
 			if (line.isEmpty()) {
 				results.add(LineProcessor.EMPTY_LINE);
 			} else {
-				// 7er etc. ersetzen
-				count += replaceSeven(line, ciDict);
+				count += satzzeichenErsetzen(line, ciDict);
 				count += replaceSpecial(line);
 				// Brüche ersetzen
 				count += replaceFraction(line);
@@ -182,10 +170,6 @@ public class PreProcess {
 						reader.skip(1);
 					}
 				}
-
-				// ? 1« durch ?!« ersetzen
-				ausrufezeichenErsetzen(line, PATTERN_AUSRUFEZEICHEN_1);
-				ausrufezeichenErsetzen(line, PATTERN_AUSRUFEZEICHEN_2);
 
 				/*
 				 * dann mit mehreren Threads verarbeitet
@@ -212,28 +196,38 @@ public class PreProcess {
 		return count;
 	}
 
-	private void ausrufezeichenErsetzen(List<String> line, Pattern[] patterns) {
-		for (int i = 0; i <= line.size() - patterns.length; i++) {
-			if (TextUtils.matches(line, i, patterns)) {
-				line.set(i + 1, "!«");
-				for (int j = 0; j < patterns.length - 2; j++) {
-					line.remove(i + 2);
-				}
-			}
-		}
-	}
-
 	private static final Pattern SEVEN = Pattern.compile(".*\\D[72]$");
 	private static final Pattern SEVEN_PLUS = Pattern.compile(".*\\D[72k][ilt1]$");
 	private static final Pattern SPACE = Pattern.compile(" ");
 	private static final Pattern ILT1 = Pattern.compile("^[ilt1]$");
-	static int replaceSeven(List<String> line, SortedBag<String> ciDict) {
+	private static final Pattern[] PATTERN_FRAGEZEICHEN_AUSRUFEZEICHEN = {
+			Pattern.compile("\\?"), Pattern.compile("[ilt1]") };
+	private static final Pattern[][] PATTERN_FRAGEZEICHEN_AUSRUFEZEICHEN_QUOTE = {
+			{ Pattern.compile("\\?"), SPACE, Pattern.compile("![»«]") },
+			{ Pattern.compile("\\?"), SPACE, Pattern.compile("1"), Pattern.compile("[»«]") },
+	};
+	private static final Pattern[][] PATTERN_AUSRUFEZEICHEN_AUSRUFEZEICHEN_QUOTE = {
+			{ Pattern.compile("[1!]"), Pattern.compile("1"), Pattern.compile("[»«]") },
+			{ Pattern.compile("[1!]"), SPACE, Pattern.compile("![»«]") },
+			{ Pattern.compile("[1!]"), SPACE, Pattern.compile("1"), Pattern.compile("[»«]") },
+	};
+	private static final Pattern[][] PATTERN_HELLIP_AUSRUFEZEICHEN = {
+			{ Pattern.compile("…"), Pattern.compile("1") },
+			{ Pattern.compile("…"), SPACE, Pattern.compile("1") },
+	};
+	private static final Pattern[][] PATTERN_HELLIP_AUSRUFEZEICHEN_AUSRUFEZEICHEN = {
+			{ Pattern.compile("…"), Pattern.compile("[!1]{2}") },
+			{ Pattern.compile("…"), SPACE, Pattern.compile("[!1]{2}") },
+			{ Pattern.compile("…!"), Pattern.compile("1") },
+			{ Pattern.compile("…"), SPACE, Pattern.compile("!"), Pattern.compile("1") },
+	};
+	static int satzzeichenErsetzen(List<String> line, SortedBag<String> ciDict) {
 		int count = 0;
-		String nextWord = "";
 		boolean tag = false;
 		for (int i = line.size() - 1; i >= 0; i--) {
 			// '7' am Wortende durch '?' ersetzen
 			String word = line.get(i);
+			// keine Ersetzungen in Html-Tags
 			if (TextUtils.endOfTag(word)) {
 				tag = true;
 			} else if (TextUtils.startOfTag(word)) {
@@ -262,14 +256,23 @@ public class PreProcess {
 				count++;
 			}
 			// ? gefolgt von i oder l
-			else if (word.equals("?")
-					&& (nextWord.equals("i") || nextWord.equals("l")
-							|| nextWord.equals("t") || nextWord.equals("1"))) {
-				line.remove(i + 1);
-				line.set(i, "?!");
-				count++;
+			count += TextUtils.replace(line, i, PATTERN_FRAGEZEICHEN_AUSRUFEZEICHEN, "?!");
+			// ? 1« durch ?!« ersetzen
+			for (Pattern[] patterns : PATTERN_FRAGEZEICHEN_AUSRUFEZEICHEN_QUOTE) {
+				count += TextUtils.replace(line, i, patterns, "?!«");
 			}
-			nextWord = word;
+			// ! 1« durch !!« ersetzen
+			for (Pattern[] patterns : PATTERN_AUSRUFEZEICHEN_AUSRUFEZEICHEN_QUOTE) {
+				count += TextUtils.replace(line, i, patterns, "!!«");
+			}
+			// ... 1 durch ...! ersetzen
+			for (Pattern[] pattern : PATTERN_HELLIP_AUSRUFEZEICHEN) {
+				count += TextUtils.replace(line, i, pattern, "…!");
+			}
+			// ... 11 durch ...!! ersetzen
+			for (Pattern[] pattern : PATTERN_HELLIP_AUSRUFEZEICHEN_AUSRUFEZEICHEN) {
+				count += TextUtils.replace(line, i, pattern, "…!!");
+			}
 		}
 
 		return count;

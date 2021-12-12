@@ -205,4 +205,19 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.matches(line, 0, pattern1, patternSpace, pattern2, patternSpace, pattern3, patternSpace));
 		assertFalse(TextUtils.matches(line, 5, patternSpace));
 	}
+
+	@Test public void testReplace() {
+		Pattern[] patterns = { Pattern.compile("…"), Pattern.compile(" "), Pattern.compile("!"), Pattern.compile("1") };
+		checkReplace("Hierher … !1", 2, patterns, "…!!", "Hierher …!!", 1);
+		// falsche Position
+		checkReplace("Hierher … !1", 5, patterns, "…!!", "Hierher … !1", 0);
+	}
+
+	private void checkReplace(String line, int pos, Pattern[] patterns, String replacement, String expectedLine, int expectedCount) {
+		List<String> words = TextUtils.split(line);
+		int count = TextUtils.replace(words, pos, patterns, replacement);
+		String actual = String.join("", words);
+		assertEquals(expectedLine, actual);
+		assertEquals("count", expectedCount, count);
+	}
 }
