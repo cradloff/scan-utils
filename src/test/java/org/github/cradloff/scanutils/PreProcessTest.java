@@ -28,7 +28,10 @@ public class PreProcessTest {
 		checkSatzzeichen("Absatz 7l und 7i", "Absatz 7l und 7i", 0);
 		checkSatzzeichen("Absatz 2l und 21", "Absatz 2l und 21", 0);
 		checkSatzzeichen("<h2>Titel</h2>", "<h2>Titel</h2>", 0);
-		checkSatzzeichen("Wort versteckt", "Wort versteckt", 0);
+		// in bekannten Wörtern (Mukki) nichts ersetzen
+		checkSatzzeichen("Wort Schnukki Mukki", "Wort Schnuk?! Mukki", 1);
+		// die Endung kt ist sehr häufig und wird deswegen ebenfalls ignoriert
+		checkSatzzeichen("Wort verdeckt", "Wort verdeckt", 0);
 
 		checkSatzzeichen("Wort7 mit7l sieben7i", "Wort? mit?! sieben?!", 3);
 		checkSatzzeichen("Wort7 mit7 l sieben7 i", "Wort? mit?! sieben?!", 3);
@@ -56,6 +59,8 @@ public class PreProcessTest {
 		checkSatzzeichen("hierher …11", "hierher …!!", 1);
 		checkSatzzeichen("hierher … !1", "hierher …!!", 1);
 		checkSatzzeichen("hierher …!1", "hierher …!!", 1);
+		checkSatzzeichen("hierher … ?1", "hierher …?!", 2);
+		checkSatzzeichen("hierher …?1", "hierher …?!", 1);
 
 		checkSatzzeichen("- und - dann -", "— und — dann —", 3);
 		checkSatzzeichen("Ober- und Unter-Seite", "Ober- und Unter-Seite", 0);
@@ -65,7 +70,7 @@ public class PreProcessTest {
 	private void checkSatzzeichen(String line, String expected, int expectedCount) {
 		List<String> words = TextUtils.split(line);
 		TreeBag<String> dict = new TreeBag<>();
-		dict.add("versteckt");
+		dict.add("Mukki");
 		int count = PreProcess.satzzeichenErsetzen(words, dict);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
@@ -248,6 +253,7 @@ public class PreProcessTest {
 		spellcheck.put("“", "«");
 		spellcheck.put("”", "«");
 		spellcheck.put("„", "»");
+		spellcheck.put("…?1«", "…?!«");
 
 		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
 		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal",
@@ -261,7 +267,7 @@ public class PreProcessTest {
 		checkPreProcess("Ai-ie mi-ene ent=chen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 3);
 		checkPreProcess("Ai»ie7 meine7i Ent«ch.en7l\n", "Alle? meine?! Entchen?!\n", dict, silben, spellcheck, 4);
 		checkPreProcess("Alle «miene» Ent-chen Zu Wasser-teich!\n", "Alle »meine« Entchen Zu Wasser-teich!\n", dict, silben, spellcheck, 2);
-		checkPreProcess("Al»le mal zu mir\n", "Alle mal zu mir\n", dict, silben, spellcheck, 0);
+		checkPreProcess("Al»le mal zu mir …?1«\n", "Alle mal zu mir …?!«\n", dict, silben, spellcheck, 1);
 		checkPreProcess("«Sehiss rvoauf!»\n", "»Schiff voraus!«\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Und dann — »2 Sonnen»,\n", "Und dann — »2 Sonnen«,\n", dict, silben, spellcheck, 0);
 		checkPreProcess("für alle Fälle —»", "für alle Fälle —«", dict, silben, spellcheck, 0);

@@ -215,6 +215,11 @@ public class PreProcess {
 			{ Pattern.compile("…"), Pattern.compile("1") },
 			{ Pattern.compile("…"), SPACE, Pattern.compile("1") },
 	};
+	private static final Pattern[][] PATTERN_HELLIP_FRAGEZEICHEN_AUSRUFEZEICHEN = {
+			{ Pattern.compile("…"), SPACE, Pattern.compile("\\?!") },
+			{ Pattern.compile("…\\?"), ILT1 },
+			{ Pattern.compile("…"), SPACE, Pattern.compile("\\?"), ILT1 },
+	};
 	private static final Pattern[][] PATTERN_HELLIP_AUSRUFEZEICHEN_AUSRUFEZEICHEN = {
 			{ Pattern.compile("…"), Pattern.compile("[!1]{2}") },
 			{ Pattern.compile("…"), SPACE, Pattern.compile("[!1]{2}") },
@@ -248,7 +253,7 @@ public class PreProcess {
 				continue;
 			}
 
-			if (SEVEN_PLUS.matcher(word).matches()) {
+			if (SEVEN_PLUS.matcher(word).matches() && ! word.endsWith("kt")) {
 				line.set(i, word.substring(0, word.length() - 2));
 				line.add(i + 1, "?!");
 				count++;
@@ -281,6 +286,11 @@ public class PreProcess {
 			for (Pattern[] pattern : PATTERN_HELLIP_AUSRUFEZEICHEN_AUSRUFEZEICHEN) {
 				count += TextUtils.replace(line, i, pattern, "…!!");
 			}
+			// ... ?! durch ...?! ersetzen
+			for (Pattern[] pattern : PATTERN_HELLIP_FRAGEZEICHEN_AUSRUFEZEICHEN) {
+				count += TextUtils.replace(line, i, pattern, "…?!");
+			}
+			// einzelnen Bindestrich durch breiten Strich ersetzen
 			if (TextUtils.regionMatches(line, i - 1, " ", "-", " ")) {
 				line.set(i, "—");
 				count++;
