@@ -97,6 +97,7 @@ public class TextUtilsTest {
 	@Test public void isWord() {
 		assertTrue(TextUtils.isWord("Wort"));
 		assertTrue(TextUtils.isWord("ist’s"));
+		assertFalse(TextUtils.isWord("123"));
 		assertFalse(TextUtils.isWord("«"));
 		assertFalse(TextUtils.isWord(" "));
 	}
@@ -107,6 +108,31 @@ public class TextUtilsTest {
 		assertTrue(TextUtils.isAlphaNumeric("ist’s"));
 		assertFalse(TextUtils.isAlphaNumeric("«"));
 		assertFalse(TextUtils.isAlphaNumeric(" "));
+	}
+
+	@Test public void textBefore() {
+		//                                   0 2   4    6   8  10  12 13
+		List<String> line = TextUtils.split("… Ein Satz mit 1a und A2?!");
+		assertFalse(TextUtils.textBefore(line, 0));
+		assertFalse(TextUtils.textBefore(line, 1));
+		assertFalse(TextUtils.textBefore(line, 2));
+		assertFalse(TextUtils.textBefore(line, 14));
+		assertTrue(TextUtils.textBefore(line, 3));
+		assertTrue(TextUtils.textBefore(line, 9));
+		assertTrue(TextUtils.textBefore(line, 13));
+	}
+
+	@Test public void textAfter() {
+		//                                   0 2   4    6   8  10  12 13
+		List<String> line = TextUtils.split("… Ein Satz mit 1a und A2?!");
+		assertFalse(TextUtils.textAfter(line, -1));
+		assertFalse(TextUtils.textAfter(line, 0));
+		assertFalse(TextUtils.textAfter(line, 2));
+		assertFalse(TextUtils.textAfter(line, 12));
+		assertFalse(TextUtils.textAfter(line, 13));
+		assertTrue(TextUtils.textAfter(line, 1));
+		assertTrue(TextUtils.textAfter(line, 7));
+		assertTrue(TextUtils.textAfter(line, 11));
 	}
 
 	@Test public void isWhitespace() {

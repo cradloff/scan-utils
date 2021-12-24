@@ -178,7 +178,7 @@ public class PrepareTextTest {
 		checkPrepareText("1. Kapitel", "<h2>1. Kapitel.</h2>");
 		// auch kleinere Rechtschreibfehler werden erkannt
 		checkPrepareText("2. Ravtiet,", "<h2>2. Kapitel.</h2>");
-		checkPrepareText("2: Aavtiet,", "<h2>2. Kapitel.</h2>");
+		checkPrepareText("2: Aavtiet…", "<h2>2. Kapitel.</h2>");
 		// nach der Überschrift 2. Ordnung kommt die 3.
 		checkPrepareText("1. Kapitel\nÜberschrift", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");
 		checkPrepareText("1. Kapitel.\nÜberschrift.", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");

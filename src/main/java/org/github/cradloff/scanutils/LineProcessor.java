@@ -126,7 +126,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			}
 
 			// Satzzeichen in Wörtern entfernen
-			while (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[.,»«\"]") && TextUtils.wordAfter(line, i + 1)) {
+			while (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[.,»«\"]") && TextUtils.textAfter(line, i + 1)) {
 				token += line.get(i + 2);
 				PreProcess.remove(line, i + 1, 2);
 			}
@@ -134,26 +134,18 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			// Satzzeichen ersetzen
 			token = TextUtils.satzzeichenErsetzen(token);
 			// ,, durch » ersetzen
-			if (token.matches("[,.]{2}") && TextUtils.wordAfter(line, i)) {
+			if (token.matches("[,.]{2}") && TextUtils.textAfter(line, i)) {
 				token = "»";
 			}
 
 			// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
-			if (token.contains("»")
-					&& (TextUtils.wordBefore(line, i) || TextUtils.satzzeichenBefore(line, i))
-					&& ! TextUtils.wordAfter(line, i)) {
-				token = token.replace("»", "«");
-			} else if ("«".equals(token) && TextUtils.wordAfter(line, i) && ! TextUtils.wordBefore(line, i)) {
-				token = "»";
-			} else if (token.contains("»") && i == line.size() - 1) {
-				token = token.replace("»", "«");
-			}
+			token = changeQuotes(token, i);
 
 			// Wörter ersetzen
 			String replacement = process(i, token);
 
 			// durch Leerzeichen getrennte Wörter zusammenfassen
-			if (TextUtils.isWord(token) && whitespaceAfter(line, i) && TextUtils.wordAfter(line, i + 1)
+			if (TextUtils.isWord(token) && whitespaceAfter(line, i) && TextUtils.textAfter(line, i + 1)
 					&& replacement.equals(token) && ! ciDict.contains(replacement) && ! ciDict.contains(line.get(i + 2))) {
 				String word = token + line.get(i + 2);
 				replacement = process(i, word);
@@ -195,6 +187,26 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 					result.log(token, replacement);
 				}
 			}
+		}
+
+		return result;
+	}
+
+	String changeQuotes(String token, int pos) {
+		String result = token;
+		// » nach einem Wort oder Satzzeichen aber nicht vor einem Wort ("Hallo»", "Hallo» Peter")
+		if (token.contains("»")
+				&& (TextUtils.textBefore(line, pos) || TextUtils.satzzeichenBefore(line, pos) || pos > 0 && TextUtils.isWhitespace(line.get(pos - 1)))
+				&& ! TextUtils.textAfter(line, pos)) {
+			result = token.replace("»", "«");
+		}
+		// « vor einem Wort ("«Hallo")
+		else if ("«".equals(token) && TextUtils.textAfter(line, pos) && ! TextUtils.textBefore(line, pos)) {
+			result = "»";
+		}
+		// » am Zeilenende
+		else if (token.contains("»") && pos == line.size() - 1) {
+			result = token.replace("»", "«");
 		}
 
 		return result;

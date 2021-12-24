@@ -118,14 +118,14 @@ public class TextUtils {
 		return true;
 	}
 
-	/** Prüft, ob vor der angegebenen Position ein Wort kommt */
-	public static boolean wordBefore(List<String> line, int i) {
-		return i > 0 && (isWord(line.get(i - 1)));
+	/** Prüft, ob vor der angegebenen Position ein Wort oder eine Zahl kommt */
+	public static boolean textBefore(List<String> line, int i) {
+		return i > 0 && (isAlphaNumeric(line.get(i - 1)));
 	}
 
-	/** Prüft, ob nach der angegebenen Position ein Wort kommt */
-	public static boolean wordAfter(List<String> line, int i) {
-		return i < line.size() - 1 && isWord(line.get(i + 1));
+	/** Prüft, ob nach der angegebenen Position ein Wort oder eine Zahl kommt */
+	public static boolean textAfter(List<String> line, int i) {
+		return i < line.size() - 1 && isAlphaNumeric(line.get(i + 1));
 	}
 
 	public static boolean isSatzzeichen(String s) {

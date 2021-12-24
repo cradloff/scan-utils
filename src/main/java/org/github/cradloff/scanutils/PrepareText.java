@@ -160,13 +160,13 @@ public class PrepareText {
 					tokens.set(i, "»" + token.substring(1));
 				}
 			} else if (QUOTE_CHARS.contains(token)) {
-				if (TextUtils.wordBefore(tokens, i)) {
+				if (TextUtils.textBefore(tokens, i)) {
 					tokens.set(i, "«");
 				}
 				// Sonderfall: Satzzeichen gefolgt von Leerzeichen und Quote (z.B.: hier! ”)
 				else if (i >= 2
 						&& TextUtils.isWhitespace(tokens.get(i - 1))
-						&& (TextUtils.wordBefore(tokens, i - 1)
+						&& (TextUtils.textBefore(tokens, i - 1)
 								|| TextUtils.isSatzzeichen(tokens.get(i - 2)))
 						&& (i == tokens.size() - 1
 								|| TextUtils.isWhitespace(tokens.get(i + 1)) )) {
@@ -238,7 +238,7 @@ public class PrepareText {
 	}
 
 	private static String handleChapter(String line) {
-		return line.replaceAll("^(\\d)[.,:]? [AFKR]a[pv][it][ti]e[lt][.,]?$", "<h2>$1. Kapitel.</h2>");
+		return line.replaceAll("^(\\d)[.,:]? [AFKR]a[pv][it][ti]e[lt]\\s*[.,…]*$", "<h2>$1. Kapitel.</h2>");
 	}
 
 	private static String handleSubChapter(String previousLine, String line) {

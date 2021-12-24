@@ -131,6 +131,10 @@ public class PreProcessTest {
 		checkWhitespace("Hier! ist, alles. in; Ordnung: ok?!", "Hier! ist, alles. in; Ordnung: ok?!", 0);
 		checkWhitespace("Hier ! ist , alles . in ; Ordnung : ok ?!", "Hier! ist, alles. in; Ordnung: ok?!", 6);
 		checkWhitespace("angeben ?«\n", "angeben?«\n", 1);
+		checkWhitespace("angeben … ?«\n", "angeben …?«\n", 1);
+		checkWhitespace("angeben … !«\n", "angeben …!«\n", 1);
+		checkWhitespace("angeben … ?!«\n", "angeben …?!«\n", 1);
+		checkWhitespace("angeben … !!«\n", "angeben …!!«\n", 1);
 	}
 
 	private void checkWhitespace(String line, String expected, int expectedCount) {
@@ -139,6 +143,26 @@ public class PreProcessTest {
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
 		assertEquals("count", expectedCount, count);
+	}
+
+	@Test public void testReplaceQuotes() {
+		checkReplaceQuotes("«verkehrte» Quotes werden «umgedreht»",
+				"»verkehrte« Quotes werden »umgedreht«");
+		checkReplaceQuotes("auch …» nach …?» bestimmten …!» Satzzeichen …?!» ersetzen …!!»",
+				"auch …« nach …?« bestimmten …!« Satzzeichen …?!« ersetzen …!!«");
+	}
+
+	private void checkReplaceQuotes(String line, String expectedLine) {
+		TreeBag<String> dict = new TreeBag<>();
+		List<String> tokens = TextUtils.split(line);
+		LineProcessor lineProcessor = new LineProcessor(new Parameter(), tokens, new HashMap<>(), dict, TextUtils.inverse(dict), new TreeSet<>(dict.uniqueSet()), new HashBag<>());
+		for (int i = 0; i < tokens.size(); i++) {
+			String token = lineProcessor.changeQuotes(tokens.get(i), i);
+			tokens.set(i, token);
+		}
+
+		String actualLine = String.join("", tokens);
+		assertEquals(expectedLine, actualLine);
 	}
 
 	@Test public void testReplaceCharacters() {
@@ -227,7 +251,7 @@ public class PreProcessTest {
 
 		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
 		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal",
-				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie"));
+				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie", "hinzu"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
@@ -278,8 +302,8 @@ public class PreProcessTest {
 		checkPreProcess("»Er war's! !« riefen sie.", "»Er war’s!!« riefen sie.", dict, silben, spellcheck, 1);
 		checkPreProcess("»Sie war's!1« rief er.", "»Sie war’s!!« rief er.", dict, silben, spellcheck, 1);
 		// keine Entfernung von Bindestrichen nach Backslash
-		checkPreProcess("er war »bleiern\\\\-schwerfällig« ...\n", "er war »bleiern\\\\-schwerfällig« …\n", dict, silben, spellcheck, 0);
-		checkPreProcess("er war hin\\\\-\nund hergerissen\n", "er war hin\\\\-\nund hergerissen\n", dict, silben, spellcheck, 0);
+		checkPreProcess("er kam hin\\-zu ...\n", "er kam hin\\-zu …\n", dict, silben, spellcheck, 0);
+		checkPreProcess("er war hin\\-\nund hergerissen\n", "er war hin\\-\nund hergerissen\n", dict, silben, spellcheck, 0);
 		// einzelner Bindestrich am Zeilenende
 		checkPreProcess("er war hier -—-\nund dort\n", "er war hier —\nund dort\n", dict, silben, spellcheck, 0);
 		// Bindestriche und Korrekturen bei Worttrennung am Zeilenende
