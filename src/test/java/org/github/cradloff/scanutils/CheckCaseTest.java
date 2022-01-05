@@ -60,10 +60,17 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.JA, "Ende. -", "Anfang");
 		checkSatzanfang(Satzanfang.NEIN, "Am", "Anfang");
 		checkSatzanfang(Satzanfang.NEIN, "Komm’ her");
+
+		// nach Quotes weiß man nicht genau
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Vorsicht!« rief");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Vorsicht!!« rief");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Wirklich?« fragte");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Wirklich?!« fragte");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Verdammt …!« Ein");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Verdammt …!!« Ein");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Wirklich …?« Ein");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Wirklich …?!« Ein");
+
 		checkSatzanfang(Satzanfang.JA, "»Schluß.« Danach");
 		checkSatzanfang(Satzanfang.JA, "»Schluß«. Danach");
 		checkSatzanfang(Satzanfang.NEIN, "»Ich gehe,« sagte");
