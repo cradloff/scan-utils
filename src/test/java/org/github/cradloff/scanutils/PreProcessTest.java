@@ -63,6 +63,7 @@ public class PreProcessTest {
 		checkSatzzeichen("hierher …?1", "hierher …?!", 1);
 
 		checkSatzzeichen("- und - dann -", "— und — dann —", 3);
+		checkSatzzeichen("= und =“ dann -=-", "— und — dann —", 4);
 		checkSatzzeichen("Ober- und Unter-Seite", "Ober- und Unter-Seite", 0);
 		checkSatzzeichen("Brahma-Priester und -Tempel", "Brahma-Priester und -Tempel", 0);
 	}
