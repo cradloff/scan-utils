@@ -226,11 +226,6 @@ public class PreProcess {
 			{ Pattern.compile("…!"), Pattern.compile("1") },
 			{ Pattern.compile("…"), SPACE, Pattern.compile("!"), Pattern.compile("1") },
 	};
-	private static final Pattern[][] PATTERN_GLEICHHEIT = {
-			{ Pattern.compile("-?=-?"), Pattern.compile("“") },
-			{ Pattern.compile("-?=-?") },
-			{ Pattern.compile("-"), Pattern.compile("—") },
-	};
 	static int satzzeichenErsetzen(List<String> line, SortedBag<String> ciDict) {
 		int count = 0;
 		boolean tag = false;
@@ -299,10 +294,6 @@ public class PreProcess {
 			if (TextUtils.regionMatches(line, i - 1, " ", "-", " ")) {
 				line.set(i, "—");
 				count++;
-			}
-			// Kombinationen von Bindestrich und Gleichheitszeichen durch breiten Strich ersetzen
-			for (Pattern[] pattern : PATTERN_GLEICHHEIT) {
-				count += TextUtils.replace(line, i, pattern, "—");
 			}
 		}
 
