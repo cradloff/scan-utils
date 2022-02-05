@@ -196,6 +196,9 @@ public class CheckCase {
 		HINTS.put("?", Satzanfang.JA);
 		HINTS.put("?!", Satzanfang.JA);
 		HINTS.put("—!", Satzanfang.JA);
+		HINTS.put("—?!", Satzanfang.JA);
+		HINTS.put("—!!", Satzanfang.JA);
+		HINTS.put("—?", Satzanfang.JA);
 		HINTS.put(",", Satzanfang.NEIN);
 		HINTS.put(",«", Satzanfang.NEIN);
 		HINTS.put(";", Satzanfang.NEIN);

@@ -55,6 +55,9 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.JA, "Ende. - Anfang");
 		checkSatzanfang(Satzanfang.JA, "Ende. — Anfang");
 		checkSatzanfang(Satzanfang.JA, "Ende —! Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende —?! Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende —!! Anfang");
+		checkSatzanfang(Satzanfang.JA, "Ende —? Anfang");
 		checkSatzanfang(Satzanfang.JA, "<h1>Anfang");
 		checkSatzanfang(Satzanfang.JA, "Ende.", "Anfang");
 		checkSatzanfang(Satzanfang.JA, "Ende. -", "Anfang");

@@ -185,9 +185,9 @@ public class PrepareText {
 		// Trennzeichen am Zeilenende
 		String result = line.replaceAll("[»=]$", "-");
 		// Gleichheitszeichen im Text
-		result = result.replaceAll("^-?=[-“]? ", "— ");
-		result = result.replaceAll(" -?=[-“]? ", " — ");
-		result = result.replaceAll(" -?=[-“]?$", " —");
+		result = result.replaceAll("^-?=[-“]* ", "— ");
+		result = result.replaceAll(" -?=[-“]* ", " — ");
+		result = result.replaceAll(" -?=[-“]*$", " —");
 
 		return result;
 	}
