@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,7 +24,7 @@ import org.apache.commons.collections4.bag.HashBag;
 /** Hilfsklasse für Dateizugriffe */
 public class FileAccess {
 
-	static File find(File basefile, String filename) throws FileNotFoundException {
+	static File find(File basefile, String filename) throws IOException {
 		if (basefile == null) {
 			return null;
 		}
@@ -59,28 +60,22 @@ public class FileAccess {
 	}
 
 	static Bag<String> readDict(File file) throws IOException {
-		Bag<String> dict2 = new HashBag<>();
-		try (FileReader fr = new FileReader(file);
-				BufferedReader br = new BufferedReader(fr);) {
-			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				if (line.isBlank()) {
-					// Zeile ignorieren
-					continue;
-				}
-				String word;
-				int count;
-				if (line.contains("\t")) {
-					String t[] = line.split("\t");
-					word = t[0];
-					count = Integer.parseInt(t[1]);
-				} else {
-					word = line.trim();
-					count = 1;
-				}
-				dict2.add(word, count);
+		Bag<String> dict = new HashBag<>();
+		readFile(file, line -> {
+			String word;
+			int count;
+			if (line.contains("\t")) {
+				String t[] = line.split("\t");
+				word = t[0];
+				count = Integer.parseInt(t[1]);
+			} else {
+				word = line.trim();
+				count = 1;
 			}
-		}
-		return dict2;
+			dict.add(word, count);
+		});
+
+		return dict;
 	}
 
 	/**
@@ -88,16 +83,10 @@ public class FileAccess {
 	 */
 	static Map<String, String> readCSV(File file) throws IOException {
 		Map<String, String> map = new HashMap<>();
-		try (FileReader fr = new FileReader(file);
-				BufferedReader br = new BufferedReader(fr);) {
-			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				line = line.trim();
-				if (! line.isEmpty()) {
-					String[] s = line.split("\\s", 2);
+		readFile(file, line -> {
+					String[] s = line.trim().split("\\s", 2);
 					map.put(s[0], s[1]);
-				}
-			}
-		}
+				});
 
 		return map;
 	}
@@ -162,12 +151,31 @@ public class FileAccess {
 		}
 	}
 
-	static File basedir(File basefile) {
+	/** Liest die übergebene Datei zeilenweise ein. Leerzeilen werden übersprungen */
+	public static List<String> readLines(File file) throws IOException {
+		List<String> lines = new ArrayList<>();
+		readFile(file, line -> lines.add(line));
+
+		return lines;
+	}
+
+	private static void readFile(File file, Consumer<String> c) throws IOException {
+		try (FileReader fr = new FileReader(file);
+				BufferedReader br = new BufferedReader(fr);) {
+			for (String line = br.readLine(); line != null; line = br.readLine()) {
+				if (! line.isBlank()) {
+					c.accept(line);
+				}
+			}
+		}
+	}
+
+	static File basedir(File basefile) throws IOException {
 		File dir = basefile.getAbsoluteFile();
 		if (dir.isFile()) {
 			dir = dir.getParentFile();
 		}
-		return dir;
+		return dir.getCanonicalFile();
 	}
 
 	/**

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.collections4.Bag;
@@ -20,25 +19,35 @@ public class SpellCheck {
 	public static void main(String... args) throws IOException {
 		long start = System.currentTimeMillis();
 		if (args.length < 1) {
-			System.out.println("Aufruf: SpellCheck [-<threshold>] <Dateiname(n)>");
+			System.out.println("Aufruf: SpellCheck [-<threshold>] [-f] <Dateiname(n)>");
 
 			return;
 		}
 
-		List<String> params = new ArrayList<>(Arrays.asList(args));
 		int threshold = 1;
-		if (params.get(0).matches("-\\d+")) {
-			threshold = Integer.parseInt(params.remove(0).substring(1));
+		boolean fromFile = false;
+		List<String> filenames = new ArrayList<>();
+		for (String param : args) {
+			if (param.matches("-\\d+")) {
+				threshold = Integer.parseInt(param.substring(1));
+			} else if (param.equals("-f")) {
+				fromFile = true;
+			} else if (fromFile) {
+				filenames.addAll(FileAccess.readLines(new File(param)));
+			} else {
+				filenames.add(param);
+			}
 		}
 
-		List<File> inputs = FileAccess.checkExists(params.toArray(new String[params.size()]));
+		List<File> inputs = FileAccess.checkExists(filenames.toArray(new String[0]));
 		// keine Dateien gefunden?
 		if (inputs.isEmpty()) {
+			System.out.println("keine Dateien gefunden");
 			return;
 		}
 
 		// Wörterbuch einlesen
-		File basedir = FileAccess.basedir(inputs.get(0));
+		File basedir = FileAccess.basedir(new File("."));
 		Bag<String> dict = FileAccess.readDict(basedir, "german.dic");
 		dict = TextUtils.addUpperCase(dict);
 
