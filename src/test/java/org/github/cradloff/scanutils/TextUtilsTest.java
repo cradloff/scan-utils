@@ -79,6 +79,7 @@ public class TextUtilsTest {
 		assertTrue(TextUtils.isSatzzeichen("»"));
 		assertTrue(TextUtils.isSatzzeichen("«"));
 		assertTrue(TextUtils.isSatzzeichen(".…,;:-»«"));
+		assertFalse(TextUtils.isSatzzeichen(""));
 		assertFalse(TextUtils.isSatzzeichen("a"));
 		assertFalse(TextUtils.isSatzzeichen("»a«"));
 		// Leerzeichen gelten nicht als Satzzeichen
@@ -98,6 +99,7 @@ public class TextUtilsTest {
 		assertTrue(TextUtils.isWord("Wort"));
 		assertTrue(TextUtils.isWord("ist’s"));
 		assertFalse(TextUtils.isWord("123"));
+		assertFalse(TextUtils.isWord(""));
 		assertFalse(TextUtils.isWord("«"));
 		assertFalse(TextUtils.isWord(" "));
 	}
@@ -106,6 +108,7 @@ public class TextUtilsTest {
 		assertTrue(TextUtils.isAlphaNumeric("123"));
 		assertTrue(TextUtils.isAlphaNumeric("Wort"));
 		assertTrue(TextUtils.isAlphaNumeric("ist’s"));
+		assertFalse(TextUtils.isAlphaNumeric(""));
 		assertFalse(TextUtils.isAlphaNumeric("«"));
 		assertFalse(TextUtils.isAlphaNumeric(" "));
 	}
@@ -186,6 +189,7 @@ public class TextUtilsTest {
 		// Satzzeichen vor dem Kleinerzeichen werden ignoriert
 		assertTrue(TextUtils.startOfTag("?!</@"));
 
+		assertFalse(TextUtils.startOfTag(""));
 		assertFalse(TextUtils.startOfTag("<?!"));
 		assertFalse(TextUtils.startOfTag("<<"));
 		assertFalse(TextUtils.startOfTag("<<<"));
@@ -201,6 +205,7 @@ public class TextUtilsTest {
 		assertTrue(TextUtils.endOfTag(">?!"));
 		assertTrue(TextUtils.endOfTag(">..."));
 
+		assertFalse(TextUtils.endOfTag(""));
 		assertFalse(TextUtils.endOfTag("?!>"));
 		assertFalse(TextUtils.endOfTag(">>"));
 		assertFalse(TextUtils.endOfTag(">>>"));

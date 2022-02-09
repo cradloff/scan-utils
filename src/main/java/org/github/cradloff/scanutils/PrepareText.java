@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -146,22 +147,16 @@ public class PrepareText {
 		return result;
 	}
 
-	private static final String QUOTE_CHARS = "\"®*„“”";
+	private static final Pattern QUOTES = Pattern.compile("[\"®*„“”]+");
 	static String changeQuotes(String line) {
 		// Zeile in Token zerlegen
 		List<String> tokens = TextUtils.split(line);
 		for (int i = 0; i < tokens.size(); i++) {
 			String token = tokens.get(i);
-			if (token.length() > 1) {
-				String lastChar = token.substring(token.length() - 1, token.length());
-				if (QUOTE_CHARS.contains(lastChar)) {
-					tokens.set(i, token.substring(0, token.length() - 1) + "«");
-				} else if (QUOTE_CHARS.contains(token.substring(0, 1))) {
-					tokens.set(i, "»" + token.substring(1));
-				}
-			} else if (QUOTE_CHARS.contains(token)) {
-				if (TextUtils.textBefore(tokens, i)) {
-					tokens.set(i, "«");
+			Matcher matcher = QUOTES.matcher(token);
+			if (matcher.find()) {
+				if (TextUtils.textBefore(tokens, i) || TextUtils.isWord(token.substring(0, matcher.start()))) {
+					tokens.set(i, matcher.replaceAll("«"));
 				}
 				// Sonderfall: Satzzeichen gefolgt von Leerzeichen und Quote (z.B.: hier! ”)
 				else if (i >= 2
@@ -171,9 +166,9 @@ public class PrepareText {
 						&& (i == tokens.size() - 1
 								|| TextUtils.isWhitespace(tokens.get(i + 1)) )) {
 					tokens.set(i - 1, "");
-					tokens.set(i, "«");
+					tokens.set(i, matcher.replaceAll("«"));
 				} else {
-					tokens.set(i, "»");
+					tokens.set(i, matcher.replaceAll("»"));
 				}
 			}
 		}

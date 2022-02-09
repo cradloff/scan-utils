@@ -105,7 +105,7 @@ public class TextUtils {
 				return false;
 			}
 		}
-		return true;
+		return ! s.isEmpty();
 	}
 
 	public static boolean isAlphaNumeric(String s) {
@@ -115,7 +115,7 @@ public class TextUtils {
 				return false;
 			}
 		}
-		return true;
+		return ! s.isEmpty();
 	}
 
 	/** Prüft, ob vor der angegebenen Position ein Wort oder eine Zahl kommt */
@@ -135,7 +135,7 @@ public class TextUtils {
 				return false;
 			}
 		}
-		return true;
+		return ! s.isEmpty();
 	}
 
 	/** Prüft, ob vor der angegebenen Position ein Wort kommt */

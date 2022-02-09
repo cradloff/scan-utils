@@ -52,6 +52,8 @@ public class PrepareTextTest {
 		checkChangeQuotes("Er sprach: “Hinweg!”", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: „Hinweg!”", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: „Hinweg! ”", "Er sprach: »Hinweg!«");
+		checkChangeQuotes("Er fragte: “Wohin?*”", "Er fragte: »Wohin?«");
+		checkChangeQuotes("Er fragte: “Wohin?”*", "Er fragte: »Wohin?«");
 	}
 
 	private void checkChangeQuotes(String input, String expected) {
@@ -171,6 +173,7 @@ public class PrepareTextTest {
 		checkPrepareText("werden. — Beeile Dich.“ — u", "werden. — Beeile Dich.« —\n");
 		checkPrepareText("Nach vor! in zehn Bieter.", "Nach dort in zehn Meter.");
 		checkPrepareText("\", ,,schon gut. , .", "»… schon gut …");
+		checkPrepareText("„Was nun?“* fragte ich .", "»Was nun?« fragte ich …");
 		// Ziffern mit Punkt escapen
 		checkPrepareText("1. April bis 1. Mai",
 				"1\\. April bis 1. Mai");
