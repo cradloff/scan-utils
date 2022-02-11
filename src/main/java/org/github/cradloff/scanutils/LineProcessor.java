@@ -124,6 +124,11 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				result.print(token);
 				continue;
 			}
+			// und auch nicht in HTML-Entities (&nbsp; etc.)
+			if (token.startsWith("&")) {
+				result.print(token);
+				continue;
+			}
 
 			// Satzzeichen in Wörtern entfernen
 			while (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[.,»«\"]") && TextUtils.textAfter(line, i + 1)) {

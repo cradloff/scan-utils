@@ -155,8 +155,21 @@ public class PrepareText {
 			String token = tokens.get(i);
 			Matcher matcher = QUOTES.matcher(token);
 			if (matcher.find()) {
-				if (TextUtils.textBefore(tokens, i) || TextUtils.isWord(token.substring(0, matcher.start()))) {
-					tokens.set(i, matcher.replaceAll("«"));
+				String replacement;
+				if (TextUtils.textBefore(tokens, i)
+						// Mischung aus Satzzeichen und Quote, z.B.: ?!"
+						|| TextUtils.isWord(token.substring(0, matcher.start()))) {
+					replacement = "«";
+				}
+				// Quote am Zeilenende
+				else if (i == tokens.size() - 1) {
+					// ggf. vorangegangenes Leerzeichen entfernen
+					if (i > 0 && TextUtils.isWhitespace(tokens.get(i - 1))
+							// nicht bei ..."
+							&& ! token.startsWith("…")) {
+						tokens.set(i - 1, "");
+					}
+					replacement = "«";
 				}
 				// Sonderfall: Satzzeichen gefolgt von Leerzeichen und Quote (z.B.: hier! ”)
 				else if (i >= 2
@@ -166,10 +179,11 @@ public class PrepareText {
 						&& (i == tokens.size() - 1
 								|| TextUtils.isWhitespace(tokens.get(i + 1)) )) {
 					tokens.set(i - 1, "");
-					tokens.set(i, matcher.replaceAll("«"));
+					replacement = "«";
 				} else {
-					tokens.set(i, matcher.replaceAll("»"));
+					replacement = "»";
 				}
+				tokens.set(i, matcher.replaceAll(replacement));
 			}
 		}
 

@@ -123,6 +123,7 @@ public class PrepareTextTest {
 		checkSatzzeichen(",.,schon gut .,.,", "… schon gut …");
 		checkSatzzeichen(", , ,schon gut. , .", "… schon gut …");
 		checkSatzzeichen(", ,, , schon gut. , . ,", "… schon gut …");
+		checkSatzzeichen(". . . schon gut . . .", "… schon gut …");
 		// zwei Punkte werden ebenfalls durch … ersetzt
 		checkSatzzeichen(".. schon gut ..", "… schon gut …");
 		checkSatzzeichen(". . schon gut . .", "… schon gut …");
@@ -173,6 +174,7 @@ public class PrepareTextTest {
 		checkPrepareText("werden. — Beeile Dich.“ — u", "werden. — Beeile Dich.« —\n");
 		checkPrepareText("Nach vor! in zehn Bieter.", "Nach dort in zehn Meter.");
 		checkPrepareText("\", ,,schon gut. , .", "»… schon gut …");
+		checkPrepareText(". . . schon gut . . .“", "… schon gut …«");
 		checkPrepareText("„Was nun?“* fragte ich .", "»Was nun?« fragte ich …");
 		// Ziffern mit Punkt escapen
 		checkPrepareText("1. April bis 1. Mai",

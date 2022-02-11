@@ -257,7 +257,7 @@ public class PreProcessTest {
 
 		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
 		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal",
-				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie", "hinzu"));
+				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie", "hinzu", "enden"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
@@ -278,6 +278,7 @@ public class PreProcessTest {
 		checkPreProcess("Allç h¡er ÿu mﬅr. þchiff v°raus.", "Alle hier zu mir. Schiff voraus.", dict, silben, spellcheck, 6);
 		// keine Ersetzung von einzelnen Buchstaben
 		checkPreProcess("G. m. b. H.\n", "G. m. b. H.\n", dict, silben, spellcheck, 0);
+		checkPreProcess("U.&nbsp;G.&nbsp;B.-Gespenst\n", "U.&nbsp;G.&nbsp;B.-Gespenst\n", dict, silben, spellcheck, 0);
 		// am Zeilenanfang werden Wörter ergänzt, die vorne abgeschnitten sind
 		// im Zweifelsfall kommen häufigere Wörter zuerst ("Entchen" vs. "Nachen")
 		checkPreProcess("iff oraus\nlle ine\nchen\n", "Schiff oraus\nalle ine\nEntchen\n", dict, silben, spellcheck, 3);
