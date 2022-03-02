@@ -72,8 +72,8 @@ public class PrepareText {
 				result = changeSatzzeichen(result);
 				result = removeLitter(result);
 				result = changeDash(result);
-				result = changeQuotes(result);
 				result = TextUtils.satzzeichenErsetzen(result);
+				result = changeQuotes(result);
 				result = changeSpecial(result);
 				result = replaceOnce(result, replacements);
 				result = handleChapter(result);
