@@ -178,7 +178,6 @@ public class PrepareText {
 								|| TextUtils.isSatzzeichen(tokens.get(i - 2)))
 						&& (i == tokens.size() - 1
 								|| TextUtils.isWhitespace(tokens.get(i + 1)) )) {
-					tokens.set(i - 1, "");
 					replacement = "«";
 				} else {
 					replacement = "»";
