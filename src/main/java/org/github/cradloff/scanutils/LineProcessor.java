@@ -519,7 +519,7 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 	private int calculateDistance(String original, String candidate) {
 		int distance = LevenshteinDistance.compare(original, candidate);
 		int bonus = (int) Math.log10(ciDict.getCount(candidate));
-		bonus = Math.min(candidate.length() / 2, bonus);
+		bonus = Math.min(candidate.length() / 3, bonus);
 
 		return distance - bonus;
 	}

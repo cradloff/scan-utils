@@ -32,6 +32,7 @@ public class TextUtilsTest {
 		checkSplit("Und -—- Dann", "Und", " ", "-—-", " ", "Dann");
 		checkSplit("Und dann -—-", "Und", " ", "dann", " ", "-—-");
 		checkSplit("Mode£lauto und -schiff", "Mode£lauto", " ", "und", " ", "-schiff");
+		checkSplit("Dann ſagte ſie", "Dann", " ", "ſagte", " ", "ſie");
 		checkSplit("<h1>1. Kapitel.</h1>", "<", "h1", ">", "1", ".", " ", "Kapitel", ".", "</", "h1", ">");
 		checkSplit("<@pagebreak 3/>", "<@", "pagebreak", " ", "3", "/>");
 		checkSplit("Âlle mein& €ntchen", "Âlle", " ", "mein&", " ", "€ntchen");
@@ -98,6 +99,7 @@ public class TextUtilsTest {
 	@Test public void isWord() {
 		assertTrue(TextUtils.isWord("Wort"));
 		assertTrue(TextUtils.isWord("ist’s"));
+		assertTrue(TextUtils.isWord("ſie"));
 		assertFalse(TextUtils.isWord("123"));
 		assertFalse(TextUtils.isWord(""));
 		assertFalse(TextUtils.isWord("«"));

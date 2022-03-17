@@ -254,6 +254,8 @@ public class PreProcessTest {
 		spellcheck.put("”", "«");
 		spellcheck.put("„", "»");
 		spellcheck.put("…?1«", "…?!«");
+		spellcheck.put("ic", "ich");
+		spellcheck.put("ſagte", "sagte");
 
 		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
 		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal",
@@ -301,6 +303,7 @@ public class PreProcessTest {
 		// Ersetzung von besonderen Zeichen
 		checkPreProcess("Âlle meine €ntch&n", "Alle meine Entchen", dict, silben, spellcheck, 2);
 		checkPreProcess("Þiræten-$ch|ﬀ vørauſ", "Piraten-Schiff voraus", dict, silben, spellcheck, 3);
+		checkPreProcess("Dann ſagte ſic", "Dann sagte sie", dict, silben, spellcheck, 2);
 		// Ersetzung von Zeichen durch Ausrufezeichen
 		checkPreProcess("Piratenl Schifft voraus1\n", "Piraten! Schiff! voraus!\n", dict, silben, spellcheck, 3);
 		checkPreProcess("»Wer war das? 1« fragte er.", "»Wer war das?!« fragte er.", dict, silben, spellcheck, 1);
