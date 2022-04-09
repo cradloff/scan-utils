@@ -23,15 +23,15 @@ austauschen. Beispielsweise macht die OCR oft aus "Jahren" "Fahren". Mit diesem
 Mechanismus werden diese Fehler einmalig korrigiert. Wenn zuviel korrigiert wurde,
 muß dies anschließend von Hand rückgängig gemacht werden.
 
-__PrepareTextKabel__
-Das Tool wird auf Texte angewandt, die von der <a href="https://www.walther-kabel.de/">Kabel-Seite</a>
-übernommen wurden.
+__ImportKabel__
+Das Tool lädt Texte von der <a href="https://www.walther-kabel.de/">Kabel-Seite</a>
+herunter und bereitet sie auf:
 
 * ersetzt gerade Apostrophen durch typographische
 * fügt Referenzen auf Fußnoten ein
 * packt Kapitel-Überschriften in h2/h3-Tags
 
-Aufruf: `prepareTextKabel.sh <Dateiname(n)>`
+Aufruf: `importKabel.sh <URL>`
 
 __PreProcess__
 * Ersetzt Satzzeichen: doppelte Bindestriche durch m-breiten Bindestrich,
@@ -79,7 +79,7 @@ Aufruf: `createdictionary.sh [Verzeichnis]`
 verwendet.
 
 Im Verzeichnis werden rekursiv alle Markdown-Dateien (Endung `.md`) gesucht. Es
-wird eine Datei `german.dic` erstellt, die alle Wörten aus den Markdown-Dateien
+wird eine Datei `german.dic` erstellt, die alle Wörter aus den Markdown-Dateien
 mit ihrer Häufigkeit enthält.
 
 __UpdateDictionary__

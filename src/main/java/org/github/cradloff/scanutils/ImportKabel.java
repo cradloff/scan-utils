@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * Es werden Anführungszeichen ersetzt und Referenzen eingefügt.
  * Kapitelüberschriften werden in h2/h3-Tags verpackt
  */
-public class PrepareTextKabel {
+public class ImportKabel {
 	static class Parameter {
 		private int level = 6;
 		private String input;
@@ -50,7 +50,7 @@ public class PrepareTextKabel {
 
 	public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
-			System.out.println("Aufruf: PrepareTextKabel <URL>");
+			System.out.println("Aufruf: ImportKabel <URL>");
 			return;
 		}
 
@@ -65,7 +65,7 @@ public class PrepareTextKabel {
 
 		// Datei verarbeiten
 		if (input != null) {
-			new PrepareTextKabel().prepareText(input);
+			new ImportKabel().prepareText(input);
 		}
 	}
 
