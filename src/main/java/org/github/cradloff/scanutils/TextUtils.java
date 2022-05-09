@@ -30,10 +30,9 @@ public class TextUtils {
 		result = result.replace('·', '.');
 
 		// drei (oder mehr) Punkte durch … ersetzen
-		result = result.replaceAll("[.]{3,}", "…");
+		result = result.replaceAll("[.,]{3,}", "…");
 		result = result.replaceAll("\\.*[…]\\.*", "…");
 		result = result.replace(".-.", "…");
-		result = result.replace(".,", "…");
 		result = result.replace(",.", "…");
 
 		return result;

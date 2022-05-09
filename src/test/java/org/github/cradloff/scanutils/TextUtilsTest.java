@@ -93,7 +93,8 @@ public class TextUtilsTest {
 		assertEquals("»Hier — dort — und — wo — anders —«", TextUtils.satzzeichenErsetzen(">>Hier -- dort -+ und -— wo == anders -=<<"));
 		assertEquals("Apostroph unten, Komma", TextUtils.satzzeichenErsetzen("Apostroph unten‚ Komma"));
 		assertEquals("… und … so … weiter …", TextUtils.satzzeichenErsetzen("... und .…. so …. weiter ......"));
-		assertEquals("… und … so … fort.", TextUtils.satzzeichenErsetzen(".-. und ., so ,. fort."));
+		assertEquals("… und … so … fort.", TextUtils.satzzeichenErsetzen(".-. und .,. so ,. fort."));
+		assertEquals("und Sie, Mr., kommen her", TextUtils.satzzeichenErsetzen("und Sie, Mr., kommen her"));
 	}
 
 	@Test public void isWord() {

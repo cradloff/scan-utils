@@ -176,7 +176,7 @@ public class PrepareTextTest {
 		checkPrepareText("\", ,,schon gut. , .", "»… schon gut …");
 		checkPrepareText(". . . schon gut . . .“", "… schon gut …«");
 		checkPrepareText("„Was nun?“* fragte ich .", "»Was nun?« fragte ich …");
-		checkPrepareText("zu Ihnen komme .,“", "zu Ihnen komme …«");
+		checkPrepareText("zu Ihnen komme .,.“", "zu Ihnen komme …«");
 		checkPrepareText("kleinen Salon . . .“ =-", "kleinen Salon …« —");
 		// Ziffern mit Punkt escapen
 		checkPrepareText("1. April bis 1. Mai",
