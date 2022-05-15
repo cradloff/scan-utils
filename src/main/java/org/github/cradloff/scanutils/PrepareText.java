@@ -248,7 +248,7 @@ public class PrepareText {
 	}
 
 	private static String handleChapter(String line) {
-		return line.replaceAll("^(\\d)[.,:]? [AFKNR]a[pv][it][ti]e[lt]\\s*.*$", "<h2>$1. Kapitel.</h2>");
+		return line.replaceAll("^[^\\p{Alnum}]*(\\d)[.,:]? [AFKNR]a[pv][it][ti]e[lt]\\s*.*$", "<h2>$1. Kapitel.</h2>");
 	}
 
 	private static String handleSubChapter(String previousLine, String line) {
