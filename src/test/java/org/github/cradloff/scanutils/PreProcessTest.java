@@ -172,7 +172,7 @@ public class PreProcessTest {
 
 	@Test public void testReplaceCharacters() {
 		List<String> line = new ArrayList<>();
-		TreeBag<String> dict = new TreeBag<>(Arrays.asList("Schiff", "worauf", "Deck", "Verbrecher", "Zimmer", "sein", "sein", "fein", "Backenmuskulatur"));
+		TreeBag<String> dict = new TreeBag<>(Arrays.asList("Schiff", "worauf", "Deck", "Verbrecher", "Zimmer", "sein", "sein", "fein", "Backenmuskulatur", "O’Hara"));
 		dict.add("voraus", 10);
 		LineProcessor lineProcessor = new LineProcessor(new Parameter(), line, new HashMap<>(), dict, TextUtils.inverse(dict), new TreeSet<>(dict.uniqueSet()), new HashBag<>());
 		// gibt es keine passende Ersetzung, wird das Wort wieder zurückgeliefert
@@ -187,6 +187,7 @@ public class PreProcessTest {
 		checkReplaceCharacters("Derhrecler", "Verbrecher", lineProcessor);
 		checkReplaceCharacters("3innner", "Zimmer", lineProcessor);
 		checkReplaceCharacters("Ziniwer", "Zimmer", lineProcessor);
+		checkReplaceCharacters("0’Hgrg", "O’Hara", lineProcessor);
 
 		// Übereinstimmungen mit den wenigsten Abweichungen vom Original werden bevorzugt
 		checkReplaceCharacters("scin", "sein", lineProcessor);
