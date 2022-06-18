@@ -331,7 +331,7 @@ public class PreProcessTest {
 		checkPreProcess("Ai-ie zum Pivaien-5chifs\n", "Alle zum Piraten-Schiff\n", dict, silben, spellcheck, 3);
 		// Wörter mit zusätzlichem Großbuchstaben am Anfang
 		checkPreProcess("PVIraten VPiraten VPixaten", "Piraten Piraten Piraten", dict, silben, spellcheck, 3);
-		checkPreProcess("ZAiie AViie", "Alle Alle", dict, silben, spellcheck, 2);
+		checkPreProcess("ZAiie AZiie", "Alle Alle", dict, silben, spellcheck, 2);
 		// Brüche
 		checkPreProcess("Um 1/212 Uhr", "Um ½12 Uhr\n", dict, silben, spellcheck, 1);
 		// <@pagebreak/> soll immer am Anfang eines Absatzes stehen
