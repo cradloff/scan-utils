@@ -74,6 +74,10 @@ public class CreateDictionary {
 				// nur Token, die mit einem Buchstaben beginnen, hinzufügen
 				for (String s : tokens) {
 					if (Character.isAlphabetic(s.charAt(0))) {
+						// ggf. ein non-breaking-space am Ende entfernen (z.B. 'dann&nbsp;...')
+						if (s.endsWith("&nbsp")) {
+							s = s.substring(0, s.length() - 5);
+						}
 						words.add(s);
 					}
 				}

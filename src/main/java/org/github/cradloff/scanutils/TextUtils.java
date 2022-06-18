@@ -95,7 +95,7 @@ public class TextUtils {
 		char firstChar = word.charAt(0);
 		String remainder = word.substring(1);
 		// nach einem Apostroph gehts groß weiter (z.B. "O’Hara")
-		if (remainder.startsWith("’")) {
+		if (remainder.startsWith("’") && remainder.length() > 1) {
 			return Character.toUpperCase(firstChar) + "’" + toUpperCase(remainder.substring(1));
 		}
 		return Character.toUpperCase(firstChar) + remainder;

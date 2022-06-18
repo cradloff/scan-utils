@@ -220,6 +220,7 @@ public class TextUtilsTest {
 		assertEquals("Groß", TextUtils.toUpperCase("groß"));
 		assertEquals("Über", TextUtils.toUpperCase("über"));
 		assertEquals("O’Hara", TextUtils.toUpperCase("o’hara"));
+		assertEquals("O’", TextUtils.toUpperCase("o’"));
 	}
 
 	@Test public void testAddUpperCase() {
