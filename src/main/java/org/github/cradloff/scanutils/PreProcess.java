@@ -392,14 +392,16 @@ public class PreProcess {
 			if (words.get(i).equals("/")) {
 				// Wörter vor und nach dem Slash in der Map suchen
 				String zähler = words.get(i - 1);
+				String pre = zähler.substring(0, zähler.length() - 1);
+				zähler = zähler.substring(zähler.length() - 1);
 				Map<String, String> map = FRACTIONS.get(zähler);
 				if (map != null) {
 					String nenner = words.get(i + 1);
 					for (Entry<String, String> entry : map.entrySet()) {
 						if (nenner.startsWith(entry.getKey())) {
-							words.set(i - 1, entry.getValue());
+							words.set(i - 1, pre);
+							words.set(i, entry.getValue());
 							words.set(i + 1, nenner.substring(entry.getKey().length()));
-							remove(words, i, 1);
 							count++;
 						}
 					}

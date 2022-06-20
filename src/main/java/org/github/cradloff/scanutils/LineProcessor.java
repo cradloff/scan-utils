@@ -146,6 +146,10 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			// Anführungszeichen richtig herum drehen (»Wort« statt «Wort»)
 			token = changeQuotes(token, i);
 
+			if (token.isEmpty()) {
+				continue;
+			}
+
 			// Wörter ersetzen
 			String replacement = process(i, token);
 
