@@ -186,6 +186,16 @@ public class TextUtils {
 		return regionMatches(line, line.size() - tokens.length, tokens);
 	}
 
+	public static boolean endsWithOneOf(List<String> line, String... tokens) {
+		for (String token : tokens) {
+			if (endsWith(line, token)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean startsWith(List<String> line, String... tokens) {
 		return regionMatches(line, 0, tokens);
 	}

@@ -218,6 +218,8 @@ public class PreProcessTest {
 		checkMergeLinebreak("Als\nle meie\nne Entv\nchen", "Alle\nmeine\nEntchen\n", dict);
 		// manchmal kommt ein Quote statt einem Bindestrich
 		checkMergeLinebreak("mei«\nne Ent»\nchen", "meine\nEntchen\n", dict);
+		// manchmal auch ein Quote und ein Bindestrich
+		checkMergeLinebreak("mei«-\nne Ent»-\nchen", "meine\nEntchen\n", dict);
 		// teilweise fehlt der Bindestrich komplett
 		checkMergeLinebreak("Al\nle mei\nne Ent\nchen", "Alle\nmeine\nEntchen\n", dict);
 		// keine Ersetzung von bekannten Wörtern

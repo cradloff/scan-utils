@@ -492,7 +492,7 @@ public class PreProcess {
 			}
 		}
 		// manchmal kommt ein Quote statt einem Bindestrich
-		else if ((TextUtils.endsWith(line, "«") || TextUtils.endsWith(line, "»")) && line.size() > 1) {
+		else if ((TextUtils.endsWithOneOf(line, "«", "»", "«-", "»-")) && line.size() > 1) {
 			String token1 = line.get(line.size() - 2);
 			String token2 = nextLine.get(0);
 			if (ciDict.contains(token1 + token2)) {

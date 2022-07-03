@@ -161,6 +161,13 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.endsWith(line, "x", "a", " ", "c"));
 	}
 
+	@Test public void endsWithOneOf() {
+		List<String> line = Arrays.asList("a", " ", "c");
+		assertTrue(TextUtils.endsWithOneOf(line, "c"));
+		assertTrue(TextUtils.endsWithOneOf(line, "b", "c", "d"));
+		assertFalse(TextUtils.endsWithOneOf(line, "a", " ", "b"));
+	}
+
 	@Test public void startsWith() {
 		List<String> line = Arrays.asList("a", " ", "c");
 		assertTrue(TextUtils.startsWith(line, "a"));
