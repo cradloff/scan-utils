@@ -62,8 +62,33 @@ public class PrepareText {
 		}
 	}
 
+	private static class TextReader implements AutoCloseable {
+		private BufferedReader reader;
+		private String nextLine;
+
+		public TextReader(BufferedReader reader) throws IOException {
+			this.reader = reader;
+			this.nextLine = reader.readLine();
+		}
+
+		public String readLine() throws IOException {
+			String line = nextLine;
+			nextLine = reader.readLine();
+			return line;
+		}
+
+		public String peek() {
+			return nextLine;
+		}
+
+		@Override
+		public void close() throws IOException {
+			reader.close();
+		}
+	}
+
 	static void prepareText(Reader in, PrintWriter out, Map<String, String> replacements) throws IOException {
-		try (BufferedReader reader = new BufferedReader(in);) {
+		try (TextReader reader = new TextReader(new BufferedReader(in));) {
 			String line;
 			String previousLine = "";
 			boolean hasEmptyLine = false;
@@ -77,7 +102,7 @@ public class PrepareText {
 				result = changeSpecial(result);
 				result = replaceOnce(result, replacements);
 				result = handleChapter(result);
-				result = handleSubChapter(previousLine, result);
+				result = handleSubChapter(previousLine, result, reader.peek());
 				result = escapeDigits(result);
 				result = nonBreakingSpaces(result);
 				boolean emptyLine = result.isBlank();
@@ -251,8 +276,12 @@ public class PrepareText {
 		return line.replaceAll("^[^\\p{Alnum}]*(\\d)[.,:]? [AFKNR]a[pv][it][ti]e[lt]\\s*.*$", "<h2>$1. Kapitel.</h2>");
 	}
 
-	private static String handleSubChapter(String previousLine, String line) {
-		if (previousLine.startsWith("<h2>") && ! line.isBlank()) {
+	private static String handleSubChapter(String previousLine, String line, String nextLine) {
+		if (previousLine.startsWith("<h2>")
+				&& ! line.isBlank()
+				// Folge-Zeile ist leer oder die Zeile ist kürzer als 40 Zeichen
+				&& ("".equals(nextLine)
+						|| line.length() < 40)) {
 			return line.replaceAll("^(.*?)[.,]?$", "<h3>$1.</h3>");
 		}
 		return line;

@@ -193,6 +193,12 @@ public class PrepareTextTest {
 		checkPrepareText("1. Kapitel\nÜberschrift", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");
 		checkPrepareText("1. Kapitel.\nÜberschrift.", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");
 		checkPrepareText("1. Kapitel.\n\nÜberschrift.", "<h2>1. Kapitel.</h2>\n\n<h3>Überschrift.</h3>");
+		// bei der dritten Ordnung wird geprüft, ob danach wieder eine Leerzeile kommt
+		checkPrepareText("1. Kapitel.\nHier kommt die erste Zeile eines Absatzes.\nHier die zweite.",
+				"<h2>1. Kapitel.</h2>\nHier kommt die erste Zeile eines Absatzes.\nHier die zweite.");
+		// ist die Zeile kürzer als 40 Zeichen, wird trotzdem ein h3-Element daraus
+		checkPrepareText("1. Kapitel.\nHier kommt die erste Zeile.\nHier die zweite.",
+				"<h2>1. Kapitel.</h2>\n<h3>Hier kommt die erste Zeile.</h3>\nHier die zweite.");
 
 		// G. m. b. H. und große Zahlen mit non breaking spaces zusammenhalten
 		checkPrepareText("Verlag moderner Lektüre G. m. b. H.",
