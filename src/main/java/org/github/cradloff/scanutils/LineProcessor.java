@@ -326,6 +326,11 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		replaceCharacters(variants[1], treeView, candidates, 0, newThreshold);
 		// den Kandidaten mit den wenigsten Unterschieden zum Original heraussuchen
 		String result = bestMatch(input, candidates);
+		// war das übergebene Wort groß geschrieben, muss auch das Ergebnis groß sein
+		if (Character.isUpperCase(input.charAt(0))
+				&& ! Character.isUpperCase(result.charAt(0))) {
+			return TextUtils.toUpperCase(result);
+		}
 
 		return result;
 	}

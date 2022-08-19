@@ -175,6 +175,9 @@ public class PreProcessTest {
 		List<String> line = new ArrayList<>();
 		TreeBag<String> dict = new TreeBag<>(Arrays.asList("Schiff", "worauf", "Deck", "Verbrecher", "Zimmer", "sein", "sein", "fein", "Backenmuskulatur", "O’Hara"));
 		dict.add("voraus", 10);
+		dict.add("dann", 1000);
+		dict.add("Dann");
+		dict.add("Damm", 10);
 		LineProcessor lineProcessor = new LineProcessor(new Parameter(), line, new HashMap<>(), dict, TextUtils.inverse(dict), new TreeSet<>(dict.uniqueSet()), new HashBag<>());
 		// gibt es keine passende Ersetzung, wird das Wort wieder zurückgeliefert
 		checkReplaceCharacters("Erbsensuppe", "Erbsensuppe", lineProcessor);
@@ -201,6 +204,11 @@ public class PreProcessTest {
 		checkReplaceCharacters("uoxauf", "voraus", lineProcessor);
 		// bei zwei Unterschieden gewinnt aber "worauf"
 		checkReplaceCharacters("woxauf", "worauf", lineProcessor);
+		
+		// bei unterschiedlicher Groß-/Kleinschreibung gewinnt das Wort mit identischer Groß-/Kleinschreibung
+		// unabhängig von der Häufigkeit
+		checkReplaceCharacters("danu", "dann", lineProcessor);
+		checkReplaceCharacters("Danu", "Dann", lineProcessor);
 	}
 
 	private void checkReplaceCharacters(String input, String expected, LineProcessor lineProcessor) {
