@@ -398,7 +398,7 @@ public class PreProcess {
 				if (map != null) {
 					String nenner = words.get(i + 1);
 					for (Entry<String, String> entry : map.entrySet()) {
-						if (nenner.startsWith(entry.getKey())) {
+						if (nenner.equals(entry.getKey())) {
 							words.set(i - 1, pre);
 							words.set(i, entry.getValue());
 							words.set(i + 1, nenner.substring(entry.getKey().length()));

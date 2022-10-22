@@ -95,6 +95,9 @@ public class TextUtilsTest {
 		assertEquals("… und … so … weiter …", TextUtils.satzzeichenErsetzen("... und .…. so …. weiter ......"));
 		assertEquals("… und … so … fort.", TextUtils.satzzeichenErsetzen(".-. und .,. so ,. fort."));
 		assertEquals("und Sie, Mr., kommen her", TextUtils.satzzeichenErsetzen("und Sie, Mr., kommen her"));
+		// Zeilen, die nur aus Bindestrichen oder Gleichheitszeichen bestehen, werden ignoriert (Markierung für Überschrift)
+		assertEquals("--", TextUtils.satzzeichenErsetzen("--"));
+		assertEquals("==", TextUtils.satzzeichenErsetzen("=="));
 	}
 
 	@Test public void isWord() {

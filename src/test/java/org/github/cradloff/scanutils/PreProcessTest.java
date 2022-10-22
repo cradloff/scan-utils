@@ -117,11 +117,11 @@ public class PreProcessTest {
 
 	@Test public void testFraction() {
 		checkFraction("Um 1/2 12 Uhr", "Um ½ 12 Uhr", 1);
-		checkFraction("Um 1/212 Uhr", "Um ½12 Uhr", 1);
 		checkFraction("Um 21/4 Uhr", "Um 2¼ Uhr", 1);
 		checkFraction("1/2 1/3 2/3 1/4 3/4 1/5 2/5 3/5 4/5 1/6 5/6 1/7 1/8 3/8 5/8 7/8 1/9 1/10", "½ ⅓ ⅔ ¼ ¾ ⅕ ⅖ ⅗ ⅘ ⅙ ⅚ ⅐ ⅛ ⅜ ⅝ ⅞ ⅑ ⅒", 18);
 		checkFraction("1/1 2/2 2/4 1/11 1/12", "1/1 2/2 2/4 1/11 1/12", 0);
 		checkFraction("/1 1/2 1/", "/1 ½ 1/", 1);
+		checkFraction("1/100 1/23", "1/100 1/23", 0);
 	}
 
 	private void checkFraction(String line, String expected, int expectedCount) {
@@ -188,6 +188,7 @@ public class PreProcessTest {
 		checkReplaceCharacters("rvoauf", "voraus", lineProcessor);
 		checkReplaceCharacters("Vech", "Deck", lineProcessor);
 		checkReplaceCharacters("Vceli", "Deck", lineProcessor);
+		checkReplaceCharacters("DeX", "Deck", lineProcessor);
 		checkReplaceCharacters("Derhrecler", "Verbrecher", lineProcessor);
 		checkReplaceCharacters("3innner", "Zimmer", lineProcessor);
 		checkReplaceCharacters("Ziniwer", "Zimmer", lineProcessor);
@@ -344,7 +345,7 @@ public class PreProcessTest {
 		checkPreProcess("PVIraten VPiraten VPixaten", "Piraten Piraten Piraten", dict, silben, spellcheck, 3);
 		checkPreProcess("ZAiie AZiie", "Alle Alle", dict, silben, spellcheck, 2);
 		// Brüche
-		checkPreProcess("Um 1/212 Uhr", "Um ½12 Uhr\n", dict, silben, spellcheck, 1);
+		checkPreProcess("Um 1/2 12 Uhr", "Um ½ 12 Uhr\n", dict, silben, spellcheck, 1);
 		// <@pagebreak/> soll immer am Anfang eines Absatzes stehen
 		checkPreProcess("Zeile 1\n<@pagebreak/>\n\nZeile 2\n", "Zeile 1\n\n<@pagebreak/>\nZeile 2\n", dict, silben, spellcheck, 0);
 		// aber nicht vor einer Überschrift

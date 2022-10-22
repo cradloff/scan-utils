@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +55,7 @@ public class FileAccess {
 		}
 
 		if (dict.isEmpty()) {
-			throw new FileNotFoundException(filename);
+			System.out.printf("Warnung: Wörterbuch %s ist leer%n", filename);
 		}
 
 		return dict;
@@ -61,13 +63,18 @@ public class FileAccess {
 
 	static Bag<String> readDict(File file) throws IOException {
 		Bag<String> dict = new HashBag<>();
+		NumberFormat nf = NumberFormat.getIntegerInstance();
 		readFile(file, line -> {
 			String word;
 			int count;
 			if (line.contains("\t")) {
 				String t[] = line.split("\t");
 				word = t[0];
-				count = Integer.parseInt(t[1]);
+				try {
+					count = nf.parse(t[1]).intValue();
+				} catch (ParseException e) {
+					throw new RuntimeException(e);
+				}
 			} else {
 				word = line.trim();
 				count = 1;
