@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,12 @@ import org.apache.commons.collections4.bag.HashBag;
 /** Korrigiert die Groß-/Kleinschreibung */
 public class CheckCase {
 	private static final List<String> PAGEBREAK = TextUtils.split("<@pagebreak/>");
+	private static final Bag<String> ARTIKEL;
+	static {
+		HashBag<String> artikel = new HashBag<>(Arrays.asList(
+				"der", "die", "das", "dem", "ihr", "sein", "ein", "eine", "einer", "eines", "einem", "im", "zum", "zur", "etwas"));
+		ARTIKEL = TextUtils.addUpperCase(artikel);
+	}
 	public static void main(String[] args) throws IOException {
 		long start = System.currentTimeMillis();
 		if (args.length < 1) {
@@ -256,6 +263,8 @@ public class CheckCase {
 				}
 			} else if (TextUtils.endOfTag(token)) {
 				tag = true;
+			} else if (ARTIKEL.contains(token)) {
+				satzanfang = Satzanfang.WEISS_NICHT;
 			} else if (TextUtils.isWord(token)) {
 				satzanfang = Satzanfang.NEIN;
 			} else {

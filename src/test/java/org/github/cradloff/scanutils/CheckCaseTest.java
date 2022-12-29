@@ -26,9 +26,11 @@ public class CheckCaseTest {
 		checkFixCase("", "über und über.", "Über und über.", 1);
 		checkFixCase("", "Komm’ zu mir.", "Komm’ zu mir.", 0);
 		checkFixCase("", "»Danke …« Und er setzte sich.", "»Danke …« Und er setzte sich.", 0);
+		checkFixCase("", "Wir werden nicht Scheitern.", "Wir werden nicht scheitern.", 1);
+		checkFixCase("", "Das Scheitern ist zum Scheitern verurteilt.", "Das Scheitern ist zum Scheitern verurteilt.", 0);
 	}
 
-	private Bag<String> dict = new HashBag<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu"));
+	private Bag<String> dict = new HashBag<>(Arrays.asList("am", "Anfang", "Ende", "Wasser", "und", "zu", "scheitern"));
 	private static Collection<String> abkürzungen = Arrays.asList("Nr");
 	private void checkFixCase(String lastLine, String line, String expected, int expectedCount) throws IOException {
 		LineReader reader = lineReader(lastLine, line);
@@ -98,6 +100,11 @@ public class CheckCaseTest {
 		checkSatzanfang(Satzanfang.JA, "Ende. <em>Anfang");
 		checkSatzanfang(Satzanfang.NEIN, "Am <em>Anfang");
 		checkSatzanfang(Satzanfang.WEISS_NICHT, "»Vorsicht!« <em>rief");
+		
+		// nach Artikeln geht es möglicherweise groß weiter, daher keine Aussage möglich
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Das Ende");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Zum Ende");
+		checkSatzanfang(Satzanfang.WEISS_NICHT, "Ein Ende");
 	}
 
 	/** prüft, ob das letzte Wort der Zeile am Satzanfang steht */
