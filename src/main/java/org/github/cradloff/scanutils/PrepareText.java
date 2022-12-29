@@ -62,7 +62,7 @@ public class PrepareText {
 		}
 	}
 
-	private static class TextReader implements AutoCloseable {
+	static class TextReader implements AutoCloseable {
 		private BufferedReader reader;
 		private String nextLine;
 

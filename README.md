@@ -121,6 +121,12 @@ in der Datei `annotations.log` aus.
 
 Aufruf: `koboAnnotationExtractor.sh <Dateiname(n)>`
 
+__ReplaceAll__
+* Ersetzt in einer Datei alle Vorkommen von bestimmten Suchausdrücken durch passende Ersetzungen.
+  Die Suchausdrücke und Ersetzungen werden aus der Datei `replacements.csv` eingelesen.
+
+Aufruf: `replaceall.sh <Dateiname(n)>`
+
 Dateien
 -------
 

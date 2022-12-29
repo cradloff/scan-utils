@@ -89,9 +89,12 @@ public class FileAccess {
 	 * Liest eine CSV-Datei ein und liefert sie als Map zurück.
 	 */
 	static Map<String, String> readCSV(File file) throws IOException {
+		return readCSV(file, "\\s");
+	}
+	static Map<String, String> readCSV(File file, String separator) throws IOException {
 		Map<String, String> map = new HashMap<>();
 		readFile(file, line -> {
-					String[] s = line.trim().split("\\s", 2);
+					String[] s = line.trim().split(separator, 2);
 					map.put(s[0], s[1]);
 				});
 
