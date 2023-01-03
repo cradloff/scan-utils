@@ -69,6 +69,7 @@ public class PrepareTextTest {
 		checkChangeDash("Da = passierte es!", "Da — passierte es!");
 		checkChangeDash("= und =“ dann -=-", "— und — dann —");
 		checkChangeDash("und =“- dann", "und — dann");
+		checkChangeDash("und = = dann", "und — — dann");
 	}
 
 	private void checkChangeDash(String input, String expected) {

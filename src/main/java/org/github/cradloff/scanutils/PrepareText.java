@@ -220,6 +220,7 @@ public class PrepareText {
 		// Gleichheitszeichen im Text
 		result = result.replaceAll("^-?=[-“]* ", "— ");
 		result = result.replaceAll(" -?=[-“]* ", " — ");
+		result = result.replaceAll(" -?=[-“]* ", " — ");
 		result = result.replaceAll(" -?=[-“]*$", " —");
 
 		return result;
