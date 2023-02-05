@@ -118,59 +118,83 @@ public class ImportKabel {
 		}
 	}
 
-	private static final Pattern PARAGRAPH = Pattern.compile("<p class=\"([^\"]*)\">(.*)</p>");
-	private static final Pattern HEADING = Pattern.compile("<(h[1-3]) class=\"[^\"]*\">(.*)</h[1-3]>");
 	void prepareText(Reader in, PrintWriter out) throws IOException {
 		try (BufferedReader reader = new BufferedReader(in);) {
 			String line;
-			boolean hasEmptyLine = false;
 			// Text bis zum Beginn des eigentlichen Inhalts überlesen
 			skipPreText(reader);
 
 			while ((line = reader.readLine()) != null) {
-				// normale Text-Zeile?
-				Matcher matcher = PARAGRAPH.matcher(line);
-				if (matcher.matches()) {
-					String clazz  = matcher.group(1);
-					String result = matcher.group(2);
-					result = changeQuotes(result);
-					result = replaceReferences(result);
-					result = replaceFormat(result, clazz);
-					result = escapeDigits(result);
-					result = nonBreakingSpaces(result);
-					boolean emptyLine = result.isBlank();
-
-					if (! emptyLine || ! hasEmptyLine) {
-						out.println(result);
-						out.println();
-					}
-
-					hasEmptyLine = emptyLine;
-				} else {
-					// oder eine Überschrift?
-					matcher = HEADING.matcher(line);
-					if (matcher.matches()) {
-						String tag = matcher.group(1);
-						String text = stripTags(matcher.group(2));
-						out.printf("<%s>%s</%s>%n%n", tag, text, tag);
-					} else {
+				boolean processed =
+						// eine Überschrift?
+						processHeading(line, out)
 						// oder eine Fußnote?
-						matcher = PATTERN_FOOTNOTE.matcher(line);
-						if (matcher.matches()) {
-							String result = String.format("<@footnote %s \"FILENAME\">%s</@footnote>", matcher.group(1), matcher.group(2).trim());
-							out.println(result);
-						}
-					}
+						|| processFootnote(line, out)
+						// oder normale Text-Zeile?
+						|| processLine(line, out);
+				if (processed) {
+					out.println();
 				}
 			}
 		}
+	}
+	
+	private static final Pattern HEADING = Pattern.compile("<(h[1-3])( class=\"[^\"]*\")?>(.*)</h[1-3]>");
+	private boolean processHeading(String line, PrintWriter out) {
+		Matcher matcher = HEADING.matcher(line);
+		if (matcher.matches()) {
+			String tag = matcher.group(1);
+			String text = stripTags(matcher.group(3));
+			out.printf("<%s>%s</%s>%n", tag, text, tag);
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private static final Pattern PATTERN_FOOTNOTE = Pattern.compile("<li class=\"rtejustify\"><a href=\"#R(\\d+)\" name=\"A\\d+\" id=\"A\\d+\">↑</a>(.*)</li>");
+	private boolean processFootnote(String line, PrintWriter out) {
+		Matcher matcher = PATTERN_FOOTNOTE.matcher(line);
+		if (matcher.matches()) {
+			String result = matcher.group(2).trim();
+			result = changeQuotes(result);
+			out.printf("<@footnote %s \"FILENAME\">%s</@footnote>%n", matcher.group(1), result);
+			
+			return true;
+		}
+		
+		return false;
+	}
+
+	private static final Pattern PARAGRAPH = Pattern.compile("(<p class=\"([^\"]*)\">)?(.*)(</p>)?");
+	private boolean processLine(String line, PrintWriter out) {
+		Matcher matcher = PARAGRAPH.matcher(line);
+		if (matcher.matches()) {
+			String clazz  = matcher.group(2);
+			String result = matcher.group(3);
+			result = changeQuotes(result);
+			result = replaceReferences(result);
+			result = replaceFormat(result, clazz);
+			result = escapeDigits(result);
+			result = nonBreakingSpaces(result);
+			boolean emptyLine = result.isBlank();
+
+			if (! emptyLine) {
+				out.println(result);
+			}
+			
+			return true;
+		}
+		
+		return false;
 	}
 
 	static String stripTags(String text) {
 		return text.replaceAll("<[^<>]*>", "");
 	}
 
-	private static final String BEGIN_OF_TEXT = "<div class=\"content\">";
+	static final String BEGIN_OF_TEXT = "<div class=\"content\">";
 	private void skipPreText(BufferedReader reader) throws IOException {
 		String line;
 		while ((line = reader.readLine()) != null) {
@@ -183,9 +207,7 @@ public class ImportKabel {
 	static String changeQuotes(String line) {
 		return line.replace('„', '»').replace('“', '«').replace('–', '—');
 	}
-
 	private static final Pattern PATTERN_REFERENCE = Pattern.compile("<sup><a href=\"#A\\d+\" name=\"R\\d+\" id=\"R\\d+\">\\[(\\d+)\\]</a></sup>");
-	private static final Pattern PATTERN_FOOTNOTE = Pattern.compile("<li class=\"rtejustify\"><a href=\"#R(\\d+)\" name=\"A\\d+\" id=\"A\\d+\">↑</a>(.*)</li>");
 	static String replaceReferences(String input) {
 		String result = input;
 		Matcher matcher = PATTERN_REFERENCE.matcher(result);
@@ -199,8 +221,12 @@ public class ImportKabel {
 		boolean paragraph = false;
 		// Links entfernen
 		result = result.replaceAll("<a href=\"[^\"]*\">([^<>]*)</a>", "$1");
+		// keine class-Angabe
+		if (clazz == null) {
+			// kein Prefix
+		}
 		// wörtliche Rede
-		if ("rteindent2 rtejustify".equals(clazz)) {
+		else if ("rteindent2 rtejustify".equals(clazz)) {
 			result = "> " + result;
 		} else if ("rteindent3 rtejustify".equals(clazz)) {
 			result = "> > " + result;

@@ -52,54 +52,60 @@ public class ImportKabelTest {
 		assertEquals("über 10&nbsp;000 Mark", ImportKabel.nonBreakingSpaces("über 10 000 Mark"));
 	}
 
+	@Test
 	public void importKabel() throws IOException {
-		checkImport("Normaler Text,\nmit mehreren\nZeilen\n", "Normaler Text,\nmit mehreren\nZeilen\n");
+		checkImport("Normaler Text,\nmit mehreren\nZeilen\n", "Normaler Text,\n\nmit mehreren\n\nZeilen\n\n");
 
 		// Anführungszeichen durch Guillemets ersetzen
 		checkImport("Text mit „Anführungszeichen“\n",
-				"Text mit »Anführungszeichen«\n");
+				"Text mit »Anführungszeichen«\n\n");
 
 		// Kapitel-Überschriften in h2/h3-Tags verpacken
-		checkImport("1. Kapitel.\n"
-				+ "Kapitelüberschrift.\n"
-				+ "\n"
+		checkImport("<h2 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>1. Kapitel.</strong></span></h2>\n"
+				+ "<h3 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>Kapitelüberschrift.</strong></span></h3>\n"
 				+ "Absatz.\n",
+				
 				"<h2>1. Kapitel.</h2>\n"
+				+ "\n"
 				+ "<h3>Kapitelüberschrift.</h3>\n"
 				+ "\n"
-				+ "Absatz.\n");
-		checkImport("1. Kapitel.\n"
-				+ "\n"
+				+ "Absatz.\n"
+				+ "\n");
+		checkImport("<h2>1. Kapitel.</h2>\n"
 				+ "Absatz.\n",
+				
 				"<h2>1. Kapitel.</h2>\n"
 				+ "\n"
-				+ "Absatz.\n");
+				+ "Absatz.\n"
+				+ "\n");
 
 		// Ziffern mit Punkt escapen
 		checkImport("1. April bis 1. Mai",
-				"1\\. April bis 1. Mai");
+				"1\\. April bis 1. Mai\n\n");
 		checkImport("31. Dezember",
-				"31\\. Dezember");
+				"31\\. Dezember\n\n");
 
 		// G. m. b. H. und große Zahlen mit non breaking spaces zusammenhalten
 		checkImport("Verlag moderner Lektüre G. m. b. H.",
-				"Verlag moderner Lektüre G.&nbsp;m.&nbsp;b.&nbsp;H.");
+				"Verlag moderner Lektüre G.&nbsp;m.&nbsp;b.&nbsp;H.\n\n");
 		checkImport("Eine Summe zwischen 10 000 und 20 000",
-				"Eine Summe zwischen 10&nbsp;000 und 20&nbsp;000");
+				"Eine Summe zwischen 10&nbsp;000 und 20&nbsp;000\n\n");
 
 		// Ersetzen von Referenzen
-		checkImport("Text[1] mit[10] Referenzen[15]", "Text<@refnote 1/> mit<@refnote 10/> Referenzen<@refnote 15/>");
+		checkImport("Text<sup><a href=\"#A1\" name=\"R1\" id=\"R1\">[1]</a></sup> mit<sup><a href=\"#A2\" name=\"R2\" id=\"R2\">[10]</a></sup> Referenzen<sup><a href=\"#A3\" name=\"R3\" id=\"R3\">[15]</a></sup>",
+				"Text<@refnote 1/> mit<@refnote 10/> Referenzen<@refnote 15/>\n\n");
 
 		// und von Fußnoten
-		checkImport("   ↑ Fußnote „eins“.\n" +
-				"   ↑ Fußnote „zwei“.\n",
-				"<@footnote 1 \"FILENAME\">Fußnote »eins«.</@footnote>\n" +
-				"<@footnote 2 \"FILENAME\">Fußnote »zwei«.</@footnote>\n");
+		checkImport("<li class=\"rtejustify\"><a href=\"#R1\" name=\"A1\" id=\"A1\">↑</a>Fußnote „eins“.</li>\n" +
+				"<li class=\"rtejustify\"><a href=\"#R2\" name=\"A2\" id=\"A2\">↑</a>Fußnote „zwei“.</li>\n",
+				
+				"<@footnote 1 \"FILENAME\">Fußnote »eins«.</@footnote>\n\n" +
+				"<@footnote 2 \"FILENAME\">Fußnote »zwei«.</@footnote>\n\n");
 	}
 
 	private void checkImport(String line, String expected) throws IOException {
 		try (
-				StringReader in = new StringReader(line);
+				StringReader in = new StringReader(ImportKabel.BEGIN_OF_TEXT + "\n" + line);
 				StringWriter out = new StringWriter();
 				) {
 			new ImportKabel().prepareText(in, new PrintWriter(out));
