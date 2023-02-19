@@ -218,13 +218,14 @@ public class PreProcessTest {
 	}
 
 	@Test public void testMergeLinebreak() throws IOException {
-		Bag<String> dict = new HashBag<>(Set.of("Alle", "meine", "Entchen"));
+		Bag<String> dict = new HashBag<>(Set.of("Alle", "meine", "Entchen", "befestigt", "festigt"));
 		// am Zeilenende getrennte Wörter werden wieder zusammengefügt
-		checkMergeLinebreak("Al-\nle mei-\nne Ent-\nchen", "Al-le\nmei-ne\nEnt-chen\n", dict);
+		checkMergeLinebreak("Al-\nle mei-\nne Ent-\nchen", "Alle\nmeine\nEntchen\n", dict);
 		// nachfolgende Satzzeichen werden mitgenommen
-		checkMergeLinebreak("Al-\nle, mei-\nne. Ent-\nchen", "Al-le,\nmei-ne.\nEnt-chen\n", dict);
+		checkMergeLinebreak("Al-\nle, mei-\nne. Ent-\nchen", "Alle,\nmeine.\nEntchen\n", dict);
 		// einige Buchstaben (sevr) stehen manchmal statt einem Bindestrich am Zeilenende
 		checkMergeLinebreak("Als\nle meie\nne Entv\nchen", "Alle\nmeine\nEntchen\n", dict);
+		checkMergeLinebreak("bes\nfestigt und be-\nfestigt", "befestigt\nund befestigt\n", dict);
 		// manchmal kommt ein Quote statt einem Bindestrich
 		checkMergeLinebreak("mei«\nne Ent»\nchen", "meine\nEntchen\n", dict);
 		// manchmal auch ein Quote und ein Bindestrich
@@ -234,11 +235,11 @@ public class PreProcessTest {
 		// keine Ersetzung von bekannten Wörtern
 		checkMergeLinebreak("erklärte\ner", "erklärte\ner", new HashBag<>(Set.of("er", "erklärte", "erklärter")));
 		// Bindestrich und Schmierzeichen am Zeilenanfang
-		checkMergeLinebreak("Alle mei-\n»ne Entchen", "Alle mei-ne\nEntchen", dict);
-		checkMergeLinebreak("Alle mei-\n«ne Entchen", "Alle mei-ne\nEntchen", dict);
-		checkMergeLinebreak("Alle mei-\n,ne Entchen", "Alle mei-ne\nEntchen", dict);
+		checkMergeLinebreak("Alle mei-\n»ne Entchen", "Alle meine\nEntchen", dict);
+		checkMergeLinebreak("Alle mei-\n«ne Entchen", "Alle meine\nEntchen", dict);
+		checkMergeLinebreak("Alle mei-\n,ne Entchen", "Alle meine\nEntchen", dict);
 		// Bindestriche und Pagebreaks
-		checkMergeLinebreak("Alle mei-\n<@pagebreak/>\nne Entchen", "Alle mei-ne\n<@pagebreak/>\nEntchen", dict);
+		checkMergeLinebreak("Alle mei-\n<@pagebreak/>\nne Entchen", "Alle meine\n<@pagebreak/>\nEntchen", dict);
 	}
 
 	private void checkMergeLinebreak(String line, String expected, Bag<String> dict) throws IOException {
@@ -330,15 +331,15 @@ public class PreProcessTest {
 		// einzelner Bindestrich am Zeilenende
 		checkPreProcess("er war hier -—-\nund dort\n", "er war hier —\nund dort\n", dict, silben, spellcheck, 0);
 		// Bindestriche und Korrekturen bei Worttrennung am Zeilenende
-		checkPreProcess("Ai-\nie mie-\nne Ent-\nchen\n", "Alle\nmeine\nEntchen\n", dict, silben, spellcheck, 3);
+		checkPreProcess("Ai-\nie mie-\nne Ent-\nchen\n", "Alle\nmeine\nEntchen\n", dict, silben, spellcheck, 2);
 		// Bindestriche und Pagebreaks
 		checkPreProcess("Alle mie-\n<@pagebreak/>\nne Entchen\n", "Alle meine\n<@pagebreak/>\nEntchen\n", dict, silben, spellcheck, 1);
 		// keine Ersetzung von Silben bei Worttrennung am Zeilenende
-		checkPreProcess("mer war im Zim-\nmer? Aiie!\n", "wer war im Zim-mer?\nAlle!\n", dict, silben, spellcheck, 2);
+		checkPreProcess("mer war im Zim-\nmer? Aiie!\n", "wer war im Zimmer?\nAlle!\n", dict, silben, spellcheck, 2);
 		// und auch nicht in der Zeile
 		checkPreProcess("mer war im Zim-mer? Aiie!\n", "wer war im Zim-mer? Alle!\n", dict, silben, spellcheck, 2);
 		// s, i, l nicht bei Worttrennung am Zeilenende
-		checkPreProcess("wir ess-\nen da-\nmals\n", "wir ess-en\nda-mals\n", dict, silben, spellcheck, 0);
+		checkPreProcess("wir ess-\nen da-\nmals\n", "wir essen\ndamals\n", dict, silben, spellcheck, 0);
 		// Ersetzung von Zeichen in Wörten mit Bindestrich
 		checkPreProcess("Ai-ie zum Pivaien-5chifs\n", "Alle zum Piraten-Schiff\n", dict, silben, spellcheck, 3);
 		// Wörter mit zusätzlichem Großbuchstaben am Anfang

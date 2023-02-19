@@ -472,6 +472,8 @@ public class PreProcess {
 			if (! nextLine.isEmpty()
 					&& (startsWithLetter(nextLine.get(0))
 							|| SCHMIERZEICHEN_ZEILENBEGINN.contains(nextLine.get(0)))) {
+				// Bindestrich entfernen
+				line.set(line.size() - 1, token.substring(0, token.length() - 1));
 				merge(line, nextLine);
 				merged = true;
 			}
@@ -484,7 +486,7 @@ public class PreProcess {
 			// Wörterbuch vorkommen, werden sie vereinigt
 			String token1 = token.substring(0, token.length() - 1);
 			String token2 = nextLine.get(0);
-			if (! ciDict.contains(token1) && ! ciDict.contains(token2)
+			if (! ciDict.contains(token)
 					&& ciDict.contains(token1 + token2)) {
 				line.set(line.size() - 1, token1);
 				merge(line, nextLine);
