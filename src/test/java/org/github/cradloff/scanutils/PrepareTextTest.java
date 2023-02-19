@@ -66,6 +66,8 @@ public class PrepareTextTest {
 
 		checkChangeDash("Trenn=", "Trenn-");
 		checkChangeDash("Trenn»", "Trenn-");
+		checkChangeDash("ober= und unterhalb", "ober- und unterhalb");
+		checkChangeDash("D=Zug", "D-Zug");
 		checkChangeDash("Da = passierte es!", "Da — passierte es!");
 		checkChangeDash("= und =“ dann -=-", "— und — dann —");
 		checkChangeDash("und =“- dann", "und — dann");
