@@ -249,6 +249,7 @@ public class PrepareText {
 				.replace('ſ', 's')
 
 				.replace('|', '!')
+				.replace('[', '!')
 
 				.replace("c<", "ch")
 				.replace("<h", "ch")

@@ -101,8 +101,8 @@ public class PrepareTextTest {
 
 		checkSpecial("Es i} ſchon gut.", "Es ist schon gut.");
 
-		// | wird durch ! ersetzt
-		checkSpecial("Los||", "Los!!");
+		// | und [ wird durch ! ersetzt
+		checkSpecial("Los|[", "Los!!");
 
 		// "{" wird durch "sch" ersetzt, nach einen "s" nur durch "ch"
 		checkSpecial("zwi{en den Büs{en", "zwischen den Büschen");
