@@ -150,8 +150,11 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 				continue;
 			}
 
+			// Ausrufezeichen durch 't' ersetzen
+			String replacement = ausrufezeichenErsetzen(token, i);
+
 			// Wörter ersetzen
-			String replacement = process(i, token);
+			replacement = process(i, replacement);
 
 			// durch Leerzeichen getrennte Wörter zusammenfassen
 			if (TextUtils.isWord(token) && whitespaceAfter(line, i) && TextUtils.textAfter(line, i + 1)
@@ -199,6 +202,33 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		}
 
 		return result;
+	}
+
+	private String ausrufezeichenErsetzen(String token, int index) {
+		if (ciDict.contains(token) || index + 1 >= line.size()) {
+			return token;
+		}
+		
+		String nextToken = line.get(index + 1);
+		// alle Wörter ermitteln, die mit dem Token beginnen
+		SortedSet<String> subset = treeView.subSet(token, token + "z");
+		for (String candidate : subset) {
+			String remainder = candidate.substring(token.length());
+			// besteht der Rest nur aus Buchstaben, die einem Ausrufezeichen ähneln?
+			if (remainder.matches("[tli]+")) {
+				// wird das Token von ebenso vielen Ausrufezeichen gefolgt?
+				int length = remainder.length();
+				if (nextToken.length() >= length
+						&& nextToken.substring(0, length).matches("[!]*")) {
+					// die Ausrufezeichen entfernen
+					nextToken = nextToken.substring(length);
+					line.set(index + 1, nextToken);
+					return candidate;
+				}
+			}
+		}
+		
+		return token;
 	}
 
 	String changeQuotes(String token, int pos) {

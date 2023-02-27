@@ -272,8 +272,8 @@ public class PreProcessTest {
 		spellcheck.put("ſagte", "sagte");
 
 		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
-		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal",
-				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie", "hinzu", "enden"));
+		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal", "dort",
+				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie", "hinzu", "enden", "bereit", "nicht", "halt"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
@@ -325,6 +325,8 @@ public class PreProcessTest {
 		checkPreProcess("»Ich nicht! 1» sagte er.", "»Ich nicht!!« sagte er.", dict, silben, spellcheck, 1);
 		checkPreProcess("»Er war's! !« riefen sie.", "»Er war’s!!« riefen sie.", dict, silben, spellcheck, 1);
 		checkPreProcess("»Sie war's!1« rief er.", "»Sie war’s!!« rief er.", dict, silben, spellcheck, 1);
+		// Ersetzung von Ausrufezeichen durch ein 't' oder 'l'
+		checkPreProcess("Sie war berei!, er ha!! nich!!", "Sie war bereit, er halt nicht!", dict, silben, spellcheck, 3);
 		// keine Entfernung von Bindestrichen nach Backslash
 		checkPreProcess("er kam hin\\-zu ...\n", "er kam hin\\-zu …\n", dict, silben, spellcheck, 0);
 		checkPreProcess("er war hin\\-\nund hergerissen\n", "er war hin\\-\nund hergerissen\n", dict, silben, spellcheck, 0);
