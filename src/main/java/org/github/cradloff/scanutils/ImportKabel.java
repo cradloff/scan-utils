@@ -140,11 +140,12 @@ public class ImportKabel {
 	}
 	
 	private static final Pattern HEADING = Pattern.compile("<(h[1-3])( class=\"[^\"]*\")?>(.*)</h[1-3]>");
-	private boolean processHeading(String line, PrintWriter out) {
+	static boolean processHeading(String line, PrintWriter out) {
 		Matcher matcher = HEADING.matcher(line);
 		if (matcher.matches()) {
 			String tag = matcher.group(1);
 			String text = stripTags(matcher.group(3));
+			text = changeQuotes(text);
 			out.printf("<%s>%s</%s>%n", tag, text, tag);
 			
 			return true;
@@ -154,7 +155,7 @@ public class ImportKabel {
 	}
 	
 	private static final Pattern PATTERN_FOOTNOTE = Pattern.compile("<li class=\"rtejustify\"><a href=\"#R(\\d+)\" name=\"A\\d+\" id=\"A\\d+\">↑</a>(.*)</li>");
-	private boolean processFootnote(String line, PrintWriter out) {
+	static boolean processFootnote(String line, PrintWriter out) {
 		Matcher matcher = PATTERN_FOOTNOTE.matcher(line);
 		if (matcher.matches()) {
 			String result = matcher.group(2).trim();
@@ -168,7 +169,7 @@ public class ImportKabel {
 	}
 
 	private static final Pattern PARAGRAPH = Pattern.compile("(<p class=\"([^\"]*)\">)?(.*?)(</p>)?");
-	private boolean processLine(String line, PrintWriter out) {
+	static boolean processLine(String line, PrintWriter out) {
 		Matcher matcher = PARAGRAPH.matcher(line);
 		if (matcher.matches()) {
 			String clazz  = matcher.group(2);

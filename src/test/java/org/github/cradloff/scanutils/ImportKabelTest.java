@@ -51,7 +51,72 @@ public class ImportKabelTest {
 		assertEquals("Schmidt G.&nbsp;m.&nbsp;b.&nbsp;H.", ImportKabel.nonBreakingSpaces("Schmidt G. m. b. H."));
 		assertEquals("über 10&nbsp;000 Mark", ImportKabel.nonBreakingSpaces("über 10 000 Mark"));
 	}
+	
+	@Test
+	public void processHeadings() throws IOException {
+		checkHeadings("<h2 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>1. Kapitel.</strong></span></h2>",
+				"<h2>1. Kapitel.</h2>\n");
+		checkHeadings("<h3 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>„Zum gestiefelten Kater“.</strong></span></h3>",
+				"<h3>»Zum gestiefelten Kater«.</h3>\n");
+		checkHeadings("<h3 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>Untertitel mit <a href=\"/node/123#Verweis\">Verweis</a>.</strong></span></h3>",
+				"<h3>Untertitel mit Verweis.</h3>\n");
+	}
 
+	private void checkHeadings(String line, String expected) throws IOException {
+		try (StringWriter out = new StringWriter()) {
+			ImportKabel.processHeading(line, new PrintWriter(out));
+			String actual = out.toString();
+			Assert.assertLinesEqual(expected, actual);
+		}
+	}
+	
+	@Test
+	public void processLine() throws IOException {
+		checkProcessLine("unformatierte Zeile",
+				"unformatierte Zeile\n");
+		checkProcessLine("<p class=\"rtejustify\">Einfache Zeile.</p>", "Einfache Zeile.\n");
+		checkProcessLine("Absatz mit „Quotes“.",
+				"Absatz mit »Quotes«.\n");
+		checkProcessLine("Absatz mit Referenz<sup><a href=\"#A1\" name=\"R1\" id=\"R1\">[1]</a></sup>.",
+				"Absatz mit Referenz<@refnote 1/>.\n");
+		checkProcessLine("<p class=\"rteindent2 rtejustify\">Formatierter Absatz.</p>",
+				"> Formatierter Absatz.\n");
+		checkProcessLine("<p class=\"rteindent3 rtejustify\">Formatierter Absatz.</p>",
+				"> > Formatierter Absatz.\n");
+		checkProcessLine("<p class=\"rteindent4 rtejustify\">Formatierter Absatz.</p>",
+				"> > > Formatierter Absatz.\n");
+		checkProcessLine("<p class=\"rteindent3 rteright\">Formatierter Absatz.</p>",
+				"<p class=\"right\">Formatierter Absatz.</p>\n");
+		checkProcessLine("<p class=\"rteindent3 rtecenter\">Formatierter Absatz.</p>",
+				"<p class=\"centered\">Formatierter Absatz.</p>\n");
+		checkProcessLine("<p class=\"rtejustify\"><span style=\"letter-spacing:2px\">Formatierter</span> Absatz.</p>",
+				"*Formatierter* Absatz.\n");
+		checkProcessLine("<p class=\"rteindent3 rteright\"><span style=\"letter-spacing:2px\">Formatierter</span> Absatz.</p>",
+				"<p class=\"right\"><em>Formatierter</em> Absatz.</p>\n");
+	}
+
+	private void checkProcessLine(String line, String expected) throws IOException {
+		try (StringWriter out = new StringWriter()) {
+			ImportKabel.processLine(line, new PrintWriter(out));
+			String actual = out.toString();
+			Assert.assertLinesEqual(expected, actual);
+		}
+	}
+	
+	@Test
+	public void processFootnote() throws IOException {
+		checkProcessFootnote("<li class=\"rtejustify\"><a href=\"#R1\" name=\"A1\" id=\"A1\">↑</a>Fußnote „eins“.</li>",
+				"<@footnote 1 \"FILENAME\">Fußnote »eins«.</@footnote>\n");
+	}
+
+	private void checkProcessFootnote(String line, String expected) throws IOException {
+		try (StringWriter out = new StringWriter()) {
+			ImportKabel.processFootnote(line, new PrintWriter(out));
+			String actual = out.toString();
+			Assert.assertLinesEqual(expected, actual);
+		}
+	}
+	
 	@Test
 	public void importKabel() throws IOException {
 		checkImport("Normaler Text,\nmit mehreren\nZeilen\n", "Normaler Text,\n\nmit mehreren\n\nZeilen\n\n");
