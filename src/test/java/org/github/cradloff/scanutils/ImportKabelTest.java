@@ -63,13 +63,16 @@ public class ImportKabelTest {
 		// Kapitel-Überschriften in h2/h3-Tags verpacken
 		checkImport("<h2 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>1. Kapitel.</strong></span></h2>\n"
 				+ "<h3 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>Kapitelüberschrift.</strong></span></h3>\n"
-				+ "Absatz.\n",
+				+ "Einfacher Absatz.\n"
+				+ "<p class=\"rtejustify\">„Nun, aber —“</p>\n",
 				
 				"<h2>1. Kapitel.</h2>\n"
 				+ "\n"
 				+ "<h3>Kapitelüberschrift.</h3>\n"
 				+ "\n"
-				+ "Absatz.\n"
+				+ "Einfacher Absatz.\n"
+				+ "\n"
+				+ "»Nun, aber —«\n"
 				+ "\n");
 		checkImport("<h2>1. Kapitel.</h2>\n"
 				+ "Absatz.\n",

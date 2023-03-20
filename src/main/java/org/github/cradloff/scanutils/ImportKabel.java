@@ -167,7 +167,7 @@ public class ImportKabel {
 		return false;
 	}
 
-	private static final Pattern PARAGRAPH = Pattern.compile("(<p class=\"([^\"]*)\">)?(.*)(</p>)?");
+	private static final Pattern PARAGRAPH = Pattern.compile("(<p class=\"([^\"]*)\">)?(.*?)(</p>)?");
 	private boolean processLine(String line, PrintWriter out) {
 		Matcher matcher = PARAGRAPH.matcher(line);
 		if (matcher.matches()) {
