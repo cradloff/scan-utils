@@ -1,6 +1,5 @@
 package org.github.cradloff.scanutils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -11,6 +10,7 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,22 +119,21 @@ public class ImportKabel {
 	}
 
 	void prepareText(Reader in, PrintWriter out) throws IOException {
-		try (BufferedReader reader = new BufferedReader(in);) {
-			String line;
-			// Text bis zum Beginn des eigentlichen Inhalts überlesen
-			skipPreText(reader);
+		LineReader reader = new LineReader(in);
+		// Text bis zum Beginn des eigentlichen Inhalts überlesen
+		skipPreText(reader);
 
-			while ((line = reader.readLine()) != null) {
-				boolean processed =
-						// eine Überschrift?
-						processHeading(line, out)
-						// oder eine Fußnote?
-						|| processFootnote(line, out)
-						// oder normale Text-Zeile?
-						|| processLine(line, out);
-				if (processed) {
-					out.println();
-				}
+		while (reader.readLine()) {
+			String line = String.join("", reader.current());
+			boolean processed =
+					// eine Überschrift?
+					processHeading(line, out)
+					// oder eine Fußnote?
+					|| processFootnote(line, out)
+					// oder normale Text-Zeile?
+					|| processLine(reader, line, out);
+			if (processed) {
+				out.println();
 			}
 		}
 	}
@@ -168,9 +167,28 @@ public class ImportKabel {
 		return false;
 	}
 
-	private static final Pattern PARAGRAPH = Pattern.compile("(<p class=\"([^\"]*)\">)?(.*?)(</p>)?");
-	static boolean processLine(String line, PrintWriter out) {
-		Matcher matcher = PARAGRAPH.matcher(line);
+	private static final Pattern PARAGRAPH = Pattern.compile("(<p class=\"([^\"]*)\">)?(.*?)(</p>)?", Pattern.DOTALL);
+	private static final Pattern SPLIT_LINE = Pattern.compile("<p class=\"([^\"]*)\">?(.*?)<br\\s*/>");
+	private static final String[] BR1 = { "<", "br", " ", "/>" };
+	private static final String[] BR2 = { "<", "br", "/>" };
+	static boolean processLine(LineReader reader, String currLine, PrintWriter out) throws IOException {
+		String line = currLine;
+		// mehrere Zeilen, durch <br /> getrennt, zusammenfassen
+		List<String> completed = reader.current();
+		Matcher matcher = SPLIT_LINE.matcher(currLine);
+		if (matcher.matches() && reader.readLine()) {
+			List<String> curr;
+			do {
+				curr = reader.current();
+				completed.add("\n");
+				completed.addAll(curr);
+			} while ((TextUtils.endsWith(curr, BR1)
+							|| TextUtils.endsWith(curr, BR2))
+					&& reader.readLine());
+			line = String.join("", completed);
+		}
+		
+		matcher = PARAGRAPH.matcher(line);
 		if (matcher.matches()) {
 			String clazz  = matcher.group(2);
 			String result = matcher.group(3);
@@ -179,9 +197,8 @@ public class ImportKabel {
 			result = replaceFormat(result, clazz);
 			result = escapeDigits(result);
 			result = nonBreakingSpaces(result);
-			boolean emptyLine = result.isBlank();
 
-			if (! emptyLine) {
+			if (! result.isBlank()) {
 				out.println(result);
 			}
 			
@@ -195,11 +212,11 @@ public class ImportKabel {
 		return text.replaceAll("<[^<>]*>", "");
 	}
 
-	static final String BEGIN_OF_TEXT = "<div class=\"content\">";
-	private void skipPreText(BufferedReader reader) throws IOException {
-		String line;
-		while ((line = reader.readLine()) != null) {
-			if (BEGIN_OF_TEXT.equals(line.trim())) {
+	static final List<String> BEGIN_OF_TEXT = TextUtils.split("<div class=\"content\">");
+	private void skipPreText(LineReader reader) throws IOException {
+		while (reader.readLine()) {
+			List<String> line = reader.current();
+			if (BEGIN_OF_TEXT.equals(line)) {
 				break;
 			}
 		}

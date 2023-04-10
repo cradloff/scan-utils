@@ -20,7 +20,9 @@ public class Assert {
 			}
 
 			if (expectedLinesReader.readLine() != null) {
-				org.junit.Assert.fail("Actual string does not contain all expected lines");
+				org.junit.Assert.fail("Actual string does not contain all expected lines\n"
+						+ "expected: \"" + expectedString + "\"\n"
+						+ "actual: \"" + actualString + "\"");
 			}
 		} catch (IOException e) {
 			org.junit.Assert.fail(e.getMessage());

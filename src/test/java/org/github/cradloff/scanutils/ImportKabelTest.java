@@ -96,8 +96,9 @@ public class ImportKabelTest {
 	}
 
 	private void checkProcessLine(String line, String expected) throws IOException {
+		LineReader reader = new LineReader(new StringReader(line));
 		try (StringWriter out = new StringWriter()) {
-			ImportKabel.processLine(line, new PrintWriter(out));
+			ImportKabel.processLine(reader, line, new PrintWriter(out));
 			String actual = out.toString();
 			Assert.assertLinesEqual(expected, actual);
 		}
@@ -129,6 +130,8 @@ public class ImportKabelTest {
 		checkImport("<h2 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>1. Kapitel.</strong></span></h2>\n"
 				+ "<h3 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>Kapitelüberschrift.</strong></span></h3>\n"
 				+ "Einfacher Absatz.\n"
+				+ "<p class=\"rtecenter rteindent2\">Absatz mit<br />\n"
+				+ "Umbruch.</p>\n"
 				+ "<p class=\"rtejustify\">„Nun, aber —“</p>\n",
 				
 				"<h2>1. Kapitel.</h2>\n"
@@ -136,6 +139,9 @@ public class ImportKabelTest {
 				+ "<h3>Kapitelüberschrift.</h3>\n"
 				+ "\n"
 				+ "Einfacher Absatz.\n"
+				+ "\n"
+				+ "<p class=\"centered\">Absatz mit<br />\n"
+				+ "Umbruch.</p>\n"
 				+ "\n"
 				+ "»Nun, aber —«\n"
 				+ "\n");
@@ -173,7 +179,7 @@ public class ImportKabelTest {
 
 	private void checkImport(String line, String expected) throws IOException {
 		try (
-				StringReader in = new StringReader(ImportKabel.BEGIN_OF_TEXT + "\n" + line);
+				StringReader in = new StringReader(String.join("", ImportKabel.BEGIN_OF_TEXT) + "\n" + line);
 				StringWriter out = new StringWriter();
 				) {
 			new ImportKabel().prepareText(in, new PrintWriter(out));
