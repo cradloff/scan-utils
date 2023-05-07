@@ -44,6 +44,7 @@ public class ImportKabel {
 
 	private static final int BUFFER_SIZE = 1024;
 	
+	private Parameter params;
 	PrintWriter out;
 	private String filename;
 	private Map<String, String> references = new HashMap<>();
@@ -59,14 +60,14 @@ public class ImportKabel {
 	}
 
 	private void doImport(String[] args) throws IOException {
-		Parameter params = Parameter.parse(args);
+		params = Parameter.parse(args);
 		// keine URL gefunden?
 		if (params.getInput() == null) {
 			return;
 		}
 
 		// Dokument herunterladen
-		File input = readDocument(params.getInput());
+		File input = readDocument(new URL(params.getInput()), "text.md");
 
 		// Datei verarbeiten
 		if (input != null) {
@@ -74,9 +75,8 @@ public class ImportKabel {
 		}
 	}
 
-	private static File readDocument(String fileUrl) throws IOException {
+	private static File readDocument(URL url, String filename) throws IOException {
 		File output;
-		URL url = new URL(fileUrl);
 		URLConnection httpConn = url.openConnection();
 
 		// always check HTTP response code first
@@ -84,7 +84,7 @@ public class ImportKabel {
 			output = null;
 			System.out.println("No file to download. Server replied HTTP code: " + ((HttpURLConnection) httpConn).getResponseCode());
 		} else {
-			output = new File("text.md");
+			output = new File(filename);
 
 			try (
 					// opens input stream from the HTTP connection
@@ -99,7 +99,7 @@ public class ImportKabel {
 				}
 			}
 
-			System.out.println("File downloaded");
+			System.out.printf("Datei %s heruntergeladen%n", filename);
 		}
 		if (httpConn instanceof HttpURLConnection) {
 			((HttpURLConnection) httpConn).disconnect();
@@ -123,6 +123,7 @@ public class ImportKabel {
 
 	private static final String[] START_KAPITEL = TextUtils.split("<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">").toArray(new String[0]);
 	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">(.*)</span></strong></h1>");
+	private static final String[] START_COVER = TextUtils.split("<p class=\"rtecenter\"><img alt=").toArray(new String[0]);
 	private static final String ANMERKUNGEN = "<p class=\"rtejustify\"><strong>Anmerkungen:</strong></p>";
 	void prepareText(Reader in) throws IOException {
 		LineReader reader = new LineReader(in);
@@ -166,7 +167,7 @@ public class ImportKabel {
 	}
 
 	private boolean isBlank(String line) {
-		if ("<p>".equals(line) || " </p>".equals(line) || line.isBlank()) {
+		if ("<p>".equals(line) || " </p>".equals(line) || "<p> </p>".equals(line) || line.isBlank()) {
 			return true;
 		}
 
@@ -286,13 +287,28 @@ public class ImportKabel {
 			if (TextUtils.startsWith(line, START_KAPITEL)) {
 				break;
 			}
+			// Cover?
+			if (TextUtils.startsWith(line, START_COVER)) {
+				readCover(line);
+			}
 		} while (reader.readLine());
+	}
+
+	private static final Pattern COVER = Pattern.compile("<img alt=\"\" src=\"([^\"]*)\"");
+	private void readCover(List<String> line) throws IOException {
+		Matcher matcher = COVER.matcher(String.join("", line));
+		matcher.find();
+		String partialUrl = matcher.group(1);
+		URL url = new URL(params.getInput());
+		url = new URL(url, partialUrl);
+		readDocument(url, "cover.jpg");
 	}
 
 	static String changeQuotes(String line) {
 		return line.replace('„', '»').replace('“', '«').replace('–', '—');
 	}
 	private static final Pattern PATTERN_REFERENCE = Pattern.compile("<sup><a href=\"#A\\d+\" name=\"R\\d+\" id=\"R\\d+\">\\[(\\d+)\\]</a></sup>");
+
 	String replaceReferences(String input) {
 		Matcher matcher = PATTERN_REFERENCE.matcher(input);
 		if (matcher.find()) {
