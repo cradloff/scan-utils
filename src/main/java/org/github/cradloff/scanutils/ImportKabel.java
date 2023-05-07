@@ -1,12 +1,6 @@
 package org.github.cradloff.scanutils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -127,10 +121,9 @@ public class ImportKabel {
 		}
 	}
 
-	private static final String[] START_KAPITEL = TextUtils.split("<h1>").toArray(new String[0]);
-	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1>(.*)</h1>");
-	private static final String ANMERKUNGEN = "<strong>Anmerkungen:</strong>";
-	private static final String LEERER_ABSATZ = "<p>";
+	private static final String[] START_KAPITEL = TextUtils.split("<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">").toArray(new String[0]);
+	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">(.*)</span></strong></h1>");
+	private static final String ANMERKUNGEN = "<p class=\"rtejustify\"><strong>Anmerkungen:</strong></p>";
 	void prepareText(Reader in) throws IOException {
 		LineReader reader = new LineReader(in);
 		// Text bis zum Beginn des eigentlichen Inhalts überlesen
@@ -147,16 +140,13 @@ public class ImportKabel {
 			String line = String.join("", reader.current());
 			switchFile(line);
 			
-			if (LEERER_ABSATZ.equals(line)) {
-				continue;
-			}
-			
 			// mehrere Leerzeilen zusammenfassen
-			if (line.isBlank()) {
+			if (isBlank(line)) {
 				if (leerzeile) {
 					continue;
 				}
 				leerzeile = true;
+				line = "";
 			}
 			
 			boolean processed =
@@ -175,13 +165,23 @@ public class ImportKabel {
 		close();
 	}
 
+	private boolean isBlank(String line) {
+		if ("<p>".equals(line) || " </p>".equals(line) || line.isBlank()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	private void switchFile(String line) throws IOException {
 		Matcher matcher = KAPITEL.matcher(line);
 		if (matcher.matches()) {
 			String kapitel = matcher.group(1);
+			if (! kapitel.endsWith(".")) {
+				kapitel += ".";
+			}
 			anzahlKapitel++;
-			filename = String.format("%02d_%s.md", anzahlKapitel, kapitel);
-			openFile(filename);
+			openFile(String.format("%02d_%smd", anzahlKapitel, kapitel));
 		} else if (ANMERKUNGEN.equals(line)) {
 			openFile("99_footnotes.md");
 		}
@@ -189,7 +189,9 @@ public class ImportKabel {
 	
 	void close() {
 		if (out != null) {
+			System.out.printf("Datei %s exportiert%n", filename);
 			out.close();
+			out = null;
 		}
 	}
 	

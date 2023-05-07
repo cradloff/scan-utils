@@ -199,7 +199,7 @@ public class ImportKabelTest {
 	}
 
 	private void checkImport(String line, String expected) throws IOException {
-		String head = "<h1>Kapitel</h1>";
+		String head = "<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">Kapitel.</span></strong></h1>";
 		try (StringReader in = new StringReader(head + "\n" + line)) {
 			clearBuffer();
 			importKabel.prepareText(in);
