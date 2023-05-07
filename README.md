@@ -34,6 +34,14 @@ herunter und bereitet sie auf:
 
 Aufruf: `importKabel.sh <URL>`
 
+__ImportKabelDoc__
+Das Tool bereitet einen aus einem Word-Dokument kopierten Text auf:
+
+ * Es werden Anführungszeichen ersetzt und Referenzen eingefügt.
+ * Kapitelüberschriften werden in h2/h3-Tags verpackt
+
+Aufruf: `importKabelDoc.sh <URL>`
+
 __PreProcess__
 * Ersetzt Satzzeichen: doppelte Bindestriche durch m-breiten Bindestrich,
   << und >> durch « und », gerade Apostrophen durch typographische und
