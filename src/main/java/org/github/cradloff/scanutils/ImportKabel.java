@@ -10,7 +10,9 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +49,11 @@ public class ImportKabel {
 	}
 
 	private static final int BUFFER_SIZE = 1024;
+	
+	PrintWriter out;
+	private String filename;
+	private Map<String, String> references = new HashMap<>();
+	private int anzahlKapitel = 0;
 
 	public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
@@ -54,6 +61,10 @@ public class ImportKabel {
 			return;
 		}
 
+		new ImportKabel().doImport(args);
+	}
+
+	private void doImport(String[] args) throws IOException {
 		Parameter params = Parameter.parse(args);
 		// keine URL gefunden?
 		if (params.getInput() == null) {
@@ -65,7 +76,7 @@ public class ImportKabel {
 
 		// Datei verarbeiten
 		if (input != null) {
-			new ImportKabel().prepareText(input);
+			prepareText(input);
 		}
 	}
 
@@ -109,37 +120,87 @@ public class ImportKabel {
 
 		// Datei umbenennen
 		File backup = FileAccess.roll(input);
-		try (Reader in = new FileReader(backup);
-				PrintWriter out = new PrintWriter(input);
-				) {
-			prepareText(in, out);
+		try (Reader in = new FileReader(backup);) {
+			prepareText(in);
 
 			System.out.printf("Zeit: %,dms%n", (System.currentTimeMillis() - start));
 		}
 	}
 
-	void prepareText(Reader in, PrintWriter out) throws IOException {
+	private static final String[] START_KAPITEL = TextUtils.split("<h1>").toArray(new String[0]);
+	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1>(.*)</h1>");
+	private static final String ANMERKUNGEN = "<strong>Anmerkungen:</strong>";
+	private static final String LEERER_ABSATZ = "<p>";
+	void prepareText(Reader in) throws IOException {
 		LineReader reader = new LineReader(in);
 		// Text bis zum Beginn des eigentlichen Inhalts überlesen
 		skipPreText(reader);
 
+		// kein Inhalt gefunden?
+		if (! reader.hasNext()) {
+			System.out.println("Kein Inhalt gefunden!");
+			return;
+		}
+		
+		boolean leerzeile = false;
 		while (reader.readLine()) {
 			String line = String.join("", reader.current());
+			switchFile(line);
+			
+			if (LEERER_ABSATZ.equals(line)) {
+				continue;
+			}
+			
+			// mehrere Leerzeilen zusammenfassen
+			if (line.isBlank()) {
+				if (leerzeile) {
+					continue;
+				}
+				leerzeile = true;
+			}
+			
 			boolean processed =
 					// eine Überschrift?
-					processHeading(line, out)
+					processHeading(line)
 					// oder eine Fußnote?
-					|| processFootnote(line, out)
+					|| processFootnote(line)
 					// oder normale Text-Zeile?
-					|| processLine(reader, line, out);
+					|| processLine(reader, line);
 			if (processed) {
+				assert out != null;
 				out.println();
 			}
 		}
+		
+		close();
+	}
+
+	private void switchFile(String line) throws IOException {
+		Matcher matcher = KAPITEL.matcher(line);
+		if (matcher.matches()) {
+			String kapitel = matcher.group(1);
+			anzahlKapitel++;
+			filename = String.format("%02d_%s.md", anzahlKapitel, kapitel);
+			openFile(filename);
+		} else if (ANMERKUNGEN.equals(line)) {
+			openFile("99_footnotes.md");
+		}
+	}
+	
+	void close() {
+		if (out != null) {
+			out.close();
+		}
+	}
+	
+	void openFile(String newFilename) throws IOException {
+		close();
+		this.filename = newFilename;
+		this.out = new PrintWriter(newFilename);
 	}
 	
 	private static final Pattern HEADING = Pattern.compile("<(h[1-3])( class=\"[^\"]*\")?>(.*)</h[1-3]>");
-	static boolean processHeading(String line, PrintWriter out) {
+	boolean processHeading(String line) {
 		Matcher matcher = HEADING.matcher(line);
 		if (matcher.matches()) {
 			String tag = matcher.group(1);
@@ -154,12 +215,13 @@ public class ImportKabel {
 	}
 	
 	private static final Pattern PATTERN_FOOTNOTE = Pattern.compile("<li class=\"rtejustify\"><a href=\"#R(\\d+)\" name=\"A\\d+\" id=\"A\\d+\">↑</a>(.*)</li>");
-	static boolean processFootnote(String line, PrintWriter out) {
+	boolean processFootnote(String line) {
 		Matcher matcher = PATTERN_FOOTNOTE.matcher(line);
 		if (matcher.matches()) {
 			String result = matcher.group(2).trim();
 			result = changeQuotes(result);
-			out.printf("<@footnote %s \"FILENAME\">%s</@footnote>%n", matcher.group(1), result);
+			String ref = matcher.group(1);
+			out.printf("<@footnote %s \"%s\">%s</@footnote>%n", ref, filenameForReference(ref), result);
 			
 			return true;
 		}
@@ -167,11 +229,15 @@ public class ImportKabel {
 		return false;
 	}
 
+	String filenameForReference(String ref) {
+		return references.get(ref);
+	}
+
 	private static final Pattern PARAGRAPH = Pattern.compile("(<p class=\"([^\"]*)\">)?(.*?)(</p>)?", Pattern.DOTALL);
 	private static final Pattern SPLIT_LINE = Pattern.compile("<p class=\"([^\"]*)\">?(.*?)<br\\s*/>");
 	private static final String[] BR1 = { "<", "br", " ", "/>" };
 	private static final String[] BR2 = { "<", "br", "/>" };
-	static boolean processLine(LineReader reader, String currLine, PrintWriter out) throws IOException {
+	boolean processLine(LineReader reader, String currLine) throws IOException {
 		String line = currLine;
 		// mehrere Zeilen, durch <br /> getrennt, zusammenfassen
 		List<String> completed = reader.current();
@@ -212,26 +278,29 @@ public class ImportKabel {
 		return text.replaceAll("<[^<>]*>", "");
 	}
 
-	static final List<String> BEGIN_OF_TEXT = TextUtils.split("<div class=\"content\">");
 	private void skipPreText(LineReader reader) throws IOException {
-		while (reader.readLine()) {
-			List<String> line = reader.current();
-			if (BEGIN_OF_TEXT.equals(line)) {
+		do {
+			List<String> line = reader.next();
+			if (TextUtils.startsWith(line, START_KAPITEL)) {
 				break;
 			}
-		}
+		} while (reader.readLine());
 	}
 
 	static String changeQuotes(String line) {
 		return line.replace('„', '»').replace('“', '«').replace('–', '—');
 	}
 	private static final Pattern PATTERN_REFERENCE = Pattern.compile("<sup><a href=\"#A\\d+\" name=\"R\\d+\" id=\"R\\d+\">\\[(\\d+)\\]</a></sup>");
-	static String replaceReferences(String input) {
-		String result = input;
-		Matcher matcher = PATTERN_REFERENCE.matcher(result);
-		result = matcher.replaceAll("<@refnote $1/>");
+	String replaceReferences(String input) {
+		Matcher matcher = PATTERN_REFERENCE.matcher(input);
+		if (matcher.find()) {
+			references.put(matcher.group(1), filename);
+			String result = matcher.replaceAll("<@refnote $1/>");
 
-		return result;
+			return result;
+		}
+		
+		return input;
 	}
 
 	static String replaceFormat(String line, String clazz) {

@@ -1,13 +1,13 @@
 package org.github.cradloff.scanutils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CheckQuotesTest {
 	@Test public void checkQuotes() throws IOException {
@@ -38,7 +38,7 @@ public class CheckQuotesTest {
 		try (StringReader in = new StringReader(lines);
 				PrintWriter out = new PrintWriter(new ByteArrayOutputStream())) {
 			int errors = CheckQuotes.checkQuotes(in, out);
-			assertEquals("Fehler", expectedErrors, errors);
+			assertEquals(expectedErrors, errors, "Fehler");
 		}
 	}
 }

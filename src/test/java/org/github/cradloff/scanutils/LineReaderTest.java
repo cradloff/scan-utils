@@ -1,21 +1,21 @@
 package org.github.cradloff.scanutils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LineReaderTest {
 	private LineReader lineReader;
 
-	@Before public void setUp() throws IOException {
+	@BeforeEach public void setUp() throws IOException {
 		StringReader reader = new StringReader("eins\nzwei\ndrei\nvier\nfünf\n");
 		lineReader = new LineReader(reader, 1, 2);
 	}

@@ -23,7 +23,7 @@ import org.apache.commons.collections4.Bag;
 import org.github.cradloff.scanutils.PreProcess.Parameter;
 
 public class LineProcessor implements Callable<LineProcessor.Result> {
-	static Future<Result> EMPTY_LINE = new Future<Result>() {
+	static Future<Result> EMPTY_LINE = new Future<>() {
 
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {

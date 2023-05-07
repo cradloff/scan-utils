@@ -1,25 +1,15 @@
 package org.github.cradloff.scanutils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.*;
+import java.util.*;
 
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.bag.HashBag;
 import org.apache.commons.collections4.bag.TreeBag;
 import org.github.cradloff.scanutils.PreProcess.Parameter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PreProcessTest {
 	@Test public void testSatzzeichenErsetzen() {
@@ -74,7 +64,7 @@ public class PreProcessTest {
 		int count = PreProcess.satzzeichenErsetzen(words, dict);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
-		assertEquals("count", expectedCount, count);
+		assertEquals(expectedCount, count, "count");
 	}
 
 	@Test public void testSpecial() {
@@ -112,7 +102,7 @@ public class PreProcessTest {
 		List<String> words = TextUtils.split(line);
 		int count = PreProcess.replaceSpecial(words);
 		assertEquals(TextUtils.split(expected), words);
-		assertEquals("count", expectedCount, count);
+		assertEquals(expectedCount, count, "count");
 	}
 
 	@Test public void testFraction() {
@@ -129,7 +119,7 @@ public class PreProcessTest {
 		int count = PreProcess.replaceFraction(words);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
-		assertEquals("count", expectedCount, count);
+		assertEquals(expectedCount, count, "count");
 	}
 
 	@Test public void testWhitespace() {
@@ -148,7 +138,7 @@ public class PreProcessTest {
 		int count = PreProcess.checkWhitespace(words);
 		String actual = String.join("", words);
 		assertEquals(expected, actual);
-		assertEquals("count", expectedCount, count);
+		assertEquals(expectedCount, count, "count");
 	}
 
 	@Test public void testReplaceQuotes() {
@@ -382,7 +372,7 @@ public class PreProcessTest {
 			int count = pp.preProcess(in, out, log, spellcheck, dict, silben);
 			String actual = out.toString();
 			Assert.assertLinesEqual(expected, actual);
-			assertEquals("count", expectedCount, count);
+			assertEquals(expectedCount, count, "count");
 		}
 	}
 }

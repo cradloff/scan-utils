@@ -1,15 +1,39 @@
 package org.github.cradloff.scanutils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ImportKabelTest {
+	private ImportKabel importKabel;
+	private StringWriter out;
+	
+	@BeforeEach
+	public void setUp() {
+		importKabel = new ImportKabel() {
+			@Override
+			void openFile(String newFilename) throws IOException {
+				// nichts tun
+			}
+			@Override
+			void close() {
+				// nichts tun
+			}
+			@Override
+			String filenameForReference(String ref) {
+				return "FILENAME";
+			}
+		};
+		out = new StringWriter();
+		importKabel.out = new PrintWriter(out);
+	}
+	
 	@Test
 	public void stripTags() {
 		assertEquals("Text ohne Tags", ImportKabel.stripTags("Text ohne Tags"));
@@ -24,7 +48,7 @@ public class ImportKabelTest {
 
 	@Test
 	public void replaceReferences() {
-		assertEquals("Abenteurerin<@refnote 1/>", ImportKabel.replaceReferences("Abenteurerin<sup><a href=\"#A1\" name=\"R1\" id=\"R1\">[1]</a></sup>"));
+		assertEquals("Abenteurerin<@refnote 1/>", importKabel.replaceReferences("Abenteurerin<sup><a href=\"#A1\" name=\"R1\" id=\"R1\">[1]</a></sup>"));
 	}
 
 	@Test
@@ -53,7 +77,7 @@ public class ImportKabelTest {
 	}
 	
 	@Test
-	public void processHeadings() throws IOException {
+	public void processHeadings() {
 		checkHeadings("<h2 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>1. Kapitel.</strong></span></h2>",
 				"<h2>1. Kapitel.</h2>\n");
 		checkHeadings("<h3 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>„Zum gestiefelten Kater“.</strong></span></h3>",
@@ -62,12 +86,11 @@ public class ImportKabelTest {
 				"<h3>Untertitel mit Verweis.</h3>\n");
 	}
 
-	private void checkHeadings(String line, String expected) throws IOException {
-		try (StringWriter out = new StringWriter()) {
-			ImportKabel.processHeading(line, new PrintWriter(out));
-			String actual = out.toString();
-			Assert.assertLinesEqual(expected, actual);
-		}
+	private void checkHeadings(String line, String expected) {
+		clearBuffer();
+		importKabel.processHeading(line);
+		String actual = out.toString();
+		Assert.assertLinesEqual(expected, actual);
 	}
 	
 	@Test
@@ -97,25 +120,23 @@ public class ImportKabelTest {
 
 	private void checkProcessLine(String line, String expected) throws IOException {
 		LineReader reader = new LineReader(new StringReader(line));
-		try (StringWriter out = new StringWriter()) {
-			ImportKabel.processLine(reader, line, new PrintWriter(out));
-			String actual = out.toString();
-			Assert.assertLinesEqual(expected, actual);
-		}
+		clearBuffer();
+		importKabel.processLine(reader, line);
+		String actual = out.toString();
+		Assert.assertLinesEqual(expected, actual);
 	}
-	
+
 	@Test
-	public void processFootnote() throws IOException {
+	public void processFootnote() {
 		checkProcessFootnote("<li class=\"rtejustify\"><a href=\"#R1\" name=\"A1\" id=\"A1\">↑</a>Fußnote „eins“.</li>",
 				"<@footnote 1 \"FILENAME\">Fußnote »eins«.</@footnote>\n");
 	}
 
-	private void checkProcessFootnote(String line, String expected) throws IOException {
-		try (StringWriter out = new StringWriter()) {
-			ImportKabel.processFootnote(line, new PrintWriter(out));
-			String actual = out.toString();
-			Assert.assertLinesEqual(expected, actual);
-		}
+	private void checkProcessFootnote(String line, String expected) {
+		clearBuffer();
+		importKabel.processFootnote(line);
+		String actual = out.toString();
+		Assert.assertLinesEqual(expected, actual);
 	}
 	
 	@Test
@@ -178,13 +199,17 @@ public class ImportKabelTest {
 	}
 
 	private void checkImport(String line, String expected) throws IOException {
-		try (
-				StringReader in = new StringReader(String.join("", ImportKabel.BEGIN_OF_TEXT) + "\n" + line);
-				StringWriter out = new StringWriter();
-				) {
-			new ImportKabel().prepareText(in, new PrintWriter(out));
+		String head = "<h1>Kapitel</h1>";
+		try (StringReader in = new StringReader(head + "\n" + line)) {
+			clearBuffer();
+			importKabel.prepareText(in);
 			String actual = out.toString();
+			actual = actual.replace(head + "\n\n", "");
 			Assert.assertLinesEqual(expected, actual);
 		}
+	}
+
+	private void clearBuffer() {
+		out.getBuffer().setLength(0);
 	}
 }

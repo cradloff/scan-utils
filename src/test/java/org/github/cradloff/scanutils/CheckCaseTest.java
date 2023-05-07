@@ -1,6 +1,6 @@
 package org.github.cradloff.scanutils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -12,7 +12,7 @@ import java.util.List;
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.bag.HashBag;
 import org.github.cradloff.scanutils.CheckCase.Satzanfang;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CheckCaseTest {
 
@@ -39,7 +39,7 @@ public class CheckCaseTest {
 		int count = CheckCase.fixCase(reader, CheckCase.removeAmbigous(dict), abkürzungen);
 		String actual = String.join("", reader.current());
 		assertEquals(expected, actual);
-		assertEquals("count", expectedCount, count);
+		assertEquals(expectedCount, count, "count");
 	}
 
 	@Test public void testSatzanfang() {

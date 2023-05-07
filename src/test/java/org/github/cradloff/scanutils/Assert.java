@@ -1,4 +1,6 @@
 package org.github.cradloff.scanutils;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,27 +17,27 @@ public class Assert {
 			String actualLine;
 			while ((actualLine = actualLinesReader.readLine()) != null) {
 				String expectedLine = expectedLinesReader.readLine();
-				org.junit.Assert.assertEquals("Line " + lineNumber, expectedLine, actualLine);
+				assertEquals(expectedLine, actualLine, "Line " + lineNumber);
 				lineNumber++;
 			}
 
 			if (expectedLinesReader.readLine() != null) {
-				org.junit.Assert.fail("Actual string does not contain all expected lines\n"
+				fail("Actual string does not contain all expected lines\n"
 						+ "expected: \"" + expectedString + "\"\n"
 						+ "actual: \"" + actualString + "\"");
 			}
 		} catch (IOException e) {
-			org.junit.Assert.fail(e.getMessage());
+			fail(e.getMessage());
 		} finally {
 			try {
 				expectedLinesReader.close();
 			} catch (IOException e) {
-				org.junit.Assert.fail(e.getMessage());
+				fail(e.getMessage());
 			}
 			try {
 				actualLinesReader.close();
 			} catch (IOException e) {
-				org.junit.Assert.fail(e.getMessage());
+				fail(e.getMessage());
 			}
 		}
 	}

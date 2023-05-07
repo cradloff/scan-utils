@@ -1,9 +1,9 @@
 package org.github.cradloff.scanutils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.bag.HashBag;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TextUtilsTest {
 	@Test public void testSplit() {
@@ -288,6 +288,6 @@ public class TextUtilsTest {
 		int count = TextUtils.replace(words, pos, patterns, replacement);
 		String actual = String.join("", words);
 		assertEquals(expectedLine, actual);
-		assertEquals("count", expectedCount, count);
+		assertEquals(expectedCount, count, "count");
 	}
 }
