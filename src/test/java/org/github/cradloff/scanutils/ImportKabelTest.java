@@ -204,7 +204,7 @@ public class ImportKabelTest {
 			clearBuffer();
 			importKabel.prepareText(in);
 			String actual = out.toString();
-			actual = actual.replace(head + "\n\n", "");
+			actual = actual.replace("<h1>Kapitel.</h1>\n\n", "");
 			Assert.assertLinesEqual(expected, actual);
 		}
 	}
