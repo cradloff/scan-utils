@@ -62,17 +62,32 @@ public class ImportKabel {
 	private void doImport(String[] args) throws IOException {
 		params = Parameter.parse(args);
 		// keine URL gefunden?
-		if (params.getInput() == null) {
+		String url = params.getInput();
+		if (url == null) {
 			return;
 		}
 
-		// Dokument herunterladen
-		File input = readDocument(new URL(params.getInput()), "text.md");
+		// ggf. Dokument herunterladen
+		File input;
+		if (isUrl(url)) {
+			input = readDocument(new URL(url), "text.md");
+		} else {
+			// sonst direkt Datei bearbeiten
+			input = new File(url);
+			if (! input.exists()) {
+				System.out.println("Datei nicht gefunden: " + url);
+				return;
+			}
+		}
 
 		// Datei verarbeiten
 		if (input != null) {
 			prepareText(input);
 		}
+	}
+
+	private boolean isUrl(String url) {
+		return url.startsWith("http:") || url.startsWith("https:");
 	}
 
 	private static File readDocument(URL url, String filename) throws IOException {
@@ -122,7 +137,7 @@ public class ImportKabel {
 	}
 
 	private static final String[] START_KAPITEL = TextUtils.split("<h1 class=\"rtecenter\"><").toArray(new String[0]);
-	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">(.*)</span></strong>.*</h1>");
+	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\">.*<strong><span style=\"font-size:28px\">(.*)</span></strong>.*</h1>");
 	private static final String[] START_COVER = TextUtils.split("<p class=\"rtecenter\"><img alt=").toArray(new String[0]);
 	private static final String ANMERKUNGEN = "<p class=\"rtejustify\"><strong>Anmerkungen:</strong></p>";
 	void prepareText(Reader in) throws IOException {
@@ -288,7 +303,7 @@ public class ImportKabel {
 				break;
 			}
 			// Cover?
-			if (TextUtils.startsWith(line, START_COVER)) {
+			if (TextUtils.startsWith(line, START_COVER) && isUrl(params.getInput())) {
 				readCover(line);
 			}
 		} while (reader.readLine());

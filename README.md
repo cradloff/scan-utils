@@ -26,13 +26,14 @@ muß dies anschließend von Hand rückgängig gemacht werden.
 
 __ImportKabel__
 Das Tool lädt Texte von der <a href="https://www.walther-kabel.de/">Kabel-Seite</a>
-herunter und bereitet sie auf:
+herunter und bereitet sie auf. Alternativ kann eine bereits heruntergeladene lokale Datei
+verarbeitet werden:
 
 * ersetzt gerade Apostrophen durch typographische
 * fügt Referenzen auf Fußnoten ein
 * packt Kapitel-Überschriften in h2/h3-Tags
 
-Aufruf: `importKabel.sh <URL>`
+Aufruf: `importKabel.sh <URL>` oder `importKabel.sh <Dateiname>`
 
 __ImportKabelDoc__
 Das Tool bereitet einen aus einem Word-Dokument kopierten Text auf:
