@@ -121,7 +121,7 @@ public class ImportKabel {
 		}
 	}
 
-	private static final String[] START_KAPITEL = TextUtils.split("<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">").toArray(new String[0]);
+	private static final String[] START_KAPITEL = TextUtils.split("<h1 class=\"rtecenter\"><").toArray(new String[0]);
 	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">(.*)</span></strong>.*</h1>");
 	private static final String[] START_COVER = TextUtils.split("<p class=\"rtecenter\"><img alt=").toArray(new String[0]);
 	private static final String ANMERKUNGEN = "<p class=\"rtejustify\"><strong>Anmerkungen:</strong></p>";
