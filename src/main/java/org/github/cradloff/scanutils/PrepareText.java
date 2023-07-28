@@ -1,11 +1,6 @@
 package org.github.cradloff.scanutils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,13 +90,13 @@ public class PrepareText {
 			while ((line = reader.readLine()) != null) {
 				String result = line;
 				result = changeSatzzeichen(result);
+				result = handleChapter(result);
 				result = removeLitter(result);
 				result = changeDash(result);
 				result = TextUtils.satzzeichenErsetzen(result);
 				result = changeQuotes(result);
 				result = changeSpecial(result);
 				result = replaceOnce(result, replacements);
-				result = handleChapter(result);
 				result = handleSubChapter(previousLine, result, reader.peek());
 				result = escapeDigits(result);
 				result = nonBreakingSpaces(result);

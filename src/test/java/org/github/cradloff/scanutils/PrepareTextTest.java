@@ -195,7 +195,7 @@ public class PrepareTextTest {
 		// nach der Überschrift 2. Ordnung kommt die 3.
 		checkPrepareText("1. Kapitel\nÜberschrift", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");
 		checkPrepareText("1. Kapitel.\nÜberschrift.", "<h2>1. Kapitel.</h2>\n<h3>Überschrift.</h3>");
-		checkPrepareText("1. Kapitel.\n\nÜberschrift.", "<h2>1. Kapitel.</h2>\n\n<h3>Überschrift.</h3>");
+		checkPrepareText("1 Kapitel.\n\nÜberschrift.", "<h2>1. Kapitel.</h2>\n\n<h3>Überschrift.</h3>");
 		// bei der dritten Ordnung wird geprüft, ob danach wieder eine Leerzeile kommt
 		checkPrepareText("1. Kapitel.\nHier kommt die erste Zeile eines Absatzes.\nHier die zweite.",
 				"<h2>1. Kapitel.</h2>\nHier kommt die erste Zeile eines Absatzes.\nHier die zweite.");
