@@ -1,10 +1,6 @@
 package org.github.cradloff.scanutils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
+import java.io.*;
 
 /**
  * Bereitet einen Text von der Kabel-Webseite als Dokument (Word/Writer) erstmalig vor.
@@ -60,18 +56,20 @@ public class ImportKabelDoc {
 
 	void prepareText(Reader in, PrintWriter out) throws IOException {
 		LineReader reader = new LineReader(in);
+		String prevLine = "n/a";
 		while (reader.readLine()) {
 			String line = String.join("", reader.current());
-			boolean processed = processLine(line, out);
-			if (processed) {
-				out.println();
-			}
+			String processed = processLine(line, prevLine, out);
+			out.println();
+			prevLine = processed;
 		}
 	}
 
-	static boolean processLine(String line, PrintWriter out) {
+	static String processLine(String line, String previousLine, PrintWriter out) {
 		String result = line;
 		result = changeQuotes(result);
+		result = handleChapter(result);
+		result = handleSubChapter(previousLine, result);
 		result = escapeDigits(result);
 		result = nonBreakingSpaces(result);
 
@@ -79,7 +77,18 @@ public class ImportKabelDoc {
 			out.println(result);
 		}
 		
-		return true;
+		return result;
+	}
+
+	private static String handleChapter(String line) {
+		return line.replaceAll("^(\\d+)[.] Kapitel[.]$", "<h2>$1. Kapitel.</h2>");
+	}
+
+	private static String handleSubChapter(String previousLine, String line) {
+		if (previousLine.startsWith("<h2>")) {
+			return "<h3>" + line + "</h3>";
+		}
+		return line;
 	}
 
 	static String changeQuotes(String line) {
