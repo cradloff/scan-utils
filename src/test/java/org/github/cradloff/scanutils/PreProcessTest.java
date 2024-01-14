@@ -263,7 +263,7 @@ public class PreProcessTest {
 
 		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
 		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal", "dort",
-				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie", "hinzu", "enden", "bereit", "nicht", "halt"));
+				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie", "hinzu", "bereit", "nicht", "halt"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary

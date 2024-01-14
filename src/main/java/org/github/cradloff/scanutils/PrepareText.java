@@ -210,8 +210,7 @@ public class PrepareText {
 	}
 
 	static String changeDash(String line) {
-		// Trennzeichen am Zeilenende
-		String result = line.replaceAll("[»=]$", "-");
+		String result = line;
 		// am Wortende
 		result = result.replaceAll("(\\w)=", "$1-");
 		// Gleichheitszeichen im Text
@@ -219,6 +218,8 @@ public class PrepareText {
 		result = result.replaceAll(" -?=[-“]* ", " — ");
 		result = result.replaceAll(" -?=[-“]* ", " — ");
 		result = result.replaceAll(" -?=[-“]*$", " —");
+		// Trennzeichen am Zeilenende
+		result = result.replaceAll("[»=-]+$", "-"); // sonst
 
 		return result;
 	}
