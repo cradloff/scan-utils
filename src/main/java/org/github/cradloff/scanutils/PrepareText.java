@@ -167,7 +167,7 @@ public class PrepareText {
 		return result;
 	}
 
-	private static final Pattern QUOTES = Pattern.compile("[\"®*„“”]+");
+	private static final Pattern QUOTES = Pattern.compile("(’’)|([\"®*„“”]+)");
 	static String changeQuotes(String line) {
 		// Zeile in Token zerlegen
 		List<String> tokens = TextUtils.split(line);

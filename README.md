@@ -74,7 +74,7 @@ Aufruf: `spellcheck.sh [-<threshold>] [-f] <Dateiname(n)>`
 Alle Wörter in der Datei werden gegen ein Wörterbuch geprüft. Nicht gefundene
 Wörter werden in `spellcheck.log` ausgegeben.
 
-Wenn angegeben, werden nur Wörter ausgegeben, die mindestens <threshold> mal
+Wenn angegeben, werden nur Wörter ausgegeben, die mindestens *threshold* mal
 vorkommen.
 
 Wird die Option `-f` angegeben, werden die Dateinamen aus den nachfolgenden
@@ -140,18 +140,33 @@ Dateien
 -------
 
 Als Wörterbuch dient eine Datei, die pro Zeile ein Wort und dessen Häufigkeit enthält.
-Das Wort ist durch ein Tab von der Häufigkeit getrennt, fehlt die Häufigkeit, wird 1 angenommen.
+Das Wort ist durch ein Tab von der Häufigkeit getrennt. Fehlt die Häufigkeit, wird 1 angenommen.
 Die Datei muss `german.dic` heißen und wird im Verzeichnis gesucht, in dem der Text steht. Ist
 die Datei dort nicht vorhanden, wird sie in den Parent-Verzeichnissen gesucht.
 Sind mehrere Dateien in mehreren Verzeichnissen vorhanden, werden sie alle eingelesen.
 
+    du
+    ich	100
+    ihr	20
+
 Für Rechtschreibkorrekturen wird eine Datei `rechtschreibung.csv` nach den
 selben Regeln gesucht. Die Datei enthält durch Leerzeichen oder Tab getrennt,
-ein falsch geschriebenes Wort und die korrigierte Fassung.
+ein falsch geschriebenes Wort und die korrigierte Fassung:
+
+    aht	acht
+    Waffer	Wasser
 
 Silben, die bei der Wort-Korrektur nicht verändert werden sollen, werden in
-`silben.dic` gespeichert.
+`silben.dic` gespeichert:
+
+    ein
+    heit
+    keit
+    ver
 
 Einmalige Ersetzungen werden in der Datei `replace_once.txt` aufgelistet.
-Die Datei besteht aus einem regulären Ausdruck, einem Tab und der Ersetzung.
+Die Datei besteht aus einem regulären Ausdruck, einem Tab und der Ersetzung:
 
+    \bFahre\b	Jahre
+    \bgesunden\b	gefunden
+    i[cd]\)	ich

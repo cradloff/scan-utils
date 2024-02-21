@@ -52,6 +52,7 @@ public class PrepareTextTest {
 		checkChangeQuotes("Er sprach: “Hinweg!”", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: „Hinweg!”", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er sprach: „Hinweg! ”", "Er sprach: »Hinweg!«");
+		checkChangeQuotes("Er sprach: ’’Hinweg!’’", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er fragte: “Wohin?*”", "Er fragte: »Wohin?«");
 		checkChangeQuotes("Er fragte: “Wohin?”*", "Er fragte: »Wohin?«");
 	}
