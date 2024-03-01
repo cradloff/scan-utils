@@ -1,21 +1,10 @@
 package org.github.cradloff.scanutils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,7 +94,8 @@ public class FileAccess {
 		String filename = "rechtschreibung.csv";
 		File file = FileAccess.find(basefile, filename);
 		if (file == null) {
-			throw new FileNotFoundException(filename);
+			System.out.printf("Datei %s nicht gefunden.%n", filename);
+			return Collections.emptyMap();
 		}
 		Map<String, String> rechtschreibung = new HashMap<>();
 		while (file != null) {
@@ -118,7 +108,8 @@ public class FileAccess {
 		return rechtschreibung;
 	}
 
-	/** Liest eine Datei ein. Die Datei enthält Abschnitte, die in eckigen Klammern stehen,
+	/**
+	 * Liest eine Datei ein. Die Datei enthält Abschnitte, die in eckigen Klammern stehen,
 	 * Leerzeilen und Zeilen die mit # beginnen, werden ignoriert. Beispiel:
 	 * <pre>
 	 * [Abschnitt 1]
