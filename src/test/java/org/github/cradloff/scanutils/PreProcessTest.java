@@ -262,8 +262,8 @@ public class PreProcessTest {
 		spellcheck.put("ſagte", "sagte");
 
 		Bag<String> silben = new HashBag<>(Arrays.asList("en", "ch"));
-		Bag<String> dict = new HashBag<>(Arrays.asList("Schiff", "voraus", "alle", "alle", "Entchen", "Entchen", "Nachen", "er", "es", "hier", "mal", "dort",
-				"mir", "war", "wir", "oh", "schwerfällig", "zu", "Piraten", "Uhr", "im", "in", "hin", "sie", "sie", "hinzu", "bereit", "nicht", "halt"));
+		Bag<String> dict = new HashBag<>(Arrays.asList("alle", "alle", "bereit", "dort", "Entchen", "Entchen", "er", "es", "halt", "hier", "hin", "hinzu",
+				"im", "in", "mal", "mir", "Nachen", "nicht", "oh", "Piraten", "rief", "Schiff", "schwerfällig", "sie", "sie", "Uhr", "voraus", "war", "wer", "wir", "zu"));
 		checkPreProcess("Alle meine Entchen\n", "Alle meine Entchen\n", dict, silben, spellcheck, 0);
 		checkPreProcess("Alle meine Ent<en {wimmen zum $<iff\n", "Alle meine Entchen schwimmen zum Schiff\n", dict, silben, spellcheck, 4);
 		// meine ist nicht im Dictionary
@@ -282,6 +282,8 @@ public class PreProcessTest {
 		checkPreProcess("Ai-e me-ne En-ch-en\n", "Alle me-ne Entchen\n", dict, silben, spellcheck, 2);
 		// Sonderzeichen, die nicht im deutschen Alphabet und nicht in similar_chars.csv vorkommen ebenfalls
 		checkPreProcess("Allç h¡er ÿu mﬅr. þchiff v°raus.", "Alle hier zu mir. Schiff voraus.", dict, silben, spellcheck, 6);
+		// Sonderzeichen in einem Wort ersetzen
+		checkPreProcess("Pira!en bere:t?", "Piraten bereit?", dict, silben, spellcheck, 2);
 		// keine Ersetzung von einzelnen Buchstaben
 		checkPreProcess("G. m. b. H.\n", "G. m. b. H.\n", dict, silben, spellcheck, 0);
 		checkPreProcess("U.&nbsp;G.&nbsp;B.-Gespenst\n", "U.&nbsp;G.&nbsp;B.-Gespenst\n", dict, silben, spellcheck, 0);

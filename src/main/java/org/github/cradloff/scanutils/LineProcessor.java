@@ -1,23 +1,9 @@
 package org.github.cradloff.scanutils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 import org.apache.commons.collections4.Bag;
 import org.github.cradloff.scanutils.PreProcess.Parameter;
@@ -133,6 +119,12 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 			// Satzzeichen in Wörtern entfernen
 			while (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[.,»«\"]") && TextUtils.textAfter(line, i + 1)) {
 				token += line.get(i + 2);
+				PreProcess.remove(line, i + 1, 2);
+			}
+
+			// Satzzeichen in Wörtern ersetzen
+			if (TextUtils.isWord(token) && i < line.size() - 1 && line.get(i + 1).matches("[;:!()\\[\\]{}»«„“”\"*_]+") && TextUtils.textAfter(line, i + 1)) {
+				token += line.get(i + 1) + line.get(i + 2);
 				PreProcess.remove(line, i + 1, 2);
 			}
 
