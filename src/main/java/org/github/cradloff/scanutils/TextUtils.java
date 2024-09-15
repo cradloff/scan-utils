@@ -19,8 +19,8 @@ public class TextUtils {
 		}
 
 		// << und >> in « und » umwandeln
-		result = result.replaceAll("<<", "«");
-		result = result.replaceAll(">>", "»");
+		result = result.replace("<<", "«");
+		result = result.replace(">>", "»");
 
 		// gerade Anführungszeichen durch typographische ersetzen
 		result = result.replace('\'', '’');
@@ -35,9 +35,7 @@ public class TextUtils {
 		result = result.replaceAll("[.,]{3,}", "…");
 		result = result.replaceAll("\\.*[…]\\.*", "…");
 		result = result.replace(".-.", "…");
-		result = result.replace(",.", "…");
-
-		return result;
+		return result.replace(",.", "…");
 	}
 
 	enum State { WHITESPACE, WORD, TAG, PUNCTUATION }
@@ -125,7 +123,7 @@ public class TextUtils {
 
 	/** Prüft, ob vor der angegebenen Position ein Wort oder eine Zahl kommt */
 	public static boolean textBefore(List<String> line, int i) {
-		return i > 0 && (isAlphaNumeric(line.get(i - 1)));
+		return i > 0 && isAlphaNumeric(line.get(i - 1));
 	}
 
 	/** Prüft, ob nach der angegebenen Position ein Wort oder eine Zahl kommt */
@@ -145,7 +143,7 @@ public class TextUtils {
 
 	/** Prüft, ob vor der angegebenen Position ein Wort kommt */
 	public static boolean satzzeichenBefore(List<String> line, int i) {
-		return i > 0 && (isSatzzeichen(line.get(i - 1)));
+		return i > 0 && isSatzzeichen(line.get(i - 1));
 	}
 
 	public static boolean isDash(char ch) {
@@ -163,7 +161,8 @@ public class TextUtils {
 
 	public static boolean endsWithDash(String s) {
 		return s.length() > 1
-				&& isDash(s.charAt(s.length() - 1))
+				&& (isDash(s.charAt(s.length() - 1))
+						|| s.endsWith("«-"))
 				&& s.charAt(s.length() - 2) != '\\';
 	}
 

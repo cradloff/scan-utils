@@ -287,9 +287,6 @@ public class PreProcessTest {
 		// keine Ersetzung von einzelnen Buchstaben
 		checkPreProcess("G. m. b. H.\n", "G. m. b. H.\n", dict, silben, spellcheck, 0);
 		checkPreProcess("U.&nbsp;G.&nbsp;B.-Gespenst\n", "U.&nbsp;G.&nbsp;B.-Gespenst\n", dict, silben, spellcheck, 0);
-		// am Zeilenanfang werden Wörter ergänzt, die vorne abgeschnitten sind
-		// im Zweifelsfall kommen häufigere Wörter zuerst ("Entchen" vs. "Nachen")
-		checkPreProcess("iff oraus\nlle ine\nchen\n", "Schiff oraus\nalle ine\nEntchen\n", dict, silben, spellcheck, 3);
 		// unterscheiden sich die Wörter nur in der Groß-/Kleinschreibung, wird die Original-Schreibweise bevorzugt
 		checkPreProcess("Aiie, aiie\n", "Alle, alle\n", dict, silben, spellcheck, 2);
 		checkPreProcess("Zie, zie\n", "Sie, sie\n", dict, silben, spellcheck, 2);

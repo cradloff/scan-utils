@@ -291,20 +291,6 @@ public class LineProcessor implements Callable<LineProcessor.Result> {
 		} else if (! ciDict.contains(word) && ciDict.contains(TextUtils.toUpperCase(word.toLowerCase()))) {
 			result = TextUtils.toUpperCase(word.toLowerCase());
 		}
-		// am Zeilenanfang prüfen ob es Wort gibt, das mit dem Token endet
-		else if (index == 0 && word.length() > 2 && hasPrefix(invDict, TextUtils.reverse(word))) {
-			// einfach das häufigste passende Wort nehmen
-			String inv = TextUtils.reverse(word);
-			SortedSet<String> subSet = invDict.subSet(inv, inv + "\uffff");
-			int count = 0;
-			for (String curr : subSet) {
-				String s = TextUtils.reverse(curr);
-				if (count < ciDict.getCount(s)) {
-					result = s;
-					count = ciDict.getCount(s);
-				}
-			}
-		}
 		// Zwei Großbuchstaben am Wortbeginn?
 		else if (word.length() > 2
 				&& Character.isUpperCase(word.charAt(0))

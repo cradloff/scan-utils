@@ -57,6 +57,7 @@ public class TextUtilsTest {
 		assertFalse(TextUtils.endsWithDash("Text ohne Dash"));
 		assertTrue(TextUtils.endsWithDash("Text mit Dash -"));
 		assertTrue(TextUtils.endsWithDash("Text mit Dash —"));
+		assertTrue(TextUtils.endsWithDash("Text mit Dash «-"));
 		assertFalse(TextUtils.endsWithDash("Text mit escaped Dash \\-"));
 		assertFalse(TextUtils.endsWithDash("Text mit escaped Dash \\—"));
 	}
