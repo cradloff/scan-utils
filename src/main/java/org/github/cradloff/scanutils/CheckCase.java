@@ -23,7 +23,7 @@ public class CheckCase {
 	private static final Bag<String> ARTIKEL;
 	static {
 		HashBag<String> artikel = new HashBag<>(Arrays.asList(
-				"der", "die", "das", "dem", "ihr", "sein", "ein", "eine", "einer", "eines", "einem", "im", "zum", "zur", "etwas"));
+				"der", "die", "das", "dem", "den", "beim", "ihr", "sein", "ein", "eine", "einer", "eines", "einem", "im", "zum", "zur", "etwas"));
 		ARTIKEL = TextUtils.addUpperCase(artikel);
 	}
 	public static void main(String[] args) throws IOException {
