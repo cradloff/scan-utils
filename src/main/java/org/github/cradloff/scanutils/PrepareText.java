@@ -167,7 +167,7 @@ public class PrepareText {
 		return result;
 	}
 
-	private static final Pattern QUOTES = Pattern.compile("(’’)|([\"®*„“”]+)");
+	private static final Pattern QUOTES = Pattern.compile("(’’)|([\"®*„“”]+)");
 	static String changeQuotes(String line) {
 		// Zeile in Token zerlegen
 		List<String> tokens = TextUtils.split(line);
@@ -210,7 +210,7 @@ public class PrepareText {
 	}
 
 	static String changeDash(String line) {
-		String result = line;
+		String result = line.replace("", "—");
 		// am Wortende
 		result = result.replaceAll("(\\w)=", "$1-");
 		// Gleichheitszeichen im Text

@@ -55,6 +55,7 @@ public class PrepareTextTest {
 		checkChangeQuotes("Er sprach: ’’Hinweg!’’", "Er sprach: »Hinweg!«");
 		checkChangeQuotes("Er fragte: “Wohin?*”", "Er fragte: »Wohin?«");
 		checkChangeQuotes("Er fragte: “Wohin?”*", "Er fragte: »Wohin?«");
+		checkChangeQuotes("Er fragte: Wohin?", "Er fragte: »Wohin?«");
 	}
 
 	private void checkChangeQuotes(String input, String expected) {
@@ -170,10 +171,10 @@ public class PrepareTextTest {
 	@Test public void prepareText() throws IOException {
 		checkPrepareText("Normaler Text,\nmit mehreren\nZeilen\n", "Normaler Text,\nmit mehreren\nZeilen\n");
 
-		checkPrepareText("| Text -- mit ,\n,Schmierzei<en\nund \"Anführungszeichen® \n und Binde=\nstrich»\nen |",
+		checkPrepareText("| Text -- mit ,\n,Schmierzei<en\nund --- \"Anführungszeichen® \n und Binde=\nstrich»\nen |",
+				"Text — mit\nSchmierzeichen\nund — »Anführungszeichen«\nund Binde-\nstrich-\nen\n");
+		checkPrepareText("\\ |/ Text  mit ,\n;Schmierzeichen\n:und *Anführungszeichen® \n und Binde=\nstrich»\nen i",
 				"Text — mit\nSchmierzeichen\nund »Anführungszeichen«\nund Binde-\nstrich-\nen\n");
-		checkPrepareText("\\ |/ Text mit ,\n;Schmierzeichen\n:und *Anführungszeichen® \n und Binde=\nstrich»\nen i",
-				"Text mit\nSchmierzeichen\nund »Anführungszeichen«\nund Binde-\nstrich-\nen\n");
 		checkPrepareText("Text mit vielen\n\n\n\nLeerzeilen", "Text mit vielen\n\nLeerzeilen\n");
 		checkPrepareText("Text' mit >>Sonderzeichen<<", "Text’ mit »Sonderzeichen«\n");
 		checkPrepareText("werden. — Beeile Dich.“ — u", "werden. — Beeile Dich.« —\n");

@@ -137,7 +137,7 @@ public class ImportKabel {
 	}
 
 	private static final String[] START_KAPITEL = TextUtils.split("<h1 class=\"rtecenter\"><").toArray(new String[0]);
-	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\">.*<strong><span style=\"font-size:28px\">(.*)</span></strong>.*</h1>");
+	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\">.*<span style=\"font-size:28px\">(<strong>)?(.*)(</strong>)?</span>.*</h1>");
 	private static final String[] START_COVER = TextUtils.split("<p class=\"rtecenter\"><img alt=").toArray(new String[0]);
 	private static final String ANMERKUNGEN = "<p class=\"rtejustify\"><strong>Anmerkungen:</strong></p>";
 	void prepareText(Reader in) throws IOException {
@@ -192,7 +192,7 @@ public class ImportKabel {
 	private void switchFile(String line) throws IOException {
 		Matcher matcher = KAPITEL.matcher(line);
 		if (matcher.matches()) {
-			String kapitel = matcher.group(1);
+			String kapitel = matcher.group(2);
 			if (! kapitel.endsWith(".")) {
 				kapitel += ".";
 			}
@@ -220,7 +220,7 @@ public class ImportKabel {
 	private static final Pattern HEADING = Pattern.compile("<(h[1-3])( class=\"[^\"]*\")?>(.*)</h[1-3]>");
 	boolean processHeading(String line) {
 		Matcher matcher = HEADING.matcher(line);
-		if (matcher.matches()) {
+		if (matcher.matches() && out != null) {
 			String tag = matcher.group(1);
 			String text = stripTags(matcher.group(3));
 			text = changeQuotes(text);
