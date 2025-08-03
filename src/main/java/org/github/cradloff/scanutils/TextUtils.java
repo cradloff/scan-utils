@@ -24,6 +24,7 @@ public class TextUtils {
 
 		// gerade Anführungszeichen durch typographische ersetzen
 		result = result.replace('\'', '’');
+		result = result.replace('´', ',');
 
 		// Apostroph unten durch Komma ersetzen
 		result = result.replace('‚', ',');

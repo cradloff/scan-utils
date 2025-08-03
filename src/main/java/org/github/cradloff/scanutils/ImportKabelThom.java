@@ -90,16 +90,27 @@ public class ImportKabelThom {
 		result = nonBreakingSpaces(result);
 
 		if (! result.isBlank()) {
-			// nach 80 Zeichen umbrechen
+			// zentrierte Zeilen beginnen mit mehr als 5 Leerzeichen
+			boolean centered = false;
+			if (result.startsWith("       ")) {
+				centered = true;
+				out.print("<p class='centered'>");
+			}
+			// nach ca. 50 Zeichen umbrechen
 			result = result.trim();
-			int idx = result.indexOf(' ', 80);
+			int idx = result.indexOf(' ', 45);
 			int start = 0;
 			while (idx > 0) {
 				out.println(result.substring(start, idx));
 				start = idx + 1;
-				idx = result.indexOf(' ', start + 80);
+				idx = result.indexOf(' ', start + 50);
 			}
-			out.println(result.substring(start));
+			out.print(result.substring(start));
+			if (centered) {
+				out.println("</p>");
+			} else {
+				out.println();
+			}
 		}
 		
 		return result;
@@ -121,8 +132,17 @@ public class ImportKabelThom {
 	}
 
 	static String changeSpecial(String line) {
-		return line.replace(". . .", "…")
+		return line
+				.replace(". . .", "…")
+				.replace(". .", "…")
+				.replace("...", "…")
+				.replace("..", "…")
+				.replaceAll("(\\w)…", "$1 …")
 				.replace("» …", "»…")
+				.replace(" - ", " — ")
+				.replace("\"", "’")
+				.replace("'", "’")
+				.replace("´", "’")
 				.replace("---", "—")
 				.replace("--", "—");
 	}
