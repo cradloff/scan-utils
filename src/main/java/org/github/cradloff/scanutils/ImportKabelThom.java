@@ -64,10 +64,11 @@ public class ImportKabelThom {
 		String prevLine = "n/a";
 		while (reader.readLine()) {
 			String line = String.join("", reader.current());
-			// Absätze beginnen mit 5 Leerzeichen, wenn die Folgezeile ohne Leerzeichen startet,
+			// Absätze beginnen mit 5 Leerzeichen, wenn die Folgezeile(n) ohne Leerzeichen startet,
 			// beide Zeilen zusammenfassen
-			String nextLine = String.join("", reader.next());
-			if (line.startsWith("     ") && ! nextLine.isBlank() && nextLine.charAt(0) != ' ') {
+			for (String nextLine = String.join("", reader.next());
+					line.startsWith("     ") && ! nextLine.isBlank() && nextLine.charAt(0) != ' ';
+					nextLine = String.join("", reader.next())) {
 				reader.skip(1);
 				line = line + ' ' + nextLine;
 			}
