@@ -89,6 +89,7 @@ public class ImportKabelThom {
 		result = handleSubChapter(previousLine, result);
 		result = escapeDigits(result);
 		result = nonBreakingSpaces(result);
+		result = replaceUmlaut(result);
 
 		if (! result.isBlank()) {
 			// zentrierte Zeilen beginnen mit mehr als 5 Leerzeichen
@@ -138,7 +139,7 @@ public class ImportKabelThom {
 				.replace(". .", "…")
 				.replace("...", "…")
 				.replace("..", "…")
-				.replaceAll("(\\w)…", "$1 …")
+				.replaceAll("([\\wßöäü])…", "$1 …")
 				.replace("» …", "»…")
 				.replace(" - ", " — ")
 				.replace("\"", "’")
@@ -159,6 +160,12 @@ public class ImportKabelThom {
 		result = result.replaceAll("(\\d) (\\d{3})", "$1&nbsp;$2");
 
 		return result;
+	}
+
+	static String replaceUmlaut(String result) {
+		return result.replace("Ue", "Ü")
+				.replace("Ae", "Ä")
+				.replace("Oe", "Ö");
 	}
 
 }

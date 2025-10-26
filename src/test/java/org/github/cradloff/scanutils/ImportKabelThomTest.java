@@ -1,9 +1,6 @@
 package org.github.cradloff.scanutils;
 
-import static org.github.cradloff.scanutils.ImportKabelThom.changeQuotes;
-import static org.github.cradloff.scanutils.ImportKabelThom.changeSpecial;
-import static org.github.cradloff.scanutils.ImportKabelThom.escapeDigits;
-import static org.github.cradloff.scanutils.ImportKabelThom.nonBreakingSpaces;
+import static org.github.cradloff.scanutils.ImportKabelThom.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
@@ -21,6 +18,8 @@ public class ImportKabelThomTest {
 		assertEquals("das ist ja …", changeSpecial("das ist ja. ."));
 		assertEquals("das ist ja …", changeSpecial("das ist ja..."));
 		assertEquals("das ist ja …", changeSpecial("das ist ja.."));
+		assertEquals("Sie glauben daß …", changeSpecial("Sie glauben daß..."));
+		assertEquals("Nö …", changeSpecial("Nö..."));
 		assertEquals("»… und dann", changeSpecial("» ... und dann"));
 		assertEquals("Trotzdem — irgendwie", changeSpecial("Trotzdem - irgendwie"));
 		assertEquals("Trotzdem — irgendwie", changeSpecial("Trotzdem -- irgendwie"));
@@ -40,5 +39,10 @@ public class ImportKabelThomTest {
 	void testNonBreakingSpaces() {
 		assertEquals("G.&nbsp;m.&nbsp;b.&nbsp;H.", nonBreakingSpaces("G. m. b. H."));
 		assertEquals("100&nbsp;000 Mark", nonBreakingSpaces("100 000 Mark"));
+	}
+	
+	@Test
+	void testReplaceUmlaut() {
+		assertEquals("Überall Öl Ärger", replaceUmlaut("Ueberall Oel Aerger"));
 	}
 }
