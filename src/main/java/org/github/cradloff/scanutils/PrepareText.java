@@ -53,7 +53,7 @@ public class PrepareText {
 				) {
 			prepareText(in, out, replacements);
 
-			System.out.printf("Zeit: %,dms%n", (System.currentTimeMillis() - start));
+			System.out.printf("Zeit: %,dms%n", System.currentTimeMillis() - start);
 		}
 	}
 
@@ -243,9 +243,9 @@ public class PrepareText {
 
 				.replace("}", "st")
 				.replace('ſ', 's')
+				.replace('[', 's')
 
 				.replace('|', '!')
-				.replace('[', '!')
 
 				.replace("c<", "ch")
 				.replace("<h", "ch")
@@ -254,7 +254,9 @@ public class PrepareText {
 				.replace("c>", "ck")
 				.replace("d>", "ck")
 				.replace(">k", "ck")
-				.replace(">", "ck");
+				.replace(">", "ck")
+				
+				.replace("&", "F");
 
 		return result;
 	}

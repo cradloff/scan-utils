@@ -104,8 +104,8 @@ public class PrepareTextTest {
 
 		checkSpecial("Es i} ſchon gut.", "Es ist schon gut.");
 
-		// | und [ wird durch ! ersetzt
-		checkSpecial("Los|[", "Los!!");
+		// | und [ wird durch s ersetzt
+		checkSpecial("es [ei denn", "es sei denn");
 
 		// "{" wird durch "sch" ersetzt, nach einen "s" nur durch "ch"
 		checkSpecial("zwi{en den Büs{en", "zwischen den Büschen");
@@ -113,6 +113,9 @@ public class PrepareTextTest {
 		checkSpecial("zwis{<en den Bü{<en", "zwischen den Büschen");
 		// vor einem 'h' wird '{' zu "sc"
 		checkSpecial("wird {hon werden", "wird schon werden");
+		
+		// & wird zu F
+		checkSpecial("&rau Meier", "Frau Meier");
 	}
 
 	private void checkSpecial(String input, String expected) {

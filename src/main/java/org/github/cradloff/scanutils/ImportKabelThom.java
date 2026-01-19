@@ -1,10 +1,6 @@
 package org.github.cradloff.scanutils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
 
 /**
@@ -119,7 +115,7 @@ public class ImportKabelThom {
 	}
 
 	private static String handleChapter(String line) {
-		return line.replaceAll("^\\s*(\\d+)[.]\\s*Kapitel[.]$", "<h2>$1. Kapitel.</h2>");
+		return line.replaceAll("^\\s*(\\d+)[.]\\s*Kapit[aeo]l[.]$", "<h2>$1. Kapitel.</h2>");
 	}
 
 	private static String handleSubChapter(String previousLine, String line) {
