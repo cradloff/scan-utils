@@ -1,7 +1,11 @@
 package org.github.cradloff.scanutils;
 
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
+
+import org.mozilla.universalchardet.ReaderFactory;
 
 /**
  * Bereitet einen Text von Thom als Dokument erstmalig vor.
@@ -47,7 +51,7 @@ public class ImportKabelThom {
 
 		// Datei umbenennen
 		File backup = FileAccess.roll(input);
-		try (Reader in = new FileReader(backup, Charset.forName("windows-1252"));
+		try (Reader in = ReaderFactory.createBufferedReader(backup);
 				PrintWriter out = new PrintWriter(input);) {
 			prepareText(in, out);
 
@@ -96,12 +100,12 @@ public class ImportKabelThom {
 			}
 			// nach ca. 50 Zeichen umbrechen
 			result = result.trim();
-			int idx = result.indexOf(' ', 45);
+			int idx = result.indexOf(' ', 50);
 			int start = 0;
 			while (idx > 0) {
 				out.println(result.substring(start, idx));
 				start = idx + 1;
-				idx = result.indexOf(' ', start + 50);
+				idx = result.indexOf(' ', start + 55);
 			}
 			out.print(result.substring(start));
 			if (centered) {

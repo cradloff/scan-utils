@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.mozilla.universalchardet.ReaderFactory;
+
 /**
  * Bereitet einen Text von der Kabel-Webseite erstmalig vor. Die Seite wird heruntergeladen und gespeichert.
  * Es werden Anführungszeichen ersetzt und Referenzen eingefügt.
@@ -129,10 +131,10 @@ public class ImportKabel {
 
 		// Datei umbenennen
 		File backup = FileAccess.roll(input);
-		try (Reader in = new FileReader(backup);) {
+		try (Reader in = ReaderFactory.createBufferedReader(backup)) {
 			prepareText(in);
 
-			System.out.printf("Zeit: %,dms%n", (System.currentTimeMillis() - start));
+			System.out.printf("Zeit: %,dms%n", System.currentTimeMillis() - start);
 		}
 	}
 
