@@ -146,6 +146,10 @@ public class PreProcessTest {
 				"»verkehrte« Quotes werden »umgedreht«");
 		checkReplaceQuotes("auch …» nach …?» bestimmten …!» Satzzeichen …?!» ersetzen …!!»",
 				"auch …« nach …?« bestimmten …!« Satzzeichen …?!« ersetzen …!!«");
+		
+		// prüfen, dass keine unnötigen Ersetzungen gemacht werden
+		checkReplaceQuotes("und als »schäbig-elegant«",
+				"und als »schäbig-elegant«");
 	}
 
 	private void checkReplaceQuotes(String line, String expectedLine) {

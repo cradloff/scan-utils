@@ -115,7 +115,10 @@ public class TextUtils {
 	public static boolean isAlphaNumeric(String s) {
 		for (int i = 0; i < s.length(); i++) {
 			char ch = s.charAt(i);
-			if (! Character.isAlphabetic(ch) && ! Character.isDigit(ch) && ch != '’') {
+			if (! Character.isAlphabetic(ch)
+					&& ! Character.isDigit(ch)
+					&& ch != '’'
+					&& ! isDash(ch)) {
 				return false;
 			}
 		}

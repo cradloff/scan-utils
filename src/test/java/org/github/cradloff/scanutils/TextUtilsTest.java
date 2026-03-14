@@ -115,6 +115,7 @@ public class TextUtilsTest {
 		assertTrue(TextUtils.isAlphaNumeric("123"));
 		assertTrue(TextUtils.isAlphaNumeric("Wort"));
 		assertTrue(TextUtils.isAlphaNumeric("ist’s"));
+		assertTrue(TextUtils.isAlphaNumeric("rot-grün"));
 		assertFalse(TextUtils.isAlphaNumeric(""));
 		assertFalse(TextUtils.isAlphaNumeric("«"));
 		assertFalse(TextUtils.isAlphaNumeric(" "));
