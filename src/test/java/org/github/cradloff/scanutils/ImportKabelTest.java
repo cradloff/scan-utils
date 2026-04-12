@@ -1,5 +1,6 @@
 package org.github.cradloff.scanutils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -137,6 +138,16 @@ public class ImportKabelTest {
 		importKabel.processFootnote(line);
 		String actual = out.toString();
 		Assert.assertLinesEqual(expected, actual);
+	}
+	
+	@Test
+	public void parseFileFromHeader() {
+		assertThat(importKabel.parseFileFromHeader("<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">Die Festung des Ali Azzim.</span></strong></h1>"))
+			.contains("01_Die Festung des Ali Azzim.md");
+		assertThat(importKabel.parseFileFromHeader("<h1 class=\"rtecenter\"><span style=\"font-size:28px\"><strong>Harald Harst im 23. Jahrhundert</strong></span></h1>"))
+			.contains("02_Harald Harst im 23. Jahrhundert.md");
+		assertThat(importKabel.parseFileFromHeader("<h1 class=\"rtecenter\"><strong><span style=\"font-size:28px\">Die leuchtende Fratze.</span></strong><sup><span style=\"font-size:20px\"><a href=\"#A1\" name=\"R1\" id=\"R1\">[1]</a></span></sup></h1>"))
+			.contains("03_Die leuchtende Fratze.md");
 	}
 	
 	@Test

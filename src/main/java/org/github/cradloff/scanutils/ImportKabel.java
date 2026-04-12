@@ -7,6 +7,7 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,7 +140,8 @@ public class ImportKabel {
 	}
 
 	private static final String[] START_KAPITEL = TextUtils.split("<h1 class=\"rtecenter\"><").toArray(new String[0]);
-	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\">.*<span style=\"font-size:28px\">(<strong>)?(.*)(</strong>)?</span>.*</h1>");
+	private static final Pattern KAPITEL = Pattern.compile("\\s*<h1 class=\"rtecenter\">"
+			+ "(<span style=\"font-size:28px\">|<strong>)*([^<]*)(</strong>|</span>)*.*</h1>");
 	private static final String[] START_COVER = TextUtils.split("<p class=\"rtecenter\"><img alt=").toArray(new String[0]);
 	private static final String ANMERKUNGEN = "<p class=\"rtejustify\"><strong>Anmerkungen:</strong></p>";
 	void prepareText(Reader in) throws IOException {
@@ -192,6 +194,15 @@ public class ImportKabel {
 	}
 
 	private void switchFile(String line) throws IOException {
+		Optional<String> newFilename = parseFileFromHeader(line);
+		if (newFilename.isPresent()) {
+			openFile(newFilename.get());
+		} else if (ANMERKUNGEN.equals(line)) {
+			openFile("99_footnotes.md");
+		}
+	}
+
+	public Optional<String> parseFileFromHeader(String line) {
 		Matcher matcher = KAPITEL.matcher(line);
 		if (matcher.matches()) {
 			String kapitel = matcher.group(2);
@@ -199,12 +210,12 @@ public class ImportKabel {
 				kapitel += ".";
 			}
 			anzahlKapitel++;
-			openFile(String.format("%02d_%smd", anzahlKapitel, kapitel));
-		} else if (ANMERKUNGEN.equals(line)) {
-			openFile("99_footnotes.md");
+			return Optional.of(String.format("%02d_%smd", anzahlKapitel, kapitel));
 		}
+		
+		return Optional.empty();
 	}
-	
+
 	void close() {
 		if (out != null) {
 			System.out.printf("Datei %s exportiert%n", filename);
