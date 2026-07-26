@@ -2,6 +2,7 @@ package org.github.cradloff.scanutils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,9 +43,11 @@ public class ImportKabelTest {
 	}
 
 	@Test
-	public void changeQuotes() {
-		assertEquals("Text mit »Anführungszeichen«", ImportKabel.changeQuotes("Text mit „Anführungszeichen“"));
-		assertEquals("Nein — nein", ImportKabel.changeQuotes("Nein – nein"));
+	public void changeChars() {
+		assertEquals("Text mit »Anführungszeichen«", ImportKabel.changeChars("Text mit „Anführungszeichen“"));
+		assertEquals("Vor der Kneipe ›Zur Stadt Paris‹.", ImportKabel.changeChars("Vor der Kneipe ‚Zur Stadt Paris‛."));
+		assertEquals("Nein — nein", ImportKabel.changeChars("Nein – nein"));
+		assertEquals("Nur weiter…!", ImportKabel.changeChars("Nur weiter‥!"));
 	}
 
 	@Test
@@ -85,11 +88,17 @@ public class ImportKabelTest {
 				"<h3>»Zum gestiefelten Kater«.</h3>\n");
 		checkHeadings("<h3 class=\"rtecenter\"><span style=\"font-size:16px\"><strong>Untertitel mit <a href=\"/node/123#Verweis\">Verweis</a>.</strong></span></h3>",
 				"<h3>Untertitel mit Verweis.</h3>\n");
+		checkHeadings("<p class=\"rtecenter\"><span style=\"font-family:Times New Roman,Times,serif\"><span style=\"font-size:14px\">2. Kapitel</span></span></p>",
+				"<h2>2. Kapitel</h2>");
+		checkHeadings("<p class=\"rtecenter\"><span style=\"font-family:Times New Roman,Times,serif\"><span style=\"font-size:16px\"><strong>Der gefilmte Brief.</strong></span></span></p>",
+				"<h3>Der gefilmte Brief.</h3>");
+		checkHeadings("<p class=\"rtecenter\"><span style=\"font-size:16px\"><span style=\"font-family:Times New Roman,Times,serif\"><strong>Vor der Kneipe ‚Zur Stadt Paris‛.</strong></span></span></p>",
+				"<h3>Vor der Kneipe ›Zur Stadt Paris‹.</h3>");
 	}
 
 	private void checkHeadings(String line, String expected) {
 		clearBuffer();
-		importKabel.processHeading(line);
+		assertTrue(importKabel.processHeading(line));
 		String actual = out.toString();
 		Assert.assertLinesEqual(expected, actual);
 	}
@@ -117,6 +126,10 @@ public class ImportKabelTest {
 				"*Formatierter* Absatz.\n");
 		checkProcessLine("<p class=\"rteindent3 rteright\"><span style=\"letter-spacing:2px\">Formatierter</span> Absatz.</p>",
 				"<p class=\"right\"><em>Formatierter</em> Absatz.</p>\n");
+		checkProcessLine("<p class=\"rtejustify\"><span style=\"font-family:Times New Roman,Times,serif\"><span style=\"font-size:14px\">„Grüner Weg Nr. 2.“</span></span></p>",
+				"»Grüner Weg Nr. 2.«\n");
+		checkProcessLine("<p class=\"rteindent3 rteright\"><span style=\"font-family:Times New Roman,Times,serif\"><span style=\"font-size:14px\">Die sieben Speichen</span></span></p>",
+				"<p class=\"right\">Die sieben Speichen</p>\n");
 	}
 
 	private void checkProcessLine(String line, String expected) throws IOException {

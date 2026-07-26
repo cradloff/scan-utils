@@ -231,15 +231,35 @@ public class ImportKabel {
 	}
 	
 	private static final Pattern HEADING = Pattern.compile("<(h[1-3])( class=\"[^\"]*\")?>(.*)</h[1-3]>");
+	private static final Pattern HEADING_H2 = Pattern.compile("<p class=\"rtecenter\"><span style=\"font-family:Times New Roman,Times,serif\"><span style=\"font-size:14px\">(.*)</span></span></p>");
+	private static final Pattern[] HEADING_H3 = {
+			Pattern.compile("<p class=\"rtecenter\"><span style=\"font-family:Times New Roman,Times,serif\"><span style=\"font-size:16px\"><strong>(.*)</strong></span></span></p>"),
+			Pattern.compile("<p class=\"rtecenter\"><span style=\"font-size:16px\"><span style=\"font-family:Times New Roman,Times,serif\"><strong>(.*)</strong></span></span></p>"),
+	};
 	boolean processHeading(String line) {
 		Matcher matcher = HEADING.matcher(line);
 		if (matcher.matches() && out != null) {
 			String tag = matcher.group(1);
 			String text = stripTags(matcher.group(3));
-			text = changeQuotes(text);
+			text = changeChars(text);
 			out.printf("<%s>%s</%s>%n", tag, text, tag);
 			
 			return true;
+		}
+		
+		return matchHeading(line, "h2", HEADING_H2)
+				|| matchHeading(line, "h3", HEADING_H3);
+	}
+	
+	private boolean matchHeading(String line, String level, Pattern... patterns) {
+		for (Pattern pattern : patterns) {
+			Matcher matcher = pattern.matcher(line);
+			if (matcher.matches()) {
+				String text = matcher.group(1);
+				text = changeChars(text);
+				out.printf("<%s>%s</%s>", level, text, level);
+				return true;
+			}
 		}
 		
 		return false;
@@ -250,7 +270,7 @@ public class ImportKabel {
 		Matcher matcher = PATTERN_FOOTNOTE.matcher(line);
 		if (matcher.matches()) {
 			String result = matcher.group(2).trim();
-			result = changeQuotes(result);
+			result = changeChars(result);
 			String ref = matcher.group(1);
 			out.printf("<@footnote %s \"%s\">%s</@footnote>%n", ref, filenameForReference(ref), result);
 			
@@ -264,7 +284,12 @@ public class ImportKabel {
 		return references.get(ref);
 	}
 
-	private static final Pattern PARAGRAPH = Pattern.compile("(<p class=\"([^\"]*)\">)?(.*?)(</p>)?", Pattern.DOTALL);
+	/** Patterns für normale Zeilen $1 == CSS-Class, $2 = Text */
+	private static final Pattern[] PARAGRAPH = {
+			Pattern.compile("<p class=\"([^\"]*)\"><span style=\"font-family:Times New Roman,Times,serif\"><span style=\"font-size:14px\">(.*?)</span></span></p>", Pattern.DOTALL),
+			Pattern.compile("<p class=\"([^\"]*)\">(.*)</p>", Pattern.DOTALL),
+			Pattern.compile("()(.*)"), // sonstiger Text
+	};
 	private static final Pattern SPLIT_LINE = Pattern.compile("<p class=\"([^\"]*)\">?(.*?)<br\\s*/>");
 	private static final String[] BR1 = { "<", "br", " ", "/>" };
 	private static final String[] BR2 = { "<", "br", "/>" };
@@ -285,26 +310,32 @@ public class ImportKabel {
 			line = String.join("", completed);
 		}
 		
-		matcher = PARAGRAPH.matcher(line);
-		if (matcher.matches()) {
-			String clazz  = matcher.group(2);
-			String result = matcher.group(3);
-			result = changeQuotes(result);
-			result = replaceReferences(result);
-			result = replaceFormat(result, clazz);
-			result = escapeDigits(result);
-			result = nonBreakingSpaces(result);
+		return processLine(line, PARAGRAPH);
+	}
 
-			if (! result.isBlank()) {
-				out.println(result);
+	private boolean processLine(String line, Pattern... patterns) {
+		for (Pattern pattern : patterns) {
+			Matcher matcher = pattern.matcher(line);
+			if (matcher.matches()) {
+				String clazz = matcher.group(1);
+				String text = matcher.group(2);
+				String result = changeChars(text);
+				result = replaceReferences(result);
+				result = replaceFormat(result, clazz);
+				result = escapeDigits(result);
+				result = nonBreakingSpaces(result);
+				
+				if (! result.isBlank()) {
+					out.println(result);
+				}
+				
+				return true;
 			}
-			
-			return true;
 		}
 		
 		return false;
 	}
-
+	
 	static String stripTags(String text) {
 		return text.replaceAll("<[^<>]*>", "");
 	}
@@ -332,8 +363,13 @@ public class ImportKabel {
 		readDocument(url, "cover.jpg");
 	}
 
-	static String changeQuotes(String line) {
-		return line.replace('„', '»').replace('“', '«').replace('–', '—');
+	static String changeChars(String line) {
+		return line.replace('„', '»')
+				.replace('“', '«')
+				.replace('‚', '›')
+				.replace('‛', '‹')
+				.replace('–', '—')
+				.replace('‥', '…');
 	}
 	private static final Pattern PATTERN_REFERENCE = Pattern.compile("<sup><a href=\"#A\\d+\" name=\"R\\d+\" id=\"R\\d+\">\\[(\\d+)\\]</a></sup>");
 
