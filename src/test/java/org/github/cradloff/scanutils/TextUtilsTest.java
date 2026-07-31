@@ -22,6 +22,7 @@ public class TextUtilsTest {
 		checkSplit("Alle meine Ent-", "Alle", " ", "meine", " ", "Ent-");
 		checkSplit(">>Alle ,,meine,, €ntchen?!<<", ">>", "Alle", " ", ",,", "meine", ",,", " ", "€ntchen", "?!", "<<");
 		checkSplit("»Alle „meine“ €ntchen?!«", "»", "Alle", " ", "„", "meine", "“", " ", "€ntchen", "?!«");
+		checkSplit("»Alle ›meine‹ €ntchen?!«", "»", "Alle", " ", "›", "meine", "‹", " ", "€ntchen", "?!«");
 		checkSplit("auf- und abwärts", "auf", "-", " ", "und", " ", "abwärts");
 		checkSplit("Insel-Cafee", "Insel", "-", "Cafee");
 		checkSplit("wollen wir7", "wollen", " ", "wir7");
