@@ -326,7 +326,16 @@ public class ImportKabel {
 				result = nonBreakingSpaces(result);
 				
 				if (! result.isBlank()) {
-					out.println(result);
+					// nach ca. 50 Zeichen umbrechen
+					result = result.trim();
+					int idx = result.indexOf(' ', 50);
+					int start = 0;
+					while (idx > 0) {
+						out.println(result.substring(start, idx));
+						start = idx + 1;
+						idx = result.indexOf(' ', start + 55);
+					}
+					out.println(result.substring(start));
 				}
 				
 				return true;

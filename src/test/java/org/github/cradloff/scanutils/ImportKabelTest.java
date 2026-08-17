@@ -212,7 +212,7 @@ public class ImportKabelTest {
 
 		// Ersetzen von Referenzen
 		checkImport("Text<sup><a href=\"#A1\" name=\"R1\" id=\"R1\">[1]</a></sup> mit<sup><a href=\"#A2\" name=\"R2\" id=\"R2\">[10]</a></sup> Referenzen<sup><a href=\"#A3\" name=\"R3\" id=\"R3\">[15]</a></sup>",
-				"Text<@refnote 1/> mit<@refnote 10/> Referenzen<@refnote 15/>\n\n");
+				"Text<@refnote 1/> mit<@refnote 10/> Referenzen<@refnote\n15/>\n\n");
 
 		// und von Fußnoten
 		checkImport("<li class=\"rtejustify\"><a href=\"#R1\" name=\"A1\" id=\"A1\">↑</a>Fußnote „eins“.</li>\n" +
